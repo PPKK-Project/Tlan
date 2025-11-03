@@ -1,7 +1,6 @@
 package com.project.team.Service;
 
-import com.project.team.dto.SafetyApiResponse;
-import org.springframework.beans.factory.annotation.Value;
+import com.project.team.Dto.SafetyApiResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;

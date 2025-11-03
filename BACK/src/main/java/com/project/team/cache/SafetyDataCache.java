@@ -1,6 +1,6 @@
-package com.project.team.cache;
+package com.project.team.Cache;
 
-import com.project.team.dto.SafetyApiResponse;
+import com.project.team.Dto.SafetyApiResponse;
 import com.project.team.Service.SafetyDataService;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
