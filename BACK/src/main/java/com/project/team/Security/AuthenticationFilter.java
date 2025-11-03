@@ -1,6 +1,6 @@
 package com.project.team.Security;
 
-import com.project.team.Service1.UserDetailsServiceImpl;
+import com.project.team.Service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

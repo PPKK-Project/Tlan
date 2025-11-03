@@ -1,6 +1,6 @@
-package com.project.team.Service1;
+package com.project.team.Service;
 
-import com.project.team.Dto1.SafetyApiResponse;
+import com.project.team.Dto.SafetyApiResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
