@@ -1,5 +1,6 @@
 package com.project.team.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,8 +34,16 @@ public class Restaurant {
 
     private Double longitude;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "travel_id")
+    @JsonIgnore
     private Travel travel;
 
+    //==연관관계 편의 메서드==//
+//    public void setTravel(Travel travel) {
+//        this.travel = travel;
+//        if (travel != null) {
+//            travel.getRestaurants().add(this);
+//        }
+//    }
 }
