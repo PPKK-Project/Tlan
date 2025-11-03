@@ -1,6 +1,6 @@
 package com.project.team.Security;
 
-import com.project.team.Service.UserDetailsServiceImpl;
+import com.project.team.Service1.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

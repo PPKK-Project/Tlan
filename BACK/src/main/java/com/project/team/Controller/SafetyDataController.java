@@ -1,8 +1,8 @@
 package com.project.team.Controller;
 
 
-import com.project.team.Cache.SafetyDataCache;
-import com.project.team.Dto.SafetyApiResponse;
+import com.project.team.Cache1.SafetyDataCache;
+import com.project.team.Dto1.SafetyApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

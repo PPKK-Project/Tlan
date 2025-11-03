@@ -1,4 +1,4 @@
-package com.project.team.Service;
+package com.project.team.Service1;
 
 import com.project.team.Entity.User;
 import com.project.team.Repository.UserRepository;
