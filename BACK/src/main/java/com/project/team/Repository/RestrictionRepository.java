@@ -1,6 +1,6 @@
 package com.project.team.Repository;
 
-import com.project.team.entity.Restriction;
+import com.project.team.Entity.Restriction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
