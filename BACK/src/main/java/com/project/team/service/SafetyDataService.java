@@ -1,4 +1,4 @@
-package com.project.team.service;
+package com.project.team.Service;
 
 import com.project.team.dto.SafetyApiResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +11,7 @@ public class SafetyDataService {
 
     private final WebClient webClient;
 
-    @Value("${api.mofa.serviceKey}")
+//    @Value("${api.mofa.serviceKey}")
     private String serviceKey;
 
     // 외교부_국가·지역별 여행경보 목록 조회(0404 대륙정보) API

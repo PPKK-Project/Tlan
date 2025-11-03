@@ -1,7 +1,7 @@
 package com.project.team.cache;
 
 import com.project.team.dto.SafetyApiResponse;
-import com.project.team.service.SafetyDataService;
+import com.project.team.Service.SafetyDataService;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.scheduling.annotation.Scheduled;
