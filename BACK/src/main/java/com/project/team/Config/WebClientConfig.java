@@ -37,4 +37,15 @@ public class WebClientConfig {
     private String currencyBaseUrl;
     @Bean
     public WebClient currencyWebClient() { return WebClient.builder().baseUrl(currencyBaseUrl).build(); }
+
+    /**
+     * embassy api
+     */
+    @Value("${api.url.embassy}")
+    private String embassyBaseUrl;
+    @Bean
+    public WebClient embassyApiWebClient() {
+        return WebClient.builder().baseUrl(embassyBaseUrl).build();
+    }
+
 }
