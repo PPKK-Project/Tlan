@@ -12,7 +12,7 @@ public class CurrencyService {
 
     private final WebClient currencyWebClient;
 
-    @Value("${api.currency.key}")
+    @Value("${api.key.currency}")
     private String currencyApiKey;
 
     public CurrencyService(
