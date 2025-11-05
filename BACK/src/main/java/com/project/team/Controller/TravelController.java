@@ -24,22 +24,19 @@ public class TravelController {
         return travelService.createTravel(user, dto);
     }
 
-
     @GetMapping("/travels")
     public ResponseEntity<List<Travel>> getTravel(Principal principal) {
         return travelService.getTravel(principal);
     }
 
     @GetMapping("/travels/{travelId}")
-    public ResponseEntity<Travel> getTravelById(@PathVariable Long travelId, Principal principal) {
+    public ResponseEntity<Travel> getTravelById(
+            @PathVariable Long travelId, Principal principal) {
         return travelService.getTravelById(travelId, principal);
     }
-
 
     @DeleteMapping("/travels/{travelId}")
     public ResponseEntity<?> deleteTravelById(@PathVariable Long travelId, Principal principal) {
         return travelService.deleteTravelById(travelId, principal);
     }
-
-
 }

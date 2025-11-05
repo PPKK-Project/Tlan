@@ -2,6 +2,7 @@ package com.project.team.Security.Config;
 
 import com.project.team.Security.AuthEntryPoint;
 import com.project.team.Security.AuthenticationFilter;
+import com.project.team.Security.CustomOAuth2SuccessHandler;
 import com.project.team.Security.JwtService;
 import com.project.team.Service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtService jwtService;
     private final AuthEntryPoint authEntryPoint;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,6 +64,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .anyRequest().authenticated())
+                // oauth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(customOAuth2SuccessHandler))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))   // 인증 실패 시 처리
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);   // JWT 필터 추가
 
