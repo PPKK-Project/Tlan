@@ -86,4 +86,5 @@ async def crawl_and_parse_flights():
 
 if __name__ == "__main__":
     # 🚨 인코딩 문제를 해결하기 위해 VS Code 실행 시 'python -X utf8' 명령어를 사용해 주세요.
+    # python -X utf8 FRONT/teamproject/src/flight.py
     asyncio.run(crawl_and_parse_flights())
