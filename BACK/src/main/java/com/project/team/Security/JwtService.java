@@ -12,7 +12,7 @@ import java.util.Date;
 public class JwtService {
 
     static final long EXPIRATION = 600000;
-    static final String PREFIX = "Bearer ";
+    static final String PREFIX = "Bearer";
 
     // 비밀키 생성
     static final SecretKey key = Jwts.SIG.HS256.key().build();
@@ -33,7 +33,7 @@ public class JwtService {
         if(token != null) {
             return Jwts.parser()
                     .verifyWith(key)
-                    .build().parseSignedClaims(token.replace(PREFIX, ""))
+                    .build().parseSignedClaims(token.replace(PREFIX, "").trim())
                     .getPayload()
                     .getSubject();
         }

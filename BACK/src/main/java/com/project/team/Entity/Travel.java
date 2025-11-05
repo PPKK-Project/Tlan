@@ -37,4 +37,20 @@ public class Travel {
         this.user = user;
         this.countryCode = countryCode;
     }
+    
+    // 편하게 추가할 수 있게 한번에 추가하는 메서드
+    public void addData(Accommodation acc, Attraction att, Restaurant res) {
+        if (acc != null) {
+            this.accommodations.add(acc);
+            acc.setTravel(this); // 연관관계 설정
+        }
+        if (att != null) {
+            this.attractions.add(att);
+            att.setTravel(this); // 연관관계 설정
+        }
+        if (res != null) {
+            this.restaurants.add(res);
+            res.setTravel(this); // 연관관계 설정
+        }
+    }
 }

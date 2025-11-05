@@ -1,7 +1,7 @@
-package com.project.team.Controller;
+package com.project.team.Controller.API;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.project.team.Service.EmbassyService;
+import com.project.team.Service.API.EmbassyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

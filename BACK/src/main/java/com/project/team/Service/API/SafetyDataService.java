@@ -1,4 +1,4 @@
-package com.project.team.Service;
+package com.project.team.Service.API;
 
 import com.project.team.Dto.SafetyApiResponse;
 import org.springframework.beans.factory.annotation.Qualifier;

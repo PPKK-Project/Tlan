@@ -37,10 +37,5 @@ public class TeamApplication implements CommandLineRunner {
         accommodationRepository.save(accommodation);
         restaurantRepository.save(restaurant);
         attractionRepository.save(attraction);
-
-        System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-        System.out.println(travel.getAccommodations());
-        System.out.println(travel.getAttractions());
-        System.out.println(travel.getRestaurants());
     }
 }
