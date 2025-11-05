@@ -19,6 +19,7 @@ public class PlaceApiService {
         this.placeApiWebClient = placeApiWebClient;
     }
 
+
     // 매개변수는 request ? dto?
     public Mono<JsonNode> fetchPlaceApiData(String keyword, String lat, String lng, String radius, String type) {
         return placeApiWebClient.get()

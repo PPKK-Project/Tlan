@@ -33,5 +33,8 @@ public class Travel {
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Restaurant> restaurants = new ArrayList<>();
 
-
+    public Travel(User user, String countryCode) {
+        this.user = user;
+        this.countryCode = countryCode;
+    }
 }

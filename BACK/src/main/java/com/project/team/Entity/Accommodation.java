@@ -2,16 +2,18 @@ package com.project.team.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Accommodation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable=false, updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,20 +23,23 @@ public class Accommodation {
 
     private String name;
 
-    private String category;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    private String type;
 
     private String address;
 
-    private String openingHours;
-
-    private String fee;
-
-    private String websiteUrl;
+    private String phoneNumber;
 
     private Double latitude;
 
     private Double longitude;
+
+    public Accommodation(Travel travel, String name, String type, String address, String phoneNumber, Double latitude, Double longitude) {
+        this.travel = travel;
+        this.name = name;
+        this.type = type;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }

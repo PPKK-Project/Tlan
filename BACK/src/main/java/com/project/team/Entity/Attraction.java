@@ -2,14 +2,15 @@ package com.project.team.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Attraction {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,13 +22,17 @@ public class Attraction {
 
     private String name;
 
-    private String type;
-
     private String address;
 
     private Double latitude;
 
     private Double longitude;
 
-    private Double rating;
+    public Attraction(Travel travel, String name, String address, Double latitude, Double longitude) {
+        this.travel = travel;
+        this.name = name;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }

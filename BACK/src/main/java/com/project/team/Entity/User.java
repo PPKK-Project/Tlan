@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,6 @@ public class User {
     @JsonIgnore
     private List<Travel> travels;
 
-    // 더미데이터 추가용 생성자
     public User(String email, String password, String nickname) {
         this.email = email;
         this.password = password;
