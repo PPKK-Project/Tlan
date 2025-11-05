@@ -25,11 +25,13 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtService jwtService;
     private final AuthEntryPoint authEntryPoint;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, JwtService jwtService, AuthEntryPoint authEntryPoint) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, JwtService jwtService, AuthEntryPoint authEntryPoint, CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
         this.authEntryPoint = authEntryPoint;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
 
     @Bean
@@ -65,7 +67,10 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(withDefaults())
                 .authorizeHttpRequests(authorizeHttpRequests ->
-                        authorizeHttpRequests.anyRequest().permitAll());
+                        authorizeHttpRequests.anyRequest().permitAll())
+//                oauth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(customOAuth2SuccessHandler));
         return http.build();
     }
 
