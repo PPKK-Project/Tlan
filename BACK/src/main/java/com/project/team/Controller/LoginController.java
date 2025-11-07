@@ -1,6 +1,6 @@
 package com.project.team.Controller;
 
-import com.project.team.Record.AccountCredentials;
+import com.project.team.Dto.AccountCredentials;
 import com.project.team.Security.JwtService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
