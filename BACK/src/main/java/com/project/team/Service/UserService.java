@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,10 +23,7 @@ public class UserService {
 
     // 회원 가입
     public ResponseEntity<User> signUp(UserSignUpRequest signUpDto) {
-
-        String email = signUpDto.email();
-
-        if(userRepository.existsByEmail(email)) {
+        if(userRepository.existsByEmail(signUpDto.email())) {
             throw new EmailExistsException("이미 존재하는 Email 입니다.");
         }
 
@@ -38,13 +34,11 @@ public class UserService {
     }
 
     // 닉네임 수정
-    public ResponseEntity<?> patchNickname(PatchUsersRecord dto, Principal principal) {
+    public ResponseEntity<Void> patchNickname(PatchUsersRecord dto, Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
 
-        boolean isPassword = passwordEncoder.matches(dto.password(), user.getPassword());
-
-        if(!isPassword) {
+        if(!passwordEncoder.matches(dto.password(), user.getPassword())) {
             throw new AccessDeniedException("권한이 없습니다.");
         }
 
@@ -53,7 +47,5 @@ public class UserService {
 
         return ResponseEntity.ok().build();
     }
-
-
 
 }

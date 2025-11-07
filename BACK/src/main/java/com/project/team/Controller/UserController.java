@@ -2,6 +2,7 @@ package com.project.team.Controller;
 
 import com.project.team.Dto.PatchUsersRecord;
 import com.project.team.Dto.UserSignUpRequest;
+import com.project.team.Entity.User;
 import com.project.team.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,13 @@ public class UserController {
 
     // 회원 가입
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody UserSignUpRequest signUpRequest) {
+    public ResponseEntity<User> signUp(@RequestBody UserSignUpRequest signUpRequest) {
         return userService.signUp(signUpRequest);
     }
 
     // 닉네임 수정
     @PatchMapping("/users")
-    public ResponseEntity<?> patchNickname(@RequestBody PatchUsersRecord dto, Principal principal) {
+    public ResponseEntity<Void> patchNickname(@RequestBody PatchUsersRecord dto, Principal principal) {
         return userService.patchNickname(dto, principal);
     }
 
