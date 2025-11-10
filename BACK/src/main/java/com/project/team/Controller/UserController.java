@@ -18,8 +18,8 @@ public class UserController {
 
     // 회원 가입
     @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@RequestBody UserSignUpRequest signUpRequest) {
-        return userService.signUp(signUpRequest);
+    public ResponseEntity<User> signUp(@RequestBody UserSignUpRequest dto) {
+        return userService.signUp(dto);
     }
 
     // 닉네임 수정

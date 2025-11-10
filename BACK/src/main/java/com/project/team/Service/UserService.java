@@ -22,12 +22,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // 회원 가입
-    public ResponseEntity<User> signUp(UserSignUpRequest signUpDto) {
-        if(userRepository.existsByEmail(signUpDto.email())) {
+    public ResponseEntity<User> signUp(UserSignUpRequest dto) {
+        if(userRepository.existsByEmail(dto.email())) {
             throw new EmailExistsException("이미 존재하는 Email 입니다.");
         }
 
-        User user = new User(signUpDto.email(), passwordEncoder.encode(signUpDto.password()), signUpDto.nickname());
+        User user = new User(dto.email(), passwordEncoder.encode(dto.password()), dto.nickname());
 
         return ResponseEntity.ok(userRepository.save(user));
 
