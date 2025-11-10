@@ -8,8 +8,6 @@
 <!-- | **로그인** | `POST` | `/login` | 사용자 인증 후 JWT 토큰을 발급합니다. | -->
 <!-- | **내 정보 수정** | `PATCH` | `/users` | 사용자 정보를 수정합니다. | -->
 
-요청하신 대로, 이전에 작성된 API 명세서에서 **쿼리 파라미터와 응답 필드를 제외**하고, 엔드포인트, HTTP 메서드, 설명만 간결하게 정리하여 다시 제공해 드립니다.
-
 ## 1. TRAVEL (여행 정보 관리)
 
 | 엔드포인트 | HTTP 메서드 | 설명 |
@@ -37,10 +35,7 @@
 
 | 엔드포인트 | HTTP 메서드 | 설명 |
 | :--- | :--- | :--- |
-| `/places` | **`POST`** | 새로운 장소 정보 등록 (관리자 또는 사용자 검색/등록) |
 | `/places/{placeId}` | **`GET`** | 특정 장소의 상세 정보 조회 |
-| `/places/{placeId}` | **`PUT`** | 장소 정보 수정 |
-
 ---
 
 ## 4. TRAVEL\_PERMISSION (여행 공유 및 권한 관리)
@@ -51,3 +46,4 @@
 | `/travels/{travelId}/permissions` | **`GET`** | 해당 여행의 모든 공유 권한 목록 조회 |
 | `/travels/{travelId}/permissions/{permissionId}` | **`PUT`** | 특정 사용자 권한(역할) 수정 (OWNER만 가능) |
 | `/travels/{travelId}/permissions/{permissionId}` | **`DELETE`** | 특정 사용자 권한 삭제 (공유 취소) |
+

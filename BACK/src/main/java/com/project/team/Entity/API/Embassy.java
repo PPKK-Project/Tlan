@@ -1,4 +1,4 @@
-package com.project.team.Entity;
+package com.project.team.Entity.API;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
