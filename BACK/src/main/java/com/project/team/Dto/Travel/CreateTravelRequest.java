@@ -1,8 +1,6 @@
 package com.project.team.Dto.Travel;
 
-import com.project.team.Entity.Accommodation;
-import com.project.team.Entity.Attraction;
-import com.project.team.Entity.Restaurant;
+import com.project.team.Entity.User;
 
-public record CreateTravelRequest(String countryCode, Accommodation accommodation, Attraction attraction, Restaurant restaurant) {
+public record CreateTravelRequest(User user, String countryCode, String title) {
 }
