@@ -19,12 +19,12 @@ public class TravelPermission {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "travel_id")
     @JsonIgnore
-    private Long travelId;
+    private Travel travel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
-    private Long userId;
+    private User user;
 
     private String role;
 }

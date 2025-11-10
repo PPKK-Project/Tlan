@@ -20,17 +20,14 @@ public class TravelPlan {
     @JoinColumn(name = "travel_id")
     private Travel travel;
 
-    @Column
     @JoinColumn(name = "place_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private Place place;
 
-    @Column
     private int sequence;
 
-    @Column
     private String memo;
 
-    @Column
     private int dayNumber;
 
     public TravelPlan(Travel travel, int sequence, String memo,int dayNumber) {

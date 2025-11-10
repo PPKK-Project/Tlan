@@ -15,29 +15,14 @@ public class Accommodation {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "travel_id")
+    @JoinColumn(name = "place_id")
     @JsonIgnore
-    private Travel travel;
-
-    private String name;
-
-    private String type;
-
-    private String address;
+    private Place place;
 
     private String phoneNumber;
 
-    private Double latitude;
-
-    private Double longitude;
-
-    public Accommodation(Travel travel, String name, String type, String address, String phoneNumber, Double latitude, Double longitude) {
-        this.travel = travel;
-        this.name = name;
-        this.type = type;
-        this.address = address;
+    public Accommodation(Place place, String phoneNumber) {
+        this.place = place;
         this.phoneNumber = phoneNumber;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 }

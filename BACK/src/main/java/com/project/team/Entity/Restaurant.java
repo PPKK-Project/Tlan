@@ -14,34 +14,14 @@ public class Restaurant {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "travel_id")
+    @JoinColumn(name = "place_id")
     @JsonIgnore
-    private Travel travel;
-
-    private String name;
-
-    private String address;
+    private Place place;
 
     private String phoneNumber;
 
-    private Double latitude;
-
-    private Double longitude;
-
-    public Restaurant(Travel travel, String name, String address, String phoneNumber, Double latitude, Double longitude) {
-        this.travel = travel;
-        this.name = name;
-        this.address = address;
+    public Restaurant(Place place, String phoneNumber) {
+        this.place = place;
         this.phoneNumber = phoneNumber;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
-
-    //==연관관계 편의 메서드==//
-//    public void setTravel(Travel travel) {
-//        this.travel = travel;
-//        if (travel != null) {
-//            travel.getRestaurants().add(this);
-//        }
-//    }
 }

@@ -39,6 +39,7 @@ erDiagram
     USER {
         Long id PK "사용자 ID"
         String email "로그인 ID"
+        String password "패스워드 PW"
         String nickname
     }
 
