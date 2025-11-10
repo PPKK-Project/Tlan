@@ -35,92 +35,70 @@
 
 ```mermaid
 erDiagram
-    %% 1. 사용자 및 권한 관리 (Core Identity & Access)
     USER {
-        Long id PK "사용자 ID"
-        String email "로그인 ID"
-        String password "패스워드 PW"
+        Long id PK
+        String email
+        String password
         String nickname
     }
 
     TRAVEL {
-        Long id PK "여행 ID"
-        Long user_id FK "생성자 ID (OWNER)"
-        String title "여행 제목"
-        String countryCode "여행 국가 코드"
+        Long id PK
+        Long user_id FK "여행 생성자"
+        String countryCode
+        String title
     }
 
     TRAVEL_PERMISSION {
-        Long id PK "권한 ID"
-        Long travel_id FK "여행 ID"
-        Long user_id FK "참여자 ID"
-        String role "OWNER/EDITOR/VIEWER (권한)"
+        Long id PK
+        Long travel_id FK "공유된 여행"
+        Long user_id FK "공유받은 사용자"
+        String role "역할"
     }
 
-    %% 2. 여행 계획 순서 및 장소 통합 관리 (Plan & Sequence)
     TRAVEL_PLAN {
-        Long id PK "일차 계획 ID"
-        Long travel_id FK "여행 ID"
-        Int day_number "1일차, 2일차"
-        Long place_id FK "방문 장소 ID"
-        Int sequence "당일 방문 순서"
+        Long id PK
+        Long travel_id FK "소속된 여행"
+        Long place_id FK "계획된 장소"
+        int sequence "순서"
         String memo "메모"
+        int dayNumber "여행 일차"
     }
 
     PLACE {
-        Long id PK "장소 ID (통합)"
-        String api_id "외부 API ID (선택적)"
-        String name "장소 이름"
-        String type "ATTRACTION/ACCOM/REST (타입)"
+        Long id PK
+        String name
+        String type
         String address
         Double latitude
         Double longitude
     }
 
-    %% 3. 장소 타입별 상세 정보 (1:1 Relationships with PLACE)
-    ATTRACTION {
-        Long id PK
-        Long place_id FK "PLACE ID"
-        String openingHours "운영 시간 정보"
-        Int estimatedDurationMinutes "예상 소요 시간(분)"
-    }
-    
     ACCOMMODATION {
         Long id PK
-        Long place_id FK "PLACE ID"
-        String type "호텔/에어비앤비 등"
+        Long place_id FK "장소 정보"
         String phoneNumber
+    }
+
+    ATTRACTION {
+        Long id PK
+        Long place_id FK "장소 정보"
+        Boolean openingHours
     }
 
     RESTAURANT {
         Long id PK
-        Long place_id FK "PLACE ID"
-        String cuisine_type "음식 종류"
+        Long place_id FK "장소 정보"
         String phoneNumber
     }
 
-    %% 4. 독립된 대사관 정보
-    EMBASSY {
-        Long id PK
-        String country "해당 대사관이 대표하는 국가"
-        String address "대사관 주소"
-        Double latitude "위도"
-        Double longitude "경도"
-        String phoneNumber "전화번호"
-    }
+    USER ||--o{ TRAVEL : "creates"
+    USER ||--o{ TRAVEL_PERMISSION : "has"
+    TRAVEL ||--o{ TRAVEL_PERMISSION : "is_shared_via"
+    TRAVEL ||--o{ TRAVEL_PLAN : "has"
+    PLACE ||--o{ TRAVEL_PLAN : "is_planned_in"
+    PLACE ||--o{ ACCOMMODATION : "details_as"
+    PLACE ||--o{ ATTRACTION : "details_as"
+    PLACE ||--o{ RESTAURANT : "details_as"
 
-    %% 관계 재정의
-    USER ||--o{ TRAVEL : "생성_Owner"
-    USER ||--o{ TRAVEL_PERMISSION : "참여_User"
-    TRAVEL ||--o{ TRAVEL_PERMISSION : "권한_관리"
-    
-    TRAVEL ||--o{ TRAVEL_PLAN : "일정_포함"
-
-    PLACE ||--o{ TRAVEL_PLAN : "방문_장소"
-
-    %% 장소 상세 정보 (1:1 관계)
-    PLACE ||--o| ATTRACTION : "상세_어트랙션"
-    PLACE ||--o| ACCOMMODATION : "상세_숙소"
-    PLACE ||--o| RESTAURANT : "상세_음식점"
 ```
-
