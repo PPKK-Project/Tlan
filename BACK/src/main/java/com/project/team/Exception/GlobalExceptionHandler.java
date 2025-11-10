@@ -49,6 +49,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseRecord, HttpStatus.FORBIDDEN);
     }
 
+    /**
+     * 중복 이메일 시 발생하는 사용자 지정 예외
+     *
+     * @param ex - EmailExistsException
+     * @return 409 HttpStatus.CONFLICT
+     */
+    // @ExceptionHandler: 특정 예외 클래스를 지정하여 처리할 메소드를 정의합니다.
+    @ExceptionHandler(EmailExistsException.class)
+    public ResponseEntity<ErrorResponseRecord> EmailExistsException(EmailExistsException ex, WebRequest request) {
+        ErrorResponseRecord errorResponseRecord = new ErrorResponseRecord(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Email Exists",
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""));
+        // 구성된 에러 메시지와 함께 HTTP 404 (Not Found) 상태 코드를 응답합니다.
+        return new ResponseEntity<>(errorResponseRecord, HttpStatus.CONFLICT);
+    }
 
 
 

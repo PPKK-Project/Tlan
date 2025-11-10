@@ -2,15 +2,13 @@ package com.project.team.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name="users")
