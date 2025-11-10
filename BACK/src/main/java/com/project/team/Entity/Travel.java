@@ -24,6 +24,9 @@ public class Travel {
     private String countryCode;
     private String title;
 
+    @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TravelPlan> travelPlans = new ArrayList<>();
+
     public Travel(User user, String countryCode, String title) {
         this.user = user;
         this.countryCode = countryCode;

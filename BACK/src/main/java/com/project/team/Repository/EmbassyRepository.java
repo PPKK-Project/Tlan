@@ -1,6 +1,6 @@
 package com.project.team.Repository;
 
-import com.project.team.Entity.Embassy;
+import com.project.team.Entity.API.Embassy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
