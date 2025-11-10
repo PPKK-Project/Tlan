@@ -30,7 +30,7 @@ function Footer() {
           </div>
           <div className="footer-section">
             <h3 className="section-header">연락처</h3>
-            <div className="contact-detail">이메일: info@travelplan.com</div>
+            <div className="contact-detail">이메일: info</div>
             <div className="contact-detail">전화: 1588-0000</div>
             <div className="contact-detail">운영시간: 24시간</div>
           </div>

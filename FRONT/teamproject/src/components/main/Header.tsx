@@ -5,10 +5,6 @@ function Header() {
     <header className="header transparent-header">
       <div className="header-left">
         <h1 className="header-brand-name">Tlan</h1>
-        <nav className="header-nav">
-          <a href="#" className="nav-link">인기여행지</a>
-          <a href="#" className="nav-link">정보</a>
-        </nav>
       </div>
       
       <div className="header-user-actions">

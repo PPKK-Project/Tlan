@@ -1,9 +1,5 @@
-package com.project.team.Security.Config;
+package com.project.team.Security;
 
-import com.project.team.Security.AuthEntryPoint;
-import com.project.team.Security.AuthenticationFilter;
-import com.project.team.Security.CustomOAuth2SuccessHandler;
-import com.project.team.Security.JwtService;
 import com.project.team.Service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -63,18 +59,13 @@ public class SecurityConfig {
                         // login 엔드포인트의 POST 요청은 모두 허용
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                        .requestMatchers("/ws-stomp/**").permitAll()
                         .anyRequest().authenticated())
                 // oauth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(customOAuth2SuccessHandler))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))   // 인증 실패 시 처리
                 .addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class);   // JWT 필터 추가
-
-////         개발 중 로그인 포함 모든 HTTP 메서드 요청 허용
-//        http.csrf(csrf -> csrf.disable())
-//                .cors(withDefaults())
-//                .authorizeHttpRequests(authorizeHttpRequests ->
-//                        authorizeHttpRequests.anyRequest().permitAll());
         return http.build();
     }
 

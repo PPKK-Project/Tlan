@@ -6,7 +6,7 @@ body {
 
 .main-container {
   background: url('./assets/main-page.jpg') center center/cover no-repeat;
-  min-height: 94vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -15,7 +15,7 @@ body {
   position: absolute;
   display: flex;
   justify-content: space-between;
-  width: 94%;
+  width: 100%;
   padding: 1.5rem 3rem;
   background-color: transparent;
   box-shadow: none;
@@ -32,24 +32,6 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-}
-
-
-.header-nav {
-  display: flex;
-  gap: 20px;
-}
-
-.nav-link {
-  text-decoration: none;
-  font-size: 1rem;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-  color: black;
-}
-
-.nav-link:hover {
-  opacity: 1;
 }
 
 
@@ -89,10 +71,10 @@ body {
   justify-content: center;
   align-items: start;
   text-align: center;
-  padding-left: 20vw;
   color: white;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
   padding-top: 50px;
+  padding-left: 20%;
 }
 
 .hero-subtext {
@@ -113,69 +95,19 @@ body {
   margin-top: 5px;
 }
 
-/* 검색 div 구역 */
-
 .search-box-wrapper {
-  width: 100%;
-  display: flex;
-
-  padding-bottom: 50px;
+  margin-top: 30px;
+}
+.icon-travel {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-.search-box {
-  width: 90%;
-  max-width: 900px;
-  padding: 15px 20px;
-  border-radius: 12px;
-
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-  color: white;
-}
-
-.input-row {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
-
-.input-field {
-  background-color: white;
-  border-radius: 8px;
-  padding: 10px 15px;
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  color: #444;
-}
-
-.input-field.date-field {
-  flex-grow: 0.8;
-  min-width: 130px;
-}
-
-.input-field input {
-  color: #333;
-}
-
-.search-button {
-  display: flex;
-  background-color: #3b82f6;
-  font-size: 1rem;
-  padding: 0 25px;
-  transition: background-color 0.2s;
-}
-
-.search-button:hover {
-  background-color: #2563eb;
-}
-
-.search-button .search-icon {
-  margin-right: 5px;
-}
 
 .warning-container {
   width: 100%;

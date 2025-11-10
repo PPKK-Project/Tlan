@@ -44,6 +44,8 @@ dependencies {
     //	OAuth2 관련 의존성
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+    // 웹소켓 스타터 추가
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
