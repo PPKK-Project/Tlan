@@ -6,6 +6,7 @@ import Warning from './components/main/Warning'
 import Place from './components/main/Place'
 import Footer from './components/main/Footer'
 import Counter from './components/Counter'
+import TravelPlanList from './components/myPage/TravelPlanList'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -13,6 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <Warning />
     <Place />
     {/* <Counter />gi */}
+    <TravelPlanList/>
     <Footer />
   </React.StrictMode>,
 )
