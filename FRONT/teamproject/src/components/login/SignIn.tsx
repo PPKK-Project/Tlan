@@ -2,6 +2,9 @@ import { useState, ChangeEvent } from "react";
 import { Dialog, DialogContent, DialogTitle, TextField, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import axios, { AxiosRequestConfig } from "axios";
+import { QueryClientProvider,QueryClient } from '@tanstack/react-query'
+import TravelPlanList from "../myPage/TravelPlanList";
+
 
 type User = {
   email: string;
@@ -59,7 +62,7 @@ function SignIn() {
   }
 
   if(isAuthenticated) {
-    return(<>로그인 성공</>)
+    return(<>로그인</>)
   } else {
     return (
     <>

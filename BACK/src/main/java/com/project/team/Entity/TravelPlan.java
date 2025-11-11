@@ -30,10 +30,11 @@ public class TravelPlan {
 
     private int dayNumber;
 
-    public TravelPlan(Travel travel, int sequence, String memo,int dayNumber) {
+    public TravelPlan(Travel travel, int sequence, String memo,int dayNumber,Place place) {
         this.travel = travel;
         this.sequence = sequence;
         this.memo = memo;
         this.dayNumber = dayNumber;
+        this.place = place;
     }
 }

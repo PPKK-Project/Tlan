@@ -16,6 +16,7 @@
     "@googlemaps/react-wrapper": "^1.2.0",
     "@mui/icons-material": "^5.14.8",
     "@mui/material": "^5.14.8",
+    "@tanstack/react-query": "^5.90.7",
     "@vis.gl/react-google-maps": "^1.6.1",
     "axios": "^1.13.1",
     "react": "^18.2.0",
