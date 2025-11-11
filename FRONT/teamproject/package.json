@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@google/genai": "^1.28.0",
     "@googlemaps/react-wrapper": "^1.2.0",
+    "@mui/icons-material": "^5.14.8",
+    "@mui/material": "^5.14.8",
     "@vis.gl/react-google-maps": "^1.6.1",
     "axios": "^1.13.1",
     "react": "^18.2.0",
