@@ -29,6 +29,7 @@ public class PlaceApiService {
                         .queryParam("key", placeApiKey)
                         .build())
                 .retrieve()
-                .bodyToMono(JsonNode.class);
+                .bodyToMono(JsonNode.class)
+                .contextCapture();
     }
 }

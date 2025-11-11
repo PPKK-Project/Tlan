@@ -46,6 +46,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
     // 웹소켓 스타터 추가
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // Context Propagation 라이브러리 (기존에 추가됨)
+//    implementation 'io.micrometer:context-propagation'
+    // ⭐️ 핵심: Reactor 타입에 contextCapture() 메서드를 추가하는 라이브러리
+//    implementation 'io.micrometer:micrometer-observation-reactor:1.2.0'
 }
 
 tasks.named('test') {
