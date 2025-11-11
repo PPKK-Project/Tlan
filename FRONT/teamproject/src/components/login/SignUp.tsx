@@ -76,6 +76,7 @@ function SignUp() {
           />
           <TextField
             name="password"
+            type="password"
             value={signUp.password}
             onChange={handleChange}
             label="비밀번호"
