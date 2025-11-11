@@ -13,6 +13,7 @@ type TravelPlan = {
 const getTravelPlanList = async () => {
   const response = await axios.get(
     `${import.meta.env.VITE_BASE_URL}/travels/1/plans`,
+    
   );
   console.log(response.data)
   return response.data
