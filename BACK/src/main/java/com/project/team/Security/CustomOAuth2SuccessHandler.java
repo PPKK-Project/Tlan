@@ -1,5 +1,6 @@
 package com.project.team.Security;
 
+import com.project.team.Repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
 //    @Value("${oauth2.success.redirect-url}")
     private String redirectUrl;
@@ -49,7 +51,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             username = "oauth2user_" + oAuthUser.getName();
         }
         // JWT 토큰 생성
-        String token = jwtService.getToken(username);
+        String token = jwtService.getToken(username,userRepository.findByEmail(username).get().getId());
         // 프론트엔드로 리다이렉트 URL 생성(토큰을 쿼리 파라미터로 추가해줘야한다.)
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)
                 .queryParam("token", token)

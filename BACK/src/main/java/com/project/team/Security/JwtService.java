@@ -1,5 +1,6 @@
 package com.project.team.Security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -18,10 +19,11 @@ public class JwtService {
     static final SecretKey key = Jwts.SIG.HS256.key().build();
 
     // JWT 토큰 생성
-    public String getToken(String email) {
+    public String getToken(String email, Long userId) {
         return Jwts.builder()
                 .subject(email)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .claim("id",userId)
                 .signWith(key)
                 .compact();
     }
@@ -39,6 +41,22 @@ public class JwtService {
         }
         return null;
     }
+    public Long getUserId(HttpServletRequest request) {
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+        if (token != null && token.startsWith(PREFIX)) {
+            return getClaims(token).get("id", Long.class);
+        }
+        return null;
+    }
+
+    // 토큰에서 Claims(정보)를 추출하는 private 헬퍼 메서드
+    private Claims getClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token.replace(PREFIX, "").trim())
+                .getPayload();
+    }
 
 }

@@ -12,7 +12,7 @@ type TravelPlan = {
 };
 
 const getAxiosConfig = (): AxiosRequestConfig => {
-  const token = sessionStorage.getItem("jwt")?.replace("Bearer ", "");
+  const token = localStorage.getItem("jwt")?.replace("Bearer ", "");
   return {
     headers: {
       Authorization: token,
@@ -40,7 +40,7 @@ function TravelPlanList() {
   }
 
   if (error) {
-    return <span>자동차들을 불러오는 데 실패했습니다. 😱</span>;
+    return <span> 마이페이지를 불러오는데 실패했습니다.😱</span>;
   } else {
     return (
       <div className="travel-plan-list-container">
@@ -59,6 +59,17 @@ function TravelPlanList() {
                   <p className="plan-card-dates">
                     {plan.startDate} ~ {plan.endDate}
                   </p>
+                  <div className="plan-card-actions">
+                    <button className="plan-card-button edit-button">
+                      수정
+                    </button>
+                    <button className="plan-card-button delete-button">
+                      삭제
+                    </button>
+                    <button className="plan-card-button share-button">
+                      공유
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -77,7 +77,7 @@ function SignIn({ setLogin }: SignInProps) {
       .then((response) => {
         const jwtToken = response.headers.authorization;
         if (jwtToken) {
-          sessionStorage.setItem("jwt", jwtToken);
+          localStorage.setItem("jwt", jwtToken);
           setLogin();
           handleClose();
         }

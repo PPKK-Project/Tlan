@@ -56,7 +56,7 @@ function TravelPlanPage() {
    * signin.tsx의 로직을 기반으로 인증 헤더를 포함하는 Axios 설정을 반환합니다.
    */
   const getAxiosConfig = (): AxiosRequestConfig => {
-    const jwtToken = sessionStorage.getItem("jwt");
+    const jwtToken = localStorage.getItem("jwt");
     const token = jwtToken ? jwtToken.replace("Bearer ", "") : "";
 
     return {

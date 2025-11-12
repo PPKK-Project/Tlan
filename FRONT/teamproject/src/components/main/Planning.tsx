@@ -12,7 +12,7 @@ function Planning() {
    * signin.tsx의 로직을 기반으로 인증 헤더를 포함하는 Axios 설정을 반환합니다.
    */
   const getAxiosConfig = (): AxiosRequestConfig => {
-    const jwtToken = sessionStorage.getItem("jwt");
+    const jwtToken = localStorage.getItem("jwt");
     // 'Bearer ' 접두사가 토큰 값에 이미 포함되어 있는지 확인 필요
     // 여기서는 jwtToken이 'Bearer '를 포함한다고 가정
     const token = jwtToken ? jwtToken.replace("Bearer ", "") : ""; // 순수 토큰만 추출
@@ -84,7 +84,13 @@ function Planning() {
                      w-full sm:w-auto
                    "
           >
-            <svg className="icon-travel mr-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg
+              className="icon-travel mr-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>

@@ -1,6 +1,7 @@
 package com.project.team.Controller;
 
 import com.project.team.Dto.AccountCredentials;
+import com.project.team.Repository.UserRepository;
 import com.project.team.Security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +20,7 @@ public class LoginController {
 
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AccountCredentials credentials) {
@@ -26,7 +28,7 @@ public class LoginController {
 
         Authentication auth = authenticationManager.authenticate(creds);
 
-        String jwt = jwtService.getToken(auth.getName());
+        String jwt = jwtService.getToken(auth.getName(), userRepository.findByEmail(auth.getName()).get().getId());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
