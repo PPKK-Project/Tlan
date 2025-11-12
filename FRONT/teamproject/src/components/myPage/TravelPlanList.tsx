@@ -12,7 +12,7 @@ type TravelPlan = {
 };
 
 const getAxiosConfig = (): AxiosRequestConfig => {
-  const token = sessionStorage.getItem("jwt")?.replace("Bearer ", "");
+  const token = localStorage.getItem("jwt")?.replace("Bearer ", "");
   return {
     headers: {
       Authorization: token,
