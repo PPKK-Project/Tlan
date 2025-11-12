@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import SignIn from "../login/SignIn";
 import SignUp from "../login/SignUp";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Alert, Snackbar } from "@mui/material";
 
 function Header() {
   // sessionStorage에 토큰이 있는지 확인하여 초기 로그인 상태를 설정합니다.
@@ -44,40 +46,96 @@ function Header() {
       handleLogout();
     }
   };
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    type: "info",
+  });
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("jwt");
+    if (token) {
+      axios
+        .get(`${import.meta.env.VITE_BASE_URL}/check-token`, {
+          headers: { Authorization: token },
+        })
+        .then(() => {
+          setLogin(true);
+        })
+        .catch((err) => {
+          console.error("토큰 검증 실패:", err);
+          sessionStorage.removeItem("jwt");
+          setLogin(false);
+        });
+    }
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.removeItem("jwt");
-    alert("로그아웃 되었습니다.");
     setLogin(false);
     navigate("/"); // 로그아웃 후 메인 페이지로 이동
+    setSnackbar({
+      open: true,
+      message: "로그아웃 되었습니다.",
+      type: "info"
+    });
+  };
+
+  const handleLoginSuccess = () => {
+    setLogin(true);
+    setSnackbar({
+      open: true,
+      message: "로그인에 성공했습니다!",
+      type: "success",
+    });
   };
 
   return (
     // 배경색 없이 투명하게 처리합니다.
-    <header className="header transparent-header">
-      <div className="header-left">
-        <h1 className="header-brand-name">Tlan</h1>
-      </div>
+    <>
+      <header className="header transparent-header">
+        <div className="header-left">
+          <h1 className="header-brand-name">Tlan</h1>
+        </div>
 
-      <div className="header-user-actions">
-        {isLogin ? (
-          <>
-            <button className="header-my-page" onClick={handleMyPageClick}>
-              {" "}
-              마이페이지
-            </button>
-            <button className="header-logout" onClick={handleLogout}>
-              로그아웃
-            </button>
-          </>
-        ) : (
-          <>
-            <SignIn setLogin={setLogin} />
-            <SignUp />
-          </>
-        )}
-      </div>
+        <div className="header-user-actions">
+          {isLogin ? (
+            <>
+              <button className="header-my-page"> 마이페이지</button>
+              <button className="header-logout" onClick={handleLogout}>
+                {" "}
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <SignIn setLogin={handleLoginSuccess} />
+              <SignUp />
+            </>
+          )}
+        </div>
     </header>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.type}
+          sx={{
+            width: "auto", // ✅ 글자 수에 맞게 자동 너비
+            minWidth: "fit-content",
+            borderRadius: "8px",
+            px: 2,
+            py: 1,
+            fontSize: "0.95rem",
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }
 
