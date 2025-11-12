@@ -5,8 +5,14 @@ import {
   DialogTitle,
   TextField,
   IconButton,
+  InputAdornment,
+  Snackbar,
+  Alert,
+  type AlertColor,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import axios from "axios";
 
 type User = {
@@ -15,14 +21,25 @@ type User = {
 };
 
 type SignInProps = {
-  setLogin: React.Dispatch<React.SetStateAction<boolean>>;
+  setLogin: () => void;
 };
 
 function SignIn({ setLogin }: SignInProps) {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
+  });
+
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    type: AlertColor;
+  }>({
+    open: false,
+    message: "",
+    type: "error",
   });
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +54,20 @@ function SignIn({ setLogin }: SignInProps) {
     setOpen(false);
   };
 
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   const handleLogin = () => {
+    if (!user.email || !user.password) {
+      setSnackbar({
+        open: true,
+        message: "이메일과 비밀번호를 모두 입력해주세요.",
+        type: "warning",
+      });
+      return;
+    }
+
     axios
       .post(`${import.meta.env.VITE_BASE_URL}/login`, user, {
         headers: {
@@ -46,15 +76,20 @@ function SignIn({ setLogin }: SignInProps) {
       })
       .then((response) => {
         const jwtToken = response.headers.authorization;
-        if (jwtToken !== null) {
+        if (jwtToken) {
           sessionStorage.setItem("jwt", jwtToken);
-          setLogin(true);
+          setLogin();
           handleClose();
         }
       })
       .catch((err) => {
         setOpen(true);
         console.log(err);
+        setSnackbar({
+          open: true,
+          message: "이메일 혹은 비밀번호가 일치하지 않습니다.",
+          type: "error",
+        });
       });
   };
 
@@ -76,7 +111,7 @@ function SignIn({ setLogin }: SignInProps) {
               color: (theme) => theme.palette.grey[500],
             }}
           >
-        <CloseIcon />
+            <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
@@ -92,14 +127,48 @@ function SignIn({ setLogin }: SignInProps) {
           />
           <TextField
             name="password"
+            type={showPassword ? "text" : "password"}
             onChange={handleChange}
-            type="password"
             label="비밀번호"
             fullWidth
+            sx={{ mb: 2 }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleTogglePassword}
+                    edge="end"
+                    aria-label="toggle password visibility"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
         </DialogContent>
         <button onClick={handleLogin}> 로그인 하기</button> <br />
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.type}
+          sx={{
+            width: "auto",
+            minWidth: "fit-content",
+            borderRadius: "8px",
+            px: 2,
+            py: 1,
+            fontSize: "0.95rem",
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

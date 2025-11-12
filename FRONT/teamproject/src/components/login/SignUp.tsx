@@ -5,14 +5,19 @@ import {
   DialogTitle,
   TextField,
   IconButton,
-  Snackbar
+  Snackbar,
+  Alert,
+  InputAdornment
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { SignUpType } from "../../../types";
 import axios from "axios";
 
 function SignUp() {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleOpen = () => {
@@ -35,7 +40,11 @@ function SignUp() {
     email:"",
     password: "",
     nickname: ""
-  })
+  });
+
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;"'<>,.?/\\|-]).{8,}$/;
@@ -146,7 +155,7 @@ function SignUp() {
           />
           <TextField
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={signUp.password}
             onChange={handleChange}
             label="비밀번호"
@@ -154,6 +163,19 @@ function SignUp() {
             error={!!errors.password}
             helperText={errors.password}
             sx={{ mb: 2 }}
+            InputProps={{
+    endAdornment: (
+      <InputAdornment position="end">
+        <IconButton
+          onClick={handleTogglePassword}
+          edge="end"
+          aria-label="toggle password visibility"
+        >
+          {showPassword ? <VisibilityOff /> : <Visibility />}
+        </IconButton>
+      </InputAdornment>
+    ),
+  }}
           />
           <TextField
             name="nickname"
@@ -209,9 +231,22 @@ function SignUp() {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
-        message="회원가입 되었습니다."
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity="success"
+          sx={{
+            width: "auto",
+            minWidth: "fit-content",
+            borderRadius: "8px",
+            px: 2,
+            py: 1,
+            fontSize: "0.95rem",
+          }}
+        >
+          회원가입에 성공하셨습니다.! 🎉
+        </Alert>
+      </Snackbar>
     </>
   );
 }

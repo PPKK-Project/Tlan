@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,4 +33,12 @@ public class LoginController {
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization")
                 .build();
     }
+
+    // 프론트에서 토큰은 있는데 로그인 풀리는거 체크
+    @GetMapping("/check-token")
+    public ResponseEntity<?> checkToken() {
+        // JWT 필터 통과 시 자동으로 인증된 상태
+        return ResponseEntity.ok().build();
+    }
+
 }
