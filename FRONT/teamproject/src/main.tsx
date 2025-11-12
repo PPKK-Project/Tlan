@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css';
 import MainPage from './components/MainPage';
 import TravelPlanPage from './components/plan/TravelPlanPage';
+import MyPage from './components/myPage/MyPage';
 
 // 라우터 설정
 const router = createBrowserRouter([
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
     path: '/travels/:travelId', 
     element: <TravelPlanPage />,
   },
+  {
+    path: '/myPage',
+    element:<MyPage/>,
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

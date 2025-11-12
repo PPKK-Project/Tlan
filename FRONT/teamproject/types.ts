@@ -57,6 +57,7 @@ export type PlaceSearchResult = {
 export type Travel = {
   id: number; // travelId
   title: string;
+  userId: number;
 }
 
 export type CreateTravelRequest = {

@@ -40,7 +40,7 @@ function TravelPlanList() {
   }
 
   if (error) {
-    return <span>자동차들을 불러오는 데 실패했습니다. 😱</span>;
+    return <span> 마이페이지를 불러오는데 실패했습니다.😱</span>;
   } else {
     return (
       <div className="travel-plan-list-container">
