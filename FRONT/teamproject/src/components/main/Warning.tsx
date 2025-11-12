@@ -1,3 +1,9 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+type countryInfo = {
+  country_name: string,
+  alarmLevel: number
+}
 function Warning() {
 
   const ALERT_LEVELS = [
@@ -7,6 +13,17 @@ function Warning() {
     { level: 3, text: "철수권고", colorClass: "danger", dotClass: "danger-dot" },
     { level: 4, text: "여행금지", colorClass: "prohibit", dotClass: "prohibit-dot" },
   ];
+  const [ data, setData ] = useState<countryInfo[]>([]);
+  useEffect(() => {
+    const getData = async () => {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/countries`);
+      const data = response.data.filter((item:countryInfo) => item.alarmLevel > 0).sort((a:countryInfo, b:countryInfo) => b.alarmLevel - a.alarmLevel);
+      setData(data);
+    }
+    getData();
+  }, [])
+
+
 
   return (
     <>
@@ -19,26 +36,12 @@ function Warning() {
           <div className="tag-list">
             <div className="tag-inner-wrapper">
               <div className="tag-group">
-                <div className="warning-tag level-4">
-                  <span className="dot level-4-dot"></span>
-                  우크라이나 4단계 (여행금지)
-                </div>
-                <div className="warning-tag level-3">
-                  <span className="dot level-3-dot"></span>
-                  이스라엘 3단계 (철수권고)
-                </div>
-                <div className="warning-tag level-3">
-                  <span className="dot level-3-dot"></span>
-                  미얀마 3단계 (철수권고)
-                </div>
-                <div className="warning-tag level-2">
-                  <span className="dot level-2-dot"></span>
-                  레바논 2단계 (여행자제)
-                </div>
-                <div className="warning-tag level-2">
-                  <span className="dot level-2-dot"></span>
-                  이집트 2단계 (여행자제)
-                </div>
+                {data.map(item => (
+                  <div className={`warning-tag level-${item.alarmLevel}`}>
+                    <span className={`dot level-${item.alarmLevel}-dot`}></span>
+                    {item.country_name} {item.alarmLevel}단계
+                  </div>
+                ))}
               </div>
             </div>
           </div>

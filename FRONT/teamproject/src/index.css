@@ -526,3 +526,97 @@ body {
   font-size: 0.875rem;
   color: #6b7280;
 }
+/* TravelPlanList Styles */
+.travel-plan-list-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Pretendard', sans-serif;
+  background-color: #f9fafb;
+  border-radius: 16px;
+}
+
+.list-header {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.loading-message,
+.no-plans-message {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #6b7280;
+  padding: 40px 0;
+}
+
+.plan-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.travel-plan-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.travel-plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card-content {
+  padding: 24px;
+}
+
+.plan-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.plan-card-destination {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin-bottom: 16px;
+}
+
+.plan-card-dates {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.plan-status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-planned {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-ongoing {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-completed {
+  background-color: #e5e7eb;
+  color: #4b5563;
+}

@@ -121,7 +121,7 @@ public class TravelPlanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Place not found with id: " + request.placeId()));
 
         // 4. 새로운 TravelPlan 생성 및 저장
-        TravelPlan newPlan = new TravelPlan(travel, request.sequence(), request.memo(), request.dayNumber());
+        TravelPlan newPlan = new TravelPlan(travel, request.sequence(), request.memo(), request.dayNumber(),place);
         newPlan.setPlace(place);
 
         return new TravelPlanResponse(travelPlanRepository.save(newPlan));
