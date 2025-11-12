@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated())
                 // oauth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2

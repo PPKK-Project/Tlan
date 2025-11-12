@@ -1,8 +1,17 @@
 // Header.jsx
+import { useState } from "react";
 import SignIn from "../login/SignIn";
 import SignUp from "../login/SignUp";
 
 function Header() {
+  const [isLogin, setLogin] = useState(false);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("jwt");
+    alert("로그아웃 되었습니다.");
+    setLogin(false);
+  };
+
   return (
     // 배경색 없이 투명하게 처리합니다.
     <header className="header transparent-header">
@@ -11,11 +20,17 @@ function Header() {
       </div>
 
       <div className="header-user-actions">
-        {/* 로그인/회원가입 버튼 스타일 변경 */}
-        {/* <button className="header-login">로그인</button> */}
-        <SignIn />
-        <SignUp />
-        {/* <button className="header-signin transparent-signin">회원가입</button> */}
+        {isLogin ? (
+          <>
+          <button className="header-my-page"> 마이페이지</button>
+          <button className="header-logout" onClick={handleLogout}> 로그아웃</button>
+          </>
+        ) : (
+          <>
+            <SignIn setLogin={setLogin} />
+            <SignUp />
+          </>
+        )}
       </div>
     </header>
   );
