@@ -76,12 +76,13 @@ function SignIn({ setLogin }: SignInProps) {
               color: (theme) => theme.palette.grey[500],
             }}
           >
-            <CloseIcon />
+        <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
           <TextField
             name="email"
+            type="email"
             onChange={handleChange}
             variant="outlined"
             margin="normal"
