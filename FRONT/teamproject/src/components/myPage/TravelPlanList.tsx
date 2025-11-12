@@ -59,6 +59,17 @@ function TravelPlanList() {
                   <p className="plan-card-dates">
                     {plan.startDate} ~ {plan.endDate}
                   </p>
+                  <div className="plan-card-actions">
+                    <button className="plan-card-button edit-button">
+                      수정
+                    </button>
+                    <button className="plan-card-button delete-button">
+                      삭제
+                    </button>
+                    <button className="plan-card-button share-button">
+                      공유
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

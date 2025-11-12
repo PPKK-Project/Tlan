@@ -620,3 +620,44 @@ body {
   background-color: #e5e7eb;
   color: #4b5563;
 }
+
+/* --- 카드 내 버튼 스타일 --- */
+.plan-card-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6; /* cool-gray-100 */
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.plan-card-button {
+  background-color: #ffffff;
+  border: 1px solid #d1d5db; /* cool-gray-300 */
+  color: #4b5563; /* cool-gray-600 */
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.plan-card-button:hover {
+  background-color: #f9fafb; /* cool-gray-50 */
+  border-color: #9ca3af; /* cool-gray-400 */
+}
+
+.edit-button:hover {
+  color: #2563eb; /* blue-600 */
+  border-color: #93c5fd; /* blue-300 */
+}
+
+.delete-button:hover {
+  color: #dc2626; /* red-600 */
+  border-color: #fca5a5; /* red-300 */
+}
+.share-button:hover {
+  color: #16a34a; /* green-600 */
+  border-color: #86efac; /* green-300 */
+}
