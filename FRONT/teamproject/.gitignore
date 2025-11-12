@@ -27,3 +27,5 @@ dist-ssr
 FRONT/teamproject/.env
 FRONT\teamproject\src\firebase.ts
 firebase.ts
+FRONT\teamproject\package-lock.json
+package-lock.json
