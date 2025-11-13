@@ -6,7 +6,7 @@ import { Alert, AlertColor, Snackbar } from "@mui/material";
 import SignIn from "../login/SignIn";
 
 function Header() {
-  // localStorage에 토큰이 있는지 확인하여 초기 로그인 상태를 설정
+  // localStorage에 토큰이 있는지 확인하여 초기 로그인 상태를 설정합니다.
   const [isLogin, setLogin] = useState(!!localStorage.getItem("jwt"));
   const navigate = useNavigate();
   const logoutTimeRef = useRef<number | null>(null);
