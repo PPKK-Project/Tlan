@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useEffect } from "react";
+import { ChangeEvent, useState, useEffect, KeyboardEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,14 @@ function SignUp() {
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSave();
+    }
+  };
+
 
   // 이메일, 비밀번호 조건 설정
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -256,6 +264,7 @@ function SignUp() {
             name="nickname"
             value={signUp.nickname}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             label="닉네임"
             fullWidth
             error={!!errors.nickname}
@@ -271,15 +280,15 @@ function SignUp() {
             marginBottom: "12px",
             padding: "10px 30px",
             borderRadius: "30px",
-            border: isFormValid ? "1.8px solid #0072FF" : "1.8px solid #bfbfbf", // ✅ 얇은 테두리
-            background: "transparent", // ✅ 배경 투명
+            border: isFormValid ? "1.8px solid #0072FF" : "1.8px solid #bfbfbf", // 얇은 테두리
+            background: "transparent", // 배경 투명
             color: isFormValid ? "#0072FF" : "#bfbfbf",
             fontWeight: 600,
             fontSize: "1rem",
             cursor: isFormValid ? "pointer" : "not-allowed",
             transition: "all 0.3s ease",
             display: "flex",
-            justifyContent: "center", // ✅ 글자 중앙 정렬
+            justifyContent: "center", // 글자 중앙 정렬
             alignItems: "center",
             alignSelf: "center",
           }}
