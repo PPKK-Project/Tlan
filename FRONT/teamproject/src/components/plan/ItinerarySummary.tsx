@@ -1,11 +1,17 @@
 import React from 'react';
 import { TravelPlan } from '../../../types';
+import { AlertColor } from '@mui/material';
 
 type Props = {
   plans: TravelPlan[]; // '전체' 일정 목록
   onDeletePlan: (planId: number) => void;
+  setNotify: (Notification: {
+    open: boolean,
+    message: string,
+    type: AlertColor,
+  }) => void;
 }
-const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan }) => {
+const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, setNotify }) => {
   
   // 날짜별로 그룹화 (dayNumber 기준)
   const plansByDay = plans.reduce((acc, plan) => {
@@ -15,6 +21,24 @@ const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan }) => {
 
   // 날짜 키를 숫자로 변환하여 정렬
   const sortedDays = Object.keys(plansByDay).map(Number).sort((a, b) => a - b);
+
+  const handleSaveClick = () => {
+    const maxDay = sortedDays.length > 0 ? Math.max(...sortedDays) : 0;
+
+    if(maxDay === 0) {
+      setNotify({
+        open: true,
+        message: '저장할 일정이 없습니다.',
+        type: 'warning',
+      });
+    } else {
+      setNotify({
+        open: true,
+        message: `총 ${maxDay}일차의 일정이 성공적으로 저장되었습니다.`,
+        type: 'success',
+      })
+    }
+  }
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -62,7 +86,9 @@ const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan }) => {
           <span>예상 시간</span>
           <span className="font-semibold">0시간 0분</span>
         </div>
-        <button className="w-full bg-blue-500 text-white py-3 rounded-md font-bold hover:bg-blue-600 transition-colors">
+        <button
+          onClick={handleSaveClick}
+          className="w-full bg-blue-500 text-white py-3 rounded-md font-bold hover:bg-blue-600 transition-colors">
           여행 일정 저장하기
         </button>
       </div>

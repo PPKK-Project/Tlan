@@ -4,6 +4,7 @@ import com.project.team.Entity.Place;
 
 public record PlaceResponse(
         Long placeId,
+        String googlePlaceId,
         String name,
         String address,
         String type,
@@ -11,6 +12,13 @@ public record PlaceResponse(
         Double longitude
 ) {
     public PlaceResponse(Place place) {
-        this(place.getId(), place.getName(), place.getAddress(), place.getType(), place.getLatitude(), place.getLongitude());
+        this(
+                place.getId(),
+                place.getGooglePlaceId(),
+                place.getName(),
+                place.getAddress(),
+                place.getType(),
+                place.getLatitude(),
+                place.getLongitude());
     }
 }

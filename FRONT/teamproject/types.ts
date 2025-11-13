@@ -1,20 +1,21 @@
 // 회원 가입
 export type SignUpType = {
-  email:string;
-  password:string;
-  nickname:string;
-}
+  email: string;
+  password: string;
+  nickname: string;
+};
 /**
  * 백엔드 PlaceResponse Record와 일치하는 타입
  */
 export type PlaceResponse = {
   placeId: number;
+  googlePlaceId: string;
   name: string;
   address: string;
-  type: string;       // (e.g., "숙소", "관광지", "음식점")
+  type: string; // (e.g., "숙소", "관광지", "음식점")
   latitude: number;
   longitude: number;
-}
+};
 
 /**
  * 백엔드 TravelPlanResponse Record와 일치하는 타입
@@ -25,43 +26,55 @@ export type TravelPlan = {
   sequence: number;
   memo: string | null;
   place: PlaceResponse;
-}
+};
 
 /**
  * 백엔드 AddPlanRequest Record와 일치하는 타입
  */
 export type AddPlanRequest = {
-  placeId: number;
+  // --- 장소 정보 ---
+  googlePlaceId: string; // ⬅️ Google의 고유 ID (예: "ChIJ...")
+  name: string;
+  address: string;
+  type: "숙소" | "관광지" | "음식점" | "all"; // ⬅️ category를 type으로 매핑
+  latitude: number;
+  longitude: number;
+
+  // --- 일정 정보 ---
   dayNumber: number;
   sequence: number;
   memo: string | null;
-}
+};
 
 /**
- * 왼쪽 사이드바 장소 검색 결과 (Mock 데이터용 타입)
- * (이것은 백엔드 DTO와 다를 수 있음. 장소 검색 API의 응답)
+ * 왼쪽 사이드바 장소 검색 결과
+ * (이것은 백엔드 DTO와 다름. Google Places API의 응답을 파싱한 형태)
  */
 export type PlaceSearchResult = {
-  placeId: number; 
+  placeId: string;
   name: string;
-  // 'type' 필드 대신 'category'를 Mock 데이터에서 사용 (UI 표시용)
-  category: '숙소' | '관광지' | '음식점';
+  address: string;
+  category: "숙소" | "관광지" | "음식점";
   rating: number;
   reviewCount: number;
   imageUrl: string;
-  price?: number; 
+  price?: number;
   latitude: number;
   longitude: number;
-}
+};
 
 export type Travel = {
   id: number; // travelId
   title: string;
-  userId: number;
-}
+  countryCode: string | null;
+};
 
+/**
+ * 백엔드 CreateTravelRequest Record와 일치하는 타입
+ * (참고: 백엔드의 CreateTravelRequest.java DTO엔 User 필드가 있어 수정이 필요해 보입니다)
+ */
 export type CreateTravelRequest = {
   title: string;
-}
-
-export type PlaceFilter = 'all' | '숙소' | '관광지' | '음식점';
+  // countryCode: string; // 백엔드 DTO가 수정되면 이 부분도 추후 추가
+};
+export type PlaceFilter = "all" | "숙소" | "관광지" | "음식점";

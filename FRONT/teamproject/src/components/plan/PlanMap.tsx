@@ -11,6 +11,7 @@ type Props = {
   plans: TravelPlan[]; // 현재 날짜에 해당하는 일정 목록
   searchPlaces: PlaceSearchResult[]; // 필터링된 "검색" 장소 목록
   onAddPlace: (place: PlaceSearchResult) => void; // 일정 추가 함수
+  mapCenter: { lat: number; lng: number }; // 부모로부터 받을 맵 중심 좌표
 };
 
 // 1. 지도가 표시될 컨테이너의 스타일
@@ -20,14 +21,18 @@ const containerStyle = {
 };
 
 // 2. plans가 비어있을 때 표시할 기본 중심 좌표 (현재는 임시로 제주도로 설정함)
-const defaultCenter = {
-  lat: 33.361665,
-  lng: 126.520412,
-};
+// const defaultCenter = {
+//   lat: 33.361665,
+//   lng: 126.520412,
+// };
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-const PlanMap: React.FC<Props> = ({ plans, searchPlaces, onAddPlace }) => {
+const PlanMap: React.FC<Props> = ({ 
+  plans, 
+  searchPlaces, 
+  onAddPlace,
+  mapCenter, }) => {
   // 3. Google Maps 스크립트 로더 훅
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
@@ -51,10 +56,12 @@ const PlanMap: React.FC<Props> = ({ plans, searchPlaces, onAddPlace }) => {
     setMap(null);
   }, []);
 
-  // 7. [핵심 로직] plans(일정) 배열이 변경될 때마다 지도의 경계(Bounds)를 재설정
+  // 7. plans(일정) 또는 mapCenter(검색 좌표)가 변경될 때 지도를 이동
   useEffect(() => {
-    // 지도 인스턴스가 있고, plan이 1개 이상일 때
-    if (map && plans.length > 0) {
+    // 지도가 로드되지 않았으면 아무것도 안함
+    if (!map) return;
+  // 현재 날짜에 "일정"이 1개 이상 있으면, 일정에 맞춰 지도를 조정
+    if(plans.length > 0){
       const bounds = new window.google.maps.LatLngBounds();
 
       plans.forEach((plan) => {
@@ -72,12 +79,11 @@ const PlanMap: React.FC<Props> = ({ plans, searchPlaces, onAddPlace }) => {
       if (plans.length === 1) {
         map.setZoom(15);
       }
-    } else if (map) {
-      // plan이 없으면 기본 좌표와 줌 레벨로 리셋
-      map.setCenter(defaultCenter);
-      map.setZoom(10);
+    } else if (mapCenter) {
+      map.panTo(mapCenter);
+      map.setZoom(12);
     }
-  }, [map, plans]); // map 인스턴스나 plans 배열이 변경되면 이 효과를 다시 실행
+  }, [map, plans, mapCenter]);
 
   // 8. 렌더링 로직
   if (loadError) {
@@ -101,8 +107,8 @@ const PlanMap: React.FC<Props> = ({ plans, searchPlaces, onAddPlace }) => {
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={defaultCenter} // 초기 센터
-      zoom={10} // 초기 줌
+      center={mapCenter} // 초기 센터
+      zoom={12} // 초기 줌
       onLoad={onLoad}
       onUnmount={onUnmount}
       // 지도를 클릭하면 정보창 닫기

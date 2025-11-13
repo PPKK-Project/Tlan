@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional // findOrCreatePlace에서 save 해야하므로 (readOnly = true) 제거했습니다.
 public class TravelPlanService {
 
     private final TravelPlanRepository travelPlanRepository;
@@ -116,14 +116,34 @@ public class TravelPlanService {
             throw new AccessDeniedException("You do not have permission to add a plan to this travel.");
         }
 
-        // 3. 장소(Place) 조회
-        Place place = placeRepository.findById(request.placeId())
-                .orElseThrow(() -> new ResourceNotFoundException("Place not found with id: " + request.placeId()));
+        // 3. 장소(Place) 찾기 또는 생성 (findOrCreate)
+        Place place = findOrCreatePlace(request);
 
         // 4. 새로운 TravelPlan 생성 및 저장
         TravelPlan newPlan = new TravelPlan(travel, request.sequence(), request.memo(), request.dayNumber(),place);
-        newPlan.setPlace(place);
 
         return new TravelPlanResponse(travelPlanRepository.save(newPlan));
     }
+
+    /**
+     * Google Place ID를 기준으로 장소를 찾거나, 없으면 새로 생성하여 반환합니다.
+     */
+    private Place findOrCreatePlace(AddPlanRequest request) {
+        // 1. Google Place ID로 DB에서 장소를 검색합니다.
+        return placeRepository.findByGooglePlaceId(request.googlePlaceId())
+                .orElseGet(() -> {
+                    // 2. DB에 없으면, 요청받은 정보로 새 Place 엔티티를 생성합니다.
+                    Place newPlace = new Place();
+                    newPlace.setGooglePlaceId(request.googlePlaceId());
+                    newPlace.setName(request.name());
+                    newPlace.setAddress(request.address());
+                    newPlace.setType(request.type());
+                    newPlace.setLatitude(request.latitude());
+                    newPlace.setLongitude(request.longitude());
+
+                    // 3. 새 장소를 DB에 저장하고 반환합니다.
+                    return placeRepository.save(newPlace);
+                });
+    }
+
 }

@@ -5,15 +5,15 @@ type Props = {
   selectedDay: number;
   onSelectDay: (day: number) => void;
   availablePlaces: PlaceSearchResult[];
-  addedPlanIds: number[]; // 이미 추가된 장소의 ID (혹은 Plan ID)
+  addedGooglePlaceIds: string[];
   onAddPlace: (place: PlaceSearchResult) => void;
-  onDeletePlace: (planId: number) => void; // TODO: 삭제 기능 구현 시 planId 필요
+  onDeletePlace: (planId: number) => void;
   filter: PlaceFilter; // 현재 필터 상태
   onFilterChange: (filter: PlaceFilter) => void; // 필터 변경 함수
 }
 
 // 이미지의 왼쪽 '숙소 (12)' 카드 예시
-const PlaceCard: React.FC<{ place: PlaceSearchResult, isAdded: boolean, onAdd: () => void }> = 
+const PlaceCard: React.FC<{ place: PlaceSearchResult, isAdded: boolean, onAdd: () => void }> =
   ({ place, isAdded, onAdd }) => (
   <div className="flex gap-4 p-3 border-b hover:bg-gray-50">
     <img src={place.imageUrl} alt={place.name} className="w-24 h-24 rounded-md object-cover" 
@@ -28,13 +28,13 @@ const PlaceCard: React.FC<{ place: PlaceSearchResult, isAdded: boolean, onAdd: (
       {place.price && <p className="font-bold text-lg mt-1">₩{place.price.toLocaleString()}</p>}
     </div>
     <div className="flex items-center">
-      {/* TODO: isAdded 값에 따라 삭제(휴지통) 또는 추가(+) 아이콘 표시 */}
-      {/* 현재 isAdded 로직은 단순 예시이며, placeId와 planId 매칭이 필요함 */}
       <button 
         onClick={onAdd}
         disabled={isAdded}
-        className={`w-10 h-10 flex items-center justify-center rounded-full ${
-          isAdded ? 'bg-gray-300' : 'bg-blue-500 hover:bg-blue-600 text-white'
+        className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+          isAdded
+            ? 'bg-gray-200 text-gray-500 cursor-not-allowed' // ⬅️ 추가됨 스타일
+            : 'bg-blue-500 hover:bg-blue-600 text-white' // ⬅️ 추가 가능 스타일
         }`}
       >
         {isAdded ? '✓' : '+'}
@@ -44,13 +44,13 @@ const PlaceCard: React.FC<{ place: PlaceSearchResult, isAdded: boolean, onAdd: (
 );
 
 const PlanSidebar: React.FC<Props> = ({ 
-  selectedDay, 
-  onSelectDay, 
-  availablePlaces, 
-  addedPlanIds, 
+  selectedDay,
+  onSelectDay,
+  availablePlaces,
+  addedGooglePlaceIds,
   onAddPlace,
-  filter, 
-  onFilterChange
+  filter,
+  onFilterChange,
 }) => {
   const days = [1, 2, 3]; // TODO: 여행 기간에 맞게 동적으로 생성
   const filters: { key: PlaceFilter, label: string }[] = [
@@ -98,23 +98,25 @@ const PlanSidebar: React.FC<Props> = ({
             </button>
           ))}
         </div>
-        {/* TODO: 정렬 드롭다운 구현 */}
       </div>
 
       {/* 3. 장소 목록 (스크롤) */}
       <div className="flex-1 overflow-y-auto">
         {availablePlaces.length === 0 && <p className="p-4 text-center text-gray-500">표시할 장소가 없습니다.</p>}
-        {availablePlaces.map(place => (
-          <PlaceCard 
-            key={place.placeId} 
+        {availablePlaces.map(place => {
+          // "이미 추가된 Google ID 목록"에 "현재 장소의 Google ID"가 포함되어 있는지 확인
+          const isAdded = addedGooglePlaceIds.includes(place.placeId);
+          return (
+          <PlaceCard
+            key={place.placeId}
             place={place}
-            // TODO: '추가됨' 로직을 더 정교하게 수정해야 함 (placeId와 planId 매칭)
-            isAdded={false} 
+            isAdded={isAdded}
             onAdd={() => onAddPlace(place)}
           />
-        ))}
-      </div>
+        );
+      })}
     </div>
+  </div>
   );
 };
 

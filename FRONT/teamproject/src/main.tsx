@@ -14,7 +14,7 @@ const router = createBrowserRouter([
   },
   {
     // :travelId 파라미터를 통해 어떤 여행인지 구분
-    path: '/travels/:travelId', 
+    path: '/travels/:travelId',
     element: <TravelPlanPage />,
   },
   {

@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Place {
 
     @Id
@@ -29,6 +29,9 @@ public class Place {
     private Double latitude;
 
     private Double longitude;
+
+    @Column(unique = true)
+    private String googlePlaceId;
 
     @OneToMany(mappedBy = "place", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attraction> attractions = new ArrayList<>();
