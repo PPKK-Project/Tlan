@@ -32,8 +32,8 @@ public class DataInitializer {
     public void initCache() {
         System.out.println("[알림] 서버 시작. 나라정보,환율정보 입력중");
         // 나라 정보가 먼저 업데이트되어야, 이후 환율 업데이트 시 CountryInfo와 매칭 가능
-        updateCountryInfoDaily();
         updateCurrencyRatesDaily();
+        updateCountryInfoDaily();
     }
 
     public void updateCountryInfoDaily() {
