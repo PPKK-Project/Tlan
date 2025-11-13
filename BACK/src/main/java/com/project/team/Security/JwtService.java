@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtService {
 
-    static final long EXPIRATION = 600000;
+    static final long EXPIRATION = 1200000;
     static final String PREFIX = "Bearer";
 
     // 비밀키 생성

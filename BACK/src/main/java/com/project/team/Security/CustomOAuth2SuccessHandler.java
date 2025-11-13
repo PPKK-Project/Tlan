@@ -1,5 +1,6 @@
 package com.project.team.Security;
 
+import com.project.team.Entity.User;
 import com.project.team.Repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
-//    @Value("${oauth2.success.redirect-url}")
+    @Value("${oauth2.success.redirect-url}")
     private String redirectUrl;
 
     @Override
@@ -51,7 +53,11 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             username = "oauth2user_" + oAuthUser.getName();
         }
         // JWT 토큰 생성
-        String token = jwtService.getToken(username,userRepository.findByEmail(username).get().getId());
+        final String finalUsername = username;
+        User user = userRepository.findByEmail(username)
+                .orElseGet(() -> userRepository.save(new User(finalUsername, "social", "SocialUser"))); // password 필드에 임의의 값 할당
+
+        String token = jwtService.getToken(user.getEmail(), user.getId());
         // 프론트엔드로 리다이렉트 URL 생성(토큰을 쿼리 파라미터로 추가해줘야한다.)
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)
                 .queryParam("token", token)
