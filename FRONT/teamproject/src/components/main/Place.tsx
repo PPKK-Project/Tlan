@@ -68,7 +68,7 @@ function Place() {
           }
         });
         const data: Place[] = response.data.slice(0, 10)
-          .map(item => ({
+          .map((item: { ITM_NM: string; DT: string; }) => ({
             name: item.ITM_NM,
             value: Number(item.DT.replace(/,/g, '')) || 0,
           }))
