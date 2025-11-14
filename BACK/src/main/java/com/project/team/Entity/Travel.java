@@ -25,6 +25,7 @@ public class Travel {
     private String title;
 
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<TravelPlan> travelPlans = new ArrayList<>();
 
     public Travel(User user, String countryCode, String title) {

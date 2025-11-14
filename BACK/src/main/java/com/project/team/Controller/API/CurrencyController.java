@@ -17,7 +17,7 @@ public class CurrencyController {
     private final CurrencyService currencyService;
 
     @GetMapping("/api/currency")
-    public Mono<JsonNode> getRates() {
-        return currencyService.fetchRates();
+    public String getRateFromDb(String country) {
+        return currencyService.getKrw1000RateByCountryName(country);
     }
 }

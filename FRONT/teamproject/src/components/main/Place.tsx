@@ -25,11 +25,14 @@ type Place = {
   name: string,
   value: number
 }
-
+type Country = {
+  country_name: string,
+  rank: number
+}
 function Place() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState<Country>({country_name:'일본',rank:1});
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
@@ -43,8 +46,8 @@ function Place() {
     }
     loadImages();
   }, []);
-  const handleCountry = (name: string) => {
-    setCountry(name);
+  const handleCountry = (name: string, rank: number) => {
+    setCountry({country_name: name, rank: rank});
   }
   useEffect(() => {
     const fetchData = async () => {
@@ -65,7 +68,7 @@ function Place() {
           }
         });
         const data: Place[] = response.data.slice(0, 10)
-          .map(item => ({
+          .map((item: { ITM_NM: string; DT: string; }) => ({
             name: item.ITM_NM,
             value: Number(item.DT.replace(/,/g, '')) || 0,
           }))
@@ -91,7 +94,7 @@ function Place() {
         </div>
         <div className="card-grid">
           {places.map((place, index) => (
-            <div key={place.name} onClick={() => handleCountry(place.name)} className="place-card">
+            <div key={place.name} onClick={() => handleCountry(place.name, index+1)} className="place-card">
               <div
                 className={`card-background`}
                 style={{ backgroundImage: `url(${imageUrls[index]})` }}
@@ -111,7 +114,9 @@ function Place() {
           ))}
         </div>
       </div>
-      <Content country={country} />
+      <Content 
+        country_name={country.country_name}
+        rank={country.rank} />
     </>
   );
 }
