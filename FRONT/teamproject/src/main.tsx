@@ -1,17 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import './index.css';
-import MainPage from './components/MainPage';
-import TravelPlanPage from './components/plan/TravelPlanPage';
-import MyPage from './components/myPage/MyPage';
-import axios from 'axios';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import "./index.css";
+import MainPage from "./components/MainPage";
+import TravelPlanPage from "./components/plan/TravelPlanPage";
+import MyPage from "./components/myPage/MyPage";
+import axios from "axios";
+import SignUp from "./components/login/SignUp";
+import SignIn from "./components/login/SignIn";
 
 // 전역 타입 선언 - winddow에 이런 커스텀 필드가 있을 수 있다.
 declare global {
   interface Window {
-    _axiosSetupDone?: boolean;  // 설정이 이미 끝났는지
-    __onUnauthorized?: () => void;  // 401 받았을 때 실행할 콜백
+    _axiosSetupDone?: boolean; // 설정이 이미 끝났는지
+    __onUnauthorized?: () => void; // 401 받았을 때 실행할 콜백
+    __onLoginSuccess?: () => void;
   }
 }
 
@@ -32,18 +35,18 @@ if (!window._axiosSetupDone) {
     (error) => {
       const status = error?.response?.status;
       if (status === 401) {
-      // 1) 토큰 바로 삭제 (혹시 콜백 전에 실패해도 안전)
-      localStorage.removeItem("jwt");
+        // 1) 토큰 바로 삭제 (혹시 콜백 전에 실패해도 안전)
+        localStorage.removeItem("jwt");
 
-      // 2) Header가 등록한 콜백 사용(있으면)
-      if (typeof window.__onUnauthorized === "function") {
-        window.__onUnauthorized();
-      } else {
-        // 3) 콜백이 아직 등록 전이어도 강제로 메인으로 보내기(보호망)
-        window.location.assign("/");
+        // 2) Header가 등록한 콜백 사용(있으면)
+        if (typeof window.__onUnauthorized === "function") {
+          window.__onUnauthorized();
+        } else {
+          // 3) 콜백이 아직 등록 전이어도 강제로 메인으로 보내기(보호망)
+          window.location.assign("/");
+        }
       }
-    }
-    return Promise.reject(error);
+      return Promise.reject(error);
     }
   );
 }
@@ -51,21 +54,29 @@ if (!window._axiosSetupDone) {
 // 라우터 설정
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <MainPage />,
   },
   {
     // :travelId 파라미터를 통해 어떤 여행인지 구분
-    path: '/travels/:travelId',
+    path: "/travels/:travelId",
     element: <TravelPlanPage />,
   },
   {
-    path: '/myPage',
-    element:<MyPage/>,
-  }
+    path: "/myPage",
+    element: <MyPage />,
+  },
+  {
+    path: "/signUp",
+    element: <SignUp />,
+  },
+  {
+    path: "/signIn",
+    element: <SignIn />,
+  },
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>

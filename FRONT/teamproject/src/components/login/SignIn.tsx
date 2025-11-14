@@ -1,35 +1,20 @@
-import { useState, ChangeEvent, KeyboardEvent } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  IconButton,
-  InputAdornment,
-  Snackbar,
-  Alert,
-  Button,
-  Divider,
-  Box,
-  type AlertColor,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import axios from "axios";
+import "./signIn.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type User = {
   email: string;
   password: string;
 };
 
-type SignInProps = {
-  setLogin: () => void;
-};
+type AlertType = "success" | "info" | "warning" | "error";
 
-function SignIn({ setLogin }: SignInProps) {
-  const [open, setOpen] = useState(false);
+function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [user, setUser] = useState<User>({
     email: "",
     password: "",
@@ -38,7 +23,7 @@ function SignIn({ setLogin }: SignInProps) {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    type: AlertColor;
+    type: AlertType;
   }>({
     open: false,
     message: "",
@@ -47,14 +32,6 @@ function SignIn({ setLogin }: SignInProps) {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [event.target.name]: event.target.value });
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   const handleTogglePassword = () => {
@@ -67,6 +44,33 @@ function SignIn({ setLogin }: SignInProps) {
       handleLogin();
     }
   };
+
+  // 토스트 자동 닫기
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const timer = window.setTimeout(() => {
+      setSnackbar((prev) => ({ ...prev, open: false }));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [snackbar.open]);
+
+  // 소셜 로그인 후 리다이렉트
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+    console.log("------");
+    console.log(token);
+
+    if (!token) return;
+
+    localStorage.setItem("jwt", token);
+
+    if (typeof window.__onLoginSuccess === "function") {
+      window.__onLoginSuccess();
+    }
+
+    navigate("/", { replace: true });
+  }, [location.search, navigate]);
 
   const handleLogin = () => {
     if (!user.email || !user.password) {
@@ -85,18 +89,18 @@ function SignIn({ setLogin }: SignInProps) {
         },
       })
       .then((response) => {
-        // axios는 응답 헤더 키를 소문자로 노출
         const authHeader =
           response.headers["authorization"] ??
           response.headers["Authorization"];
 
         if (authHeader?.startsWith("Bearer ")) {
-          const token = authHeader.slice(7); // "Bearer " 제거 → 순수 JWT만 저장
+          const token = authHeader.slice(7);
           localStorage.setItem("jwt", token);
-          setLogin(); // Header의 handleLoginSuccess 호출 → 자동 로그아웃 타이머 예약
-          handleClose(); // 모달 닫기
+          if (typeof window.__onLoginSuccess === "function") {
+            window.__onLoginSuccess();
+          }
+          navigate("/");
         } else {
-          // Authorization 헤더가 없거나 형식이 다르면 에러 처리
           setSnackbar({
             open: true,
             message:
@@ -104,16 +108,8 @@ function SignIn({ setLogin }: SignInProps) {
             type: "error",
           });
         }
-
-        // const jwtToken = response.headers.authorization;
-        // if (jwtToken) {
-        //   localStorage.setItem("jwt", jwtToken);
-        //   setLogin();
-        //   handleClose();
-        // }
       })
       .catch((err) => {
-        setOpen(true);
         console.log(err);
         setSnackbar({
           open: true,
@@ -123,221 +119,144 @@ function SignIn({ setLogin }: SignInProps) {
       });
   };
 
+  const isFormValid = !!user.email && !!user.password;
+
   return (
-    <>
-      <button className="header-login" onClick={handleOpen}>
-        로그인
-      </button>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle sx={{ textAlign: "center" }}>
-          Login
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <TextField
+    <div className="signin-page">
+      <div className="signin-card">
+        {/* 상단 로고 */}
+        <div className="signin-logo-area">
+          <div className="signin-logo" onClick={() => navigate("/")}>
+            TLAN
+          </div>
+        </div>
+
+        {/* <h2 className="signin-title">로그인</h2> */}
+
+        <div className="form-group">
+          <label htmlFor="email" className="form-label">
+            이메일
+          </label>
+          <input
+            id="email"
             name="email"
             type="email"
-            onChange={handleChange}
-            variant="outlined"
-            margin="normal"
-            label="이메일"
-            fullWidth
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            name="password"
-            type={showPassword ? "text" : "password"}
+            className="form-input"
+            value={user.email}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            label="비밀번호"
-            fullWidth
-            sx={{ mb: 2 }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={handleTogglePassword}
-                    edge="end"
-                    aria-label="toggle password visibility"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
           />
-        </DialogContent>
-        {/* 메인 로그인 버튼 */}
-        <Button
-          fullWidth
-          variant="contained"
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">
+            비밀번호
+          </label>
+          <div className="password-wrapper">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              className="form-input password-input"
+              value={user.password}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={handleTogglePassword}
+              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+            >
+              {showPassword ? (
+                // 눈 감은 아이콘
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-5 0-9-3.5-11-8 0-1.16.26-2.27.74-3.28" />
+                  <path d="M6.1 6.1A9.77 9.77 0 0 1 12 4c5 0 9 3.5 11 8a10.52 10.52 0 0 1-2.22 3.34" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              ) : (
+                // 눈 뜬 아이콘
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="button"
           onClick={handleLogin}
-          sx={{
-            mt: 0.5,
-            mb: 1,
-            py: 1.1,
-            borderRadius: 999,
-            fontWeight: 600,
-            textTransform: "none",
-            background:
-              "linear-gradient(90deg, #00C9FF 0%, #009FE3 50%, #0072FF 100%)",
-            "&:hover": {
-              background:
-                "linear-gradient(90deg, #00b0e6 0%, #008ed0 50%, #005fd6 100%)",
-            },
-          }}
+          disabled={!isFormValid}
+          className="signin-submit"
         >
-          로그인 하기
-        </Button>
+          로그인
+        </button>
 
-        {/* Divider (짧게) */}
-        <Divider
-          sx={{
-            my: 1,
-            mx: "auto",
-            width: "80%",
-            fontSize: "0.85rem",
-          }}
-        >
-          소셜 계정으로 로그인하기
-        </Divider>
+        <p className="signin-helper">
+          아직 회원이 아니세요?{" "}
+          <a href="/signup" className="signin-link">
+            이메일회원가입
+          </a>
+        </p>
 
-        {/* 소셜 로그인 버튼 그룹 */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            px: 0.5,
-            pb: 0.5,
-          }}
-        >
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{
-              textTransform: "none",
-              justifyContent: "flex-start",
-              borderRadius: 999,
-              fontWeight: 500,
-              px: 1.5,
-            }}
+        <div className="signin-divider">
+          <span>or</span>
+        </div>
+
+        <p className="signin-sns-title">SNS 간편 로그인</p>
+
+        <div className="signin-sns-row">
+          <button
+            className="sns-btn sns-google"
+            type="button"
+            onClick={() =>
+              (window.location.href = `${import.meta.env.VITE_BASE_URL}/oauth2/authorization/google`)
+            }
           >
-            <Box
-              sx={{
-                width: 22,
-                height: 22,
-                borderRadius: "50%",
-                border: "1px solid #dadce0",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 12,
-                mr: 1.5,
-              }}
-            >
-              G
-            </Box>
-            Continue with Google
-          </Button>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{
-              textTransform: "none",
-              justifyContent: "flex-start",
-              borderRadius: 999,
-              fontWeight: 500,
-              px: 1.5,
-              borderColor: "#03C75A",
-            }}
+            G
+          </button>
+          <button className="sns-btn sns-kakao" type="button">
+            K
+          </button>
+          <button
+            className="sns-btn sns-naver"
+            type="button"
+            onClick={() =>
+              (window.location.href = `${import.meta.env.VITE_BASE_URL}/oauth2/authorization/naver`)
+            }
           >
-            <Box
-              sx={{
-                width: 22,
-                height: 22,
-                borderRadius: "4px",
-                backgroundColor: "#03C75A",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 13,
-                color: "#fff",
-                mr: 1.5,
-              }}
-            >
-              N
-            </Box>
-            Continue with Naver
-          </Button>
+            N
+          </button>
+        </div>
+      </div>
 
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{
-              textTransform: "none",
-              justifyContent: "flex-start",
-              borderRadius: 999,
-              fontWeight: 500,
-              px: 1.5,
-              borderColor: "#FEE500",
-              backgroundColor: "#FFFBE6",
-            }}
-          >
-            <Box
-              sx={{
-                width: 22,
-                height: 22,
-                borderRadius: "50%",
-                backgroundColor: "#FEE500",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                color: "#3C1E1E",
-                mr: 1.5,
-              }}
-            >
-              K
-            </Box>
-            Continue with Kakao
-          </Button>
-        </Box>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.type}
-          sx={{
-            width: "auto",
-            minWidth: "fit-content",
-            borderRadius: "8px",
-            px: 2,
-            py: 1,
-            fontSize: "0.95rem",
-          }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </>
+      {snackbar.open && (
+        <div className={`toast toast-${snackbar.type}`}>{snackbar.message}</div>
+      )}
+    </div>
   );
 }
 

@@ -1,0 +1,94 @@
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 공통 스타일 – 네 개 버튼 모두 공통 */
+.header-auth-btn {
+  padding: 8px 22px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #eaf4ff;
+  cursor: pointer;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* 로그인 – 아웃라인 글래스 버튼 */
+.header-login-btn {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.02);
+  color: #f5f8ff;
+  backdrop-filter: blur(8px);
+}
+
+.header-login-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* 회원가입 – 메인 CTA처럼 그라디언트 */
+/* 회원가입 – bg-cyan 계열 */
+.header-signup-btn {
+  background-color: #06b6d4; /* bg-cyan-500 */
+  color: #ffffff; /* text-white */
+}
+
+/* hover:bg-cyan-600 */
+.header-signup-btn:hover {
+  background-color: #0891b2;
+  box-shadow: 0 14px 30px rgba(8, 145, 178, 0.4); /* hover:shadow-2xl */
+  transform: translateY(-1px); /* hover:-translate-y-0.5 */
+}
+
+/* active:bg-cyan-700 */
+.header-signup-btn:active {
+  background-color: #0e7490;
+  transform: translateY(0); /* 눌렀을 때 다시 붙는 느낌 */
+}
+
+/* focus:ring-cyan-300 느낌 */
+.header-signup-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.9),
+    /* 바깥 링 */ 0 10px 25px rgba(0, 0, 0, 0.18); /* 원래 그림자 유지 */
+}
+
+/* 마이페이지 – 로그인 버튼과 거의 동일한 느낌 */
+.header-mypage-btn {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.03);
+  color: #f5f8ff;
+  backdrop-filter: blur(8px);
+}
+
+.header-mypage-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+}
+/* 로그아웃  */
+.header-logout-btn {
+  background-color: #06b6d4;
+  color: #ffffff;
+}
+
+/* active */
+.header-logout-btn:active {
+  background-color: #3b30dc; /* 살짝 더 진하게 주고 싶으면 조정 가능 */
+  transform: translateY(0);
+}
+
+/* focus 링 */
+.header-logout-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.95),
+    0 10px 25px rgba(0, 0, 0, 0.18);
+}

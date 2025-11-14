@@ -1,0 +1,166 @@
+/* 전체 배경 + 중앙 정렬 */
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f7f8fb; /* 연한 회색 배경 */
+  padding: 40px 16px;
+}
+
+/* 흰색 카드 */
+.signup-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 48px 32px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* 상단 로고/설명 영역 */
+.signup-logo-area {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.signup-logo {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #30c9e8;
+}
+
+.signup-logo:hover {
+  cursor: pointer;
+}
+
+.signup-subtitle {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9e9e9e;
+}
+
+/* "회원가입" 제목 */
+.signup-title {
+  text-align: center;
+  font-size: 20px;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+/* 폼 공통 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #666666;
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #30c9e8;
+  box-shadow: 0 0 0 2px rgba(48, 201, 232, 0.16);
+}
+
+.input-error {
+  border-color: #f44336;
+}
+
+.error-text {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #f44336;
+}
+
+/* 비밀번호 입력창 + 눈 아이콘 */
+.password-wrapper {
+  position: relative;
+}
+
+/* 오른쪽 아이콘 자리 확보 */
+.password-input {
+  padding-right: 40px;
+}
+
+/* 눈 아이콘 버튼 */
+.toggle-password-btn {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b0b0b0;
+}
+
+.toggle-password-btn:hover {
+  color: #888888;
+}
+
+/* 제출 버튼 */
+.signup-submit {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px 0;
+  border-radius: 6px;
+  border: none;
+  background: #39c8e8;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.signup-submit:hover:not(:disabled) {
+  background: #25b3d4;
+  transform: translateY(-1px);
+}
+
+.signup-submit:disabled {
+  background: #b2e7f4;
+  cursor: not-allowed;
+}
+
+/* 토스트 메시지 */
+.toast {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #ffffff;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.toast-success {
+  background: #4caf50;
+}
+
+.toast-error {
+  background: #f44336;
+}
