@@ -1,9 +1,8 @@
 // Header.jsx
 import { useState, useEffect, useRef } from "react";
-import SignUp from "../login/SignUp";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Alert, AlertColor, Snackbar } from "@mui/material";
-import SignIn from "../login/SignIn";
+import "./header.css";
 
 function Header() {
   // localStorage에 토큰이 있는지 확인하여 초기 로그인 상태를 설정합니다.
@@ -31,7 +30,7 @@ function Header() {
     }
   };
 
-   // base64url → JSON 파싱해서 exp(ms) 추출
+  // base64url → JSON 파싱해서 exp(ms) 추출
   const decodeExpMs = (token) => {
     try {
       const base64Url = token.split(".")[1];
@@ -49,7 +48,7 @@ function Header() {
     }
   };
 
-   // exp 까지 남은 시간만큼 setTimeout으로 자동 로그아웃 예약
+  // exp 까지 남은 시간만큼 setTimeout으로 자동 로그아웃 예약
   const scheduleAutoLogout = () => {
     clearLogoutTimer();
     const t = localStorage.getItem("jwt");
@@ -64,10 +63,13 @@ function Header() {
       handleLogout();
       return;
     }
-    logoutTimeRef.current = window.setTimeout(handleLogout, Math.max(remaining, 500));
+    logoutTimeRef.current = window.setTimeout(
+      handleLogout,
+      Math.max(remaining, 500)
+    );
   };
 
-    // 처음 마운트 시: 만료 확인 + 타이머 예약
+  // 처음 마운트 시: 만료 확인 + 타이머 예약
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
@@ -149,6 +151,13 @@ function Header() {
     });
   };
 
+  useEffect(() => {
+    window.__onLoginSuccess = handleLoginSuccess;
+    return () => {
+      window.__onLoginSuccess = undefined;
+    };
+  }, []); // 한 번만 등록하면 됨
+
   return (
     // 배경색 없이 투명하게 처리합니다.
     <>
@@ -160,18 +169,37 @@ function Header() {
         <div className="header-user-actions">
           {isLogin ? ( // 로딩 중에는 아무것도 표시하지 않음
             <>
-              <Link to="/myPage" className="header-my-page">
+              <button
+                type="button"
+                className="header-auth-btn header-mypage-btn"
+                onClick={() => navigate("/myPage")}
+              >
                 마이페이지
-              </Link>
-              <button className="header-logout" onClick={handleLogout}>
-                {" "}
+              </button>
+              <button
+                type="button"
+                className="header-auth-btn header-logout-btn"
+                onClick={handleLogout}
+              >
                 로그아웃
               </button>
             </>
           ) : (
             <>
-              <SignIn setLogin={handleLoginSuccess} />
-              <SignUp />
+              <button
+                type="button"
+                className="header-auth-btn header-login-btn"
+                onClick={() => navigate("/signIn")}
+              >
+                로그인
+              </button>
+              <button
+                type="button"
+                className="header-auth-btn header-signup-btn"
+                onClick={() => navigate("/signUp")}
+              >
+                회원가입
+              </button>
             </>
           )}
         </div>
