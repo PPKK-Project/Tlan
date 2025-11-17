@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +32,10 @@ public class DataInitializer {
     @PostConstruct
     public void initCache() {
         System.out.println("[알림] 서버 시작. 나라정보,환율정보 입력중");
-        // 나라 정보가 먼저 업데이트되어야, 이후 환율 업데이트 시 CountryInfo와 매칭 가능
+        // 1. 환율 정보를 먼저 DB에 저장하고 작업이 끝날 때까지 기다립니다.
+        updateCurrencyRatesDaily().block();
+        // 2. 저장된 환율 정보를 바탕으로 국가 정보를 업데이트합니다.
         updateCountryInfoDaily();
-        System.out.println("[알림] 나라정보 저장 후 환율정보 입력중");
-        updateCurrencyRatesDaily();
     }
 
     public void updateCountryInfoDaily() {
@@ -103,12 +104,12 @@ public class DataInitializer {
      * 매일 새벽 2시에 환율 정보를 외부 API에서 가져와 DB에 업데이트합니다.
      */
     @Scheduled(cron = "0 0 2 * * ?")
-    public void updateCurrencyRatesDaily() {
-        currencyWebClient.get()
+    public Mono<Void> updateCurrencyRatesDaily() {
+        return currencyWebClient.get()
                 .uri("/{currencyApiKey}/latest/USD", currencyApiKey)
                 .retrieve()
-                .bodyToMono(JsonNode.class)
-                .subscribe(jsonNode -> {
+                .bodyToMono(JsonNode.class) // Mono<JsonNode>
+                .doOnSuccess(jsonNode -> { // 작업 성공 시 실행 (부수 효과)
                     JsonNode ratesNode = jsonNode.get("conversion_rates");
                     List<CurrencyRate> currencyRates = new ArrayList<>();
                     Iterator<Map.Entry<String, JsonNode>> fields = ratesNode.fields();
@@ -120,8 +121,10 @@ public class DataInitializer {
                     }
                     currencyRateRepository.saveAll(currencyRates);
                     System.out.println("환율 정보가 성공적으로 업데이트되었습니다.");
-                }, error -> {
+                })
+                .doOnError(error -> { // 작업 실패 시 실행 (부수 효과)
                     System.err.println("환율 정보 업데이트 실패: " + error.getMessage());
-                });
+                })
+                .then(); // 모든 작업이 끝나면 비어있는 Mono<Void>를 반환
     }
 }
