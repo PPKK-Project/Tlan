@@ -29,5 +29,9 @@ public class UserController {
     public ResponseEntity<Void> patchNickname(@RequestBody PatchUsersRecord dto, Principal principal) {
         return userService.patchNickname(dto, principal);
     }
-
+    // 닉네임 조회
+    @GetMapping("/users/nickname")
+    public String getNickname(Principal principal){
+        return userService.getNickname(principal);
+    }
 }

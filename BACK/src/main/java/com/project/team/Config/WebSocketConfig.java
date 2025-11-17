@@ -13,7 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
         // 1. Simple Broker 설정: '/topic'으로 시작하는 목적지로 메시지를 라우팅
         // (클라이언트가 구독할 주소의 접두사)
-        config.enableSimpleBroker("/topic");
+        config.enableSimpleBroker("/chat");
         // 2. Application Destination Prefix 설정: '/app'으로 시작하는 메시지는
         // @MessageMapping이 붙은 Controller로 라우팅
         // (클라이언트가 서버로 메시지를 보낼 때 사용할 접두사)
