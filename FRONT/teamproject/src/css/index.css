@@ -578,7 +578,6 @@ body {
 .mypage-content-wrapper {
   /* 헤더가 fixed이므로, 헤더의 높이만큼 콘텐츠 전체를 아래로 밀어줍니다. */
   /* 헤더 높이가 약 80px이므로, 넉넉하게 80px의 패딩을 줍니다. */
-  padding-top: 80px;
   position: relative; /* z-index가 적용된 배경 위에 콘텐츠가 오도록 함 */
   z-index: 1;
 }
