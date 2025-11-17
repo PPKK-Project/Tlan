@@ -20,6 +20,11 @@ public class Restaurant {
 
     private String phoneNumber;
 
+    private Boolean openNow;
+
+    @Column(length = 512)
+    private String openingHoursText;
+
     public Restaurant(Place place, String phoneNumber) {
         this.place = place;
         this.phoneNumber = phoneNumber;

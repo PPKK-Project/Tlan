@@ -14,54 +14,51 @@ type Props = {
   mapCenter: { lat: number; lng: number }; // 부모로부터 받을 맵 중심 좌표
 };
 
-// 1. 지도가 표시될 컨테이너의 스타일
+// 지도가 표시될 컨테이너의 스타일
 const containerStyle = {
   width: "100%",
   height: "100%",
 };
 
-// 2. plans가 비어있을 때 표시할 기본 중심 좌표 (현재는 임시로 제주도로 설정함)
-// const defaultCenter = {
-//   lat: 33.361665,
-//   lng: 126.520412,
-// };
-
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-const PlanMap: React.FC<Props> = ({ 
-  plans, 
-  searchPlaces, 
+const PlanMap: React.FC<Props> = ({
+  plans,
+  searchPlaces,
   onAddPlace,
-  mapCenter, }) => {
-  // 3. Google Maps 스크립트 로더 훅
+  mapCenter,
+}) => {
+  //  Google Maps 스크립트 로더 api 훅
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: API_KEY || "",
   });
 
-  // 4. 지도 인스턴스를 저장하기 위한 state
+  // 지도 인스턴스를 저장하기 위한 state
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  // 정보창(InfoWindow)을 띄울 검색 마커 state
-  const [selectedSearchPlace, setSelectedSearchPlace] =
-    useState<PlaceSearchResult | null>(null);
+  // 장소의 상세정보를 띄울 state (검색 결과나 일정에서 띄운다)
+  const [selectedMarker, setSelectedMarker] = useState<{
+    type: "search" | "plan";
+    data: any; // PlaceSearchResult 또는 TravelPlan
+  } | null>(null);
 
-  // 5. 지도가 로드될 때 map 인스턴스를 state에 저장
+  // 지도가 로드될 때 map 인스턴스를 state에 저장
   const onLoad = useCallback(function callback(mapInstance: google.maps.Map) {
     setMap(mapInstance);
   }, []);
 
-  // 6. 컴포넌트가 언마운트될 때 map 인스턴스 정리
+  // 컴포넌트가 언마운트될 때 map 인스턴스 정리
   const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
 
-  // 7. plans(일정) 또는 mapCenter(검색 좌표)가 변경될 때 지도를 이동
+  // plans(일정) 또는 mapCenter(검색 좌표)가 변경될 때 지도를 이동
   useEffect(() => {
     // 지도가 로드되지 않았으면 아무것도 안함
     if (!map) return;
-  // 현재 날짜에 "일정"이 1개 이상 있으면, 일정에 맞춰 지도를 조정
-    if(plans.length > 0){
+    // 현재 날짜에 "일정"이 1개 이상 있으면, 일정에 맞춰 지도를 조정
+    if (plans.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
 
       plans.forEach((plan) => {
@@ -85,7 +82,7 @@ const PlanMap: React.FC<Props> = ({
     }
   }, [map, plans, mapCenter]);
 
-  // 8. 렌더링 로직
+  // 렌더링 로직
   if (loadError) {
     console.error("Google Maps API 로드 실패:", loadError);
     return <div>Error loading maps. (API 키를 확인하세요)</div>;
@@ -112,7 +109,7 @@ const PlanMap: React.FC<Props> = ({
       onLoad={onLoad}
       onUnmount={onUnmount}
       // 지도를 클릭하면 정보창 닫기
-      onClick={() => setSelectedSearchPlace(null)}
+      onClick={() => setSelectedMarker(null)}
       options={{
         // 불필요한 Google Maps UI 제거 (선택 사항)
         streetViewControl: false,
@@ -120,7 +117,7 @@ const PlanMap: React.FC<Props> = ({
         fullscreenControl: false,
       }}
     >
-      {/* 1. 일정 마커 (label이 있는 기본 마커) */}
+      {/* 1. 일정 마커 (빨간색 마커) */}
       {plans.map((plan) => (
         <MarkerF
           key={`plan-${plan.planId}`}
@@ -137,10 +134,11 @@ const PlanMap: React.FC<Props> = ({
           }}
           icon={PLAN_MARKER_ICON} // 기본 아이콘
           zIndex={10} // 일정 마커가 항상 위에 보이도록
+          onClick={() => setSelectedMarker({ type: "plan", data: plan })} // 저장된 일정을 클릭할 때도 상세 정보표시
         />
       ))}
 
-      {/* 2. 검색 결과 마커 (파란 점 아이콘) */}
+      {/* 2. 검색 결과 마커 (파란색) */}
       {searchPlaces.map((place) => (
         <MarkerF
           key={`search-${place.placeId}`}
@@ -150,40 +148,77 @@ const PlanMap: React.FC<Props> = ({
           }}
           title={place.name}
           icon={SEARCH_MARKER_ICON}
-          onClick={() => {
+          onClick={() =>
             // 마커 클릭 시 정보창 state 설정
-            setSelectedSearchPlace(place);
-          }}
+            setSelectedMarker({ type: 'search', data: place })
+          }
           zIndex={5} // 검색 마커가 일정 마커보다 아래에 있도록
         />
       ))}
 
-      {/* 3. 검색 마커 클릭 시 나타나는 정보창 */}
-      {selectedSearchPlace && (
+      {/* 3. 정보창 */}
+      {selectedMarker && (
         <InfoWindowF
           position={{
-            lat: selectedSearchPlace.latitude,
-            lng: selectedSearchPlace.longitude,
+            lat: selectedMarker.type === 'plan' ? selectedMarker.data.place.latitude : selectedMarker.data.latitude,
+            lng: selectedMarker.type === 'plan' ? selectedMarker.data.place.longitude : selectedMarker.data.longitude,
           }}
-          onCloseClick={() => setSelectedSearchPlace(null)}
-          options={{ zIndex: 20 }} // 정보창이 항상 위에 오도록
+          onCloseClick={() => setSelectedMarker(null)}
+          options={{ zIndex: 20 }}
         >
-          <div className="p-1" style={{ color: "black" }}>
-            <h4 className="font-bold text-base mb-1">
-              {selectedSearchPlace.name}
-            </h4>
-            <p className="text-sm text-gray-600">
-              {selectedSearchPlace.category}
-            </p>
-            <button
-              onClick={() => {
-                onAddPlace(selectedSearchPlace); // 일정 추가
-                setSelectedSearchPlace(null); // 정보창 닫기
-              }}
-              className="mt-2 px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded hover:bg-blue-600"
-            >
-              일정에 추가
-            </button>
+          <div
+            className="p-2 min-w-[200px] max-w-[260px]"
+            style={{ color: "black" }}
+          >
+            {/* 데이터 추출 */}
+            {(() => {
+              // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
+              const place = selectedMarker.type === 'plan' ? selectedMarker.data.place : selectedMarker.data;
+
+              return (
+                <>
+                  <h4 className="font-bold text-lg mb-1">{place.name}</h4>
+                  
+                  <p className="text-sm text-gray-600 font-medium mb-1">
+                    {place.type || place.category} {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
+                  </p>
+
+                  {/* 전화번호 */}
+                  {place.phoneNumber && (
+                      <p className="text-xs text-gray-500 mb-1">📞 {place.phoneNumber}</p>
+                  )}
+
+                  {/* 주소 */}
+                  <p className="text-xs text-gray-400 mb-2">{place.address}</p>
+
+                  {/* 영업 시간 */}
+                  {place.openingHours && (
+                      <div className="bg-gray-50 p-2 rounded text-xs text-gray-500 mb-2 max-h-32 overflow-y-auto whitespace-pre-wrap border">
+                          {place.openingHours}
+                      </div>
+                  )}
+
+                  {/* '일정에 추가' 버튼은 '검색 결과' 마커일 때만 표시 */}
+                  {selectedMarker.type === 'search' && (
+                    <button
+                      onClick={() => {
+                        onAddPlace(place);
+                        setSelectedMarker(null);
+                      }}
+                      className="w-full mt-1 px-3 py-2 bg-blue-500 text-white text-sm font-semibold rounded hover:bg-blue-600 transition-colors"
+                    >
+                      일정에 추가하기
+                    </button>
+                  )}
+                  {/* '저장된 일정'일 때는 몇 번째 일정인지 표시 */}
+                  {selectedMarker.type === 'plan' && (
+                    <p className="text-xs text-blue-600 font-bold text-center mt-1">
+                      {selectedMarker.data.dayNumber}일차 - {selectedMarker.data.sequence}번째 일정
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </InfoWindowF>
       )}
