@@ -1,30 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import axios, { AxiosRequestConfig } from "axios";
-import { getDownloadURL, ref } from "firebase/storage";
-import { storage } from "../../firebase";
-import { useEffect, useState } from "react";
+import mainPageImg from "../../assets/main-page.webp"
 import { CreateTravelRequest, Travel } from "../../util/types";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-async function getImageUrls() {
-  const imageRef = ref(storage, `main-page.webp`);
-  try{
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error("Error fetching image URL: ", error);
-    return null;
-  }
-}
-
 function Planning() {
   const navigate = useNavigate(); // 페이지 이동을 위한 hook
-  const [ url, setUrl ] = useState('');
-  useEffect(()=> {
-    getImageUrls().then(urls => setUrl(urls));
-  })
   /**
    * signin.tsx의 로직을 기반으로 인증 헤더를 포함하는 Axios 설정을 반환합니다.
    */
@@ -78,7 +61,7 @@ function Planning() {
   };
 
   return (
-    <div className="main-container" style={{ backgroundImage: `url(${url})` }}>
+    <div className="main-container" style={{ backgroundImage: `url(${mainPageImg})` }}>
       <Header />
       <div className="hero-content">
         <p className="hero-subtext">계획부터 시작하는, 여행이 쉬워지는</p>
