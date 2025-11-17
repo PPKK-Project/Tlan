@@ -13,6 +13,7 @@ import PlanMap from "./PlanMap";
 import ItinerarySummary from "./ItinerarySummary";
 import { Alert, AlertColor, Snackbar } from "@mui/material";
 
+
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -74,6 +75,15 @@ function TravelPlanPage() {
     lon: 126.520412,
   });
 
+  // plans 데이터를 기반으로 ID 맵을 만듬
+  const addedPlansMap = plans.reduce((acc, plan) => {
+    // plan.place가 존재할 때만 매핑 (안전장치)
+    if (plan.place && plan.place.googlePlaceId) {
+      acc[plan.place.googlePlaceId] = plan.planId;
+    }
+    return acc;
+  }, {} as { [key: string]: number });
+
   // 스낵바 state
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -85,11 +95,12 @@ function TravelPlanPage() {
     type: "success",
   });
 
+  // 필터 관련 훅
   useEffect(() => {
     if (filter === "all") {
       setFilteredPlaces(allPlaces);
     } else {
-      setFilteredPlaces(allPlaces.filter(place => place.category === filter));
+      setFilteredPlaces(allPlaces.filter((place) => place.category === filter));
     }
   }, [filter, allPlaces]);
 
@@ -124,7 +135,6 @@ function TravelPlanPage() {
 
       setSearchLocation({ lat, lon: lng });
       setSearchQuery(destinationInput);
-
     } catch (err: any) {
       console.error("좌표 검색 실패: ", err);
       setError(err.message || "장소의 좌표를 불러오는 데 실패했습니다.");
@@ -133,7 +143,7 @@ function TravelPlanPage() {
     }
   }, [destinationInput]);
 
-  // 여행 일정 불러오기 (Mount 시)
+  // 여행 일정 불러오기 관련 훅 (Mount 시)
   useEffect(() => {
     if (!travelId) return;
 
@@ -153,7 +163,7 @@ function TravelPlanPage() {
     fetchPlans();
   }, [travelId]);
 
-  // 장소 불러오는 훅
+  // 장소 불러오는 훅(검색)
   useEffect(() => {
     if (!travelId) return;
 
@@ -162,6 +172,7 @@ function TravelPlanPage() {
       setError(null);
 
       try {
+        // Nearby Search API 호출 (이 시점에서는 아직 '기본 정보 + 영업 여부' 만 반환됨)
         const placesResponse = await axios.get(`${API_BASE_URL}/api/place`, {
           params: {
             keyword: `${searchQuery} 숙소 관광지 음식점`,
@@ -175,17 +186,26 @@ function TravelPlanPage() {
 
         if (placesResponse.data && placesResponse.data.results) {
           const parsedPlaces: PlaceSearchResult[] =
-            placesResponse.data.results.map((item: any) => ({
-              placeId: item.place_id,
-              name: item.name,
-              address: item.vicinity,
-              category: getCategoryFromTypes(item.types),
-              rating: item.rating || 0,
-              reviewCount: item.user_ratings_total || 0,
-              imageUrl: getPhotoUrl(item.photos),
-              latitude: item.geometry.location.lat,
-              longitude: item.geometry.location.lng,
-            }));
+            placesResponse.data.results.map((item: any) => {
+              const openNow = item.opening_hours
+                ? item.opening_hours.open_now
+                : undefined;
+              return {
+                placeId: item.place_id,
+                name: item.name,
+                address: item.vicinity,
+                category: getCategoryFromTypes(item.types),
+                rating: item.rating || 0,
+                reviewCount: item.user_ratings_total || 0,
+                imageUrl: getPhotoUrl(item.photos),
+                latitude: item.geometry.location.lat,
+                longitude: item.geometry.location.lng,
+                openNow: openNow,
+                // 전화번호와 상세 시간은 Nearby Search에서 주지 않으므로 undefined
+                phoneNumber: undefined,
+                openingHours: undefined,
+              };
+            });
           setAllPlaces(parsedPlaces);
         } else {
           setAllPlaces([]);
@@ -200,7 +220,6 @@ function TravelPlanPage() {
     };
 
     fetchPlaces();
-
   }, [travelId, searchLocation, searchQuery]);
 
   // [이벤트 핸들러]
@@ -210,7 +229,7 @@ function TravelPlanPage() {
 
     // DTO에 맞게 sequence 계산 (현재 선택된 날짜의 일정 개수 + 1)
     const newSequence =
-      plans.filter(p => p.dayNumber === selectedDay).length + 1;
+      plans.filter((p) => p.dayNumber === selectedDay).length + 1;
 
     const newPlanRequest: AddPlanRequest = {
       googlePlaceId: place.placeId,
@@ -233,7 +252,7 @@ function TravelPlanPage() {
       );
 
       // 성공 시, 반환된 새 plan 객체를 plans 상태에 추가
-      setPlans(prevPlans => [...prevPlans, response.data]);
+      setPlans((prevPlans) => [...prevPlans, response.data]);
 
       // 일정 추가시 알림 스낵바
       setSnackbar({
@@ -241,7 +260,6 @@ function TravelPlanPage() {
         message: `${place.name} 일정이 추가되었습니다.`,
         type: "success",
       });
-
     } catch (err) {
       console.error("일정 추가 실패:", err);
       setSnackbar({
@@ -254,7 +272,6 @@ function TravelPlanPage() {
 
   // 2. 일정 삭제
   const handleDeletePlan = async (planId: number) => {
-
     if (!travelId) return;
 
     try {
@@ -264,8 +281,8 @@ function TravelPlanPage() {
       );
 
       // 성공 시, plans 상태에서 해당 plan 제거
-      setPlans(prevPlans =>
-        prevPlans.filter(plan => plan.planId !== planId)
+      setPlans((prevPlans) =>
+        prevPlans.filter((plan) => plan.planId !== planId)
       );
 
       setSnackbar({
@@ -273,7 +290,6 @@ function TravelPlanPage() {
         message: "일정이 삭제되었습니다.",
         type: "info",
       });
-
     } catch (err) {
       console.error("일정 삭제 실패:", err);
       setSnackbar({
@@ -339,9 +355,10 @@ function TravelPlanPage() {
             selectedDay={selectedDay}
             onSelectDay={setSelectedDay}
             availablePlaces={filteredPlaces}
-            addedGooglePlaceIds={plans.map(p => p.place.googlePlaceId)}
+            addedGooglePlaceIds={plans.map((p) => p.place.googlePlaceId)}
+            addedPlansMap={addedPlansMap}
             onAddPlace={handleAddPlan}
-            onDeletePlace={handleDeletePlan} // 사이드바에서도 삭제 가능하도록
+            onDeletePlace={handleDeletePlan} // 사이드바에서도 일정을 삭제 가능하도록
             filter={filter} // 현재 필터 상태 전달
             onFilterChange={setFilter} // 필터 변경 함수 전달
           />
@@ -351,7 +368,7 @@ function TravelPlanPage() {
         <main className="flex-1 relative">
           <PlanMap
             // 현재 선택된 날짜의 일정만 필터링하여 지도에 표시
-            plans={plans.filter(plan => plan.dayNumber === selectedDay)}
+            plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
             searchPlaces={filteredPlaces} // 필터링된 장소 목록 전달
             onAddPlace={handleAddPlan} // 지도 마커에서 일정 추가
             mapCenter={{ lat: searchLocation.lat, lng: searchLocation.lon }}

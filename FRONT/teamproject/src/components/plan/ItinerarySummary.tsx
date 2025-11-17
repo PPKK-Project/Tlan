@@ -1,6 +1,6 @@
 import React from 'react';
-import { TravelPlan } from '../../util/types';
 import { AlertColor } from '@mui/material';
+import { TravelPlan } from '../../util/types';
 
 type Props = {
   plans: TravelPlan[]; // '전체' 일정 목록

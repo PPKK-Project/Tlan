@@ -24,12 +24,31 @@ public class PlaceApiService {
                 .uri(uriBuilder -> uriBuilder
                         .path("/maps/api/place/nearbysearch/json")
                         .queryParam("keyword", placeApiRequest.keyword())
-                        .queryParam("location", placeApiRequest.lat()+","+placeApiRequest.lon())
+                        .queryParam("location", placeApiRequest.lat() + "," + placeApiRequest.lon())
                         .queryParam("radius", placeApiRequest.radius())
                         .queryParam("type", placeApiRequest.type())
                         .queryParam("key", placeApiKey)
                         .build())
                 .retrieve()
                 .bodyToMono(JsonNode.class);
+    }
+
+    /**
+     * Google Place ID를 사용하여 장소의 상세 정보(전화번호, 영업시간 등)를 요청합니다.
+     */
+    public Mono<JsonNode> fetchPlaceDetails(String googlePlaceId) {
+        // 요청할 json 필드를 명시
+        String fields = "formatted_phone_number,opening_hours(open_now,weekday_text),permanently_closed";
+
+        return placeApiWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/maps/api/place/details/json")
+                        .queryParam("place_id", googlePlaceId)
+                        .queryParam("fields", fields)
+                        .queryParam("key", placeApiKey)
+                        .queryParam("language", "ko")
+                        .build())
+                .retrieve()
+                .bodyToMono(JsonNode.class); // API 응답을 JsonNode로 받음
     }
 }
