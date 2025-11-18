@@ -2,14 +2,7 @@ import asyncio
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 import json
-
-# ===== 사용자 설정 변수 (Playwright 실행에 사용) =====
-DEPARTURE_AP = "SEL"
-ARRIVAL_AP = "TYO"
-DEPART_DATE = "20251210"
-RETURN_DATE = "20251220"
-ADULT_COUNT = 1
-# ====================================================
+import sys
 
 # 🚨 개별 항공편 항목의 셀렉터 (정확함)
 FLIGHT_ITEM_SELECTOR = '.combination_ConcurrentItemContainer__uUEbl'
@@ -85,6 +78,19 @@ async def crawl_and_parse_flights():
             await browser.close()
 
 if __name__ == "__main__":
-    # 🚨 인코딩 문제를 해결하기 위해 VS Code 실행 시 'python -X utf8' 명령어를 사용해 주세요.
-    # python -X utf8 FRONT/teamproject/src/flight.py
+    global DEPARTURE_AP, ARRIVAL_AP, DEPART_DATE, RETURN_DATE, ADULT_COUNT
+    if len(sys.argv) < 6:
+        sys.stderr.write("Usage: flight.py <DEPARTURE_AP> <ARRIVAL_AP> <DEPART_DATE> <RETURN_DATE> <ADULT_COUNT>\n")
+        sys.exit(1)
+
+    DEPARTURE_AP  = sys.argv[1] # "SEL"
+    ARRIVAL_AP    = sys.argv[2] # "TYO"
+    DEPART_DATE   = sys.argv[3] # "20251210"
+    RETURN_DATE   = sys.argv[4] # "20251220"
+    try:
+        ADULT_COUNT   = int(sys.argv[5])
+    except ValueError:
+        sys.stderr.write("ADULT_COUNT must be an integer.\n")
+        sys.exit(1)
     asyncio.run(crawl_and_parse_flights())
+    # "/c/Users/rlack/AppData/Local/Python/bin/python.exe" -X utf8 FRONT/teamproject/src/util/flight.py

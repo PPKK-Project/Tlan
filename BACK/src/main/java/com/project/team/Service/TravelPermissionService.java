@@ -49,9 +49,10 @@ public class TravelPermissionService {
         }
 
         // 3. 초대할 사용자 찾기
+        System.out.println(request.userEmail());
         User userToInvite = userRepository.findByEmail(request.userEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 이메일의 사용자를 찾을 수 없습니다: " + request.userEmail()));
-
+        System.out.println("유저찾기성공");
         // 4. 본인을 초대/권한 변경할 수 없음 (이메일로 비교)
         if (userToInvite.getEmail().equals(currentUserEmail)) {
             throw new BadRequestException("자기 자신에게 권한을 부여할 수 없습니다.");
