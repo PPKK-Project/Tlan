@@ -40,7 +40,7 @@ public class Travel {
     @JsonIgnore
     private Flight flight;
 
-    public Travel(User user, String countryCode, String title) {
+    public Travel(User user, String countryCode, String title, LocalDate startDate, LocalDate endDate) {
         this.user = user;
         this.countryCode = countryCode;
         this.title = title;
