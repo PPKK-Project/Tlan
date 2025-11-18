@@ -12,21 +12,8 @@ type TravelPlan = {
   endDate: string;
 };
 
-const getAxiosConfig = (): AxiosRequestConfig => {
-  const token = localStorage.getItem("jwt")?.replace("Bearer ", "");
-  return {
-    headers: {
-      Authorization: token,
-      "Content-Type": "application/json",
-    },
-  };
-};
-
 const getTravelPlanList = async () => {
-  const response = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/travels`,
-    getAxiosConfig()
-  );
+  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels`);
   console.log(response.data);
   return response.data;
 };
@@ -46,10 +33,7 @@ function TravelPlanList() {
   // 여행 계획을 삭제하는 뮤테이션(mutation) 정의
   const deleteMutation = useMutation({
     mutationFn: (planId: number) => {
-      return axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/travels/${planId}`,
-        getAxiosConfig()
-      );
+      return axios.delete(`${import.meta.env.VITE_BASE_URL}/travels/${planId}`);
     },
     // 뮤테이션 성공 시
     onSuccess: () => {
@@ -65,14 +49,19 @@ function TravelPlanList() {
 
   // 여행 계획을 공유하는 뮤테이션 정의
   const shareMutation = useMutation({
-    mutationFn: ({ planId, email }: { planId: number; email: string }) => {
+    mutationFn: ({
+      travelId,
+      email,
+      role,
+    }: {
+      travelId: number;
+      email: string;
+      role: string;
+    }) => {
       return axios.post(
-        `${import.meta.env.VITE_BASE_URL}/travels/${planId}/share`,
-        { email },
-     // API 명세에 따라 body 구성
-        getAxiosConfig()
+        `${import.meta.env.VITE_BASE_URL}/travels/${travelId}/share`,
+        { email, role } // API 명세에 따라 body 구성 (role 추가)
       );
-      console.log(shareMutation);
     },
     onSuccess: (data, variables) => {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
@@ -84,6 +73,7 @@ function TravelPlanList() {
         error.response?.data?.message || "공유 요청 중 오류가 발생했습니다.";
       console.error("공유 실패:", error);
       alert(message);
+      console.log(data);
     },
   });
 
@@ -158,9 +148,13 @@ function TravelPlanList() {
           <ShareModal
             planTitle={sharingPlan.title}
             onClose={() => setSharingPlan(null)}
-            onShare={(email) => {
+            onShare={(email, role) => {
               // 뮤테이션을 실행하여 공유 API를 호출합니다.
-              shareMutation.mutate({ planId: sharingPlan.id, email });
+              shareMutation.mutate({
+                travelId: sharingPlan.id,
+                email,
+                role,
+              });
             }}
           />
         )}
