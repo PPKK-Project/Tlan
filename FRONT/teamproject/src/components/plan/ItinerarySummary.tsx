@@ -1,6 +1,7 @@
 import React from 'react';
 import { TravelPlan } from '../../util/types';
-import { AlertColor } from '@mui/material';
+
+type AlertType = "success" | "info" | "warning" | "error";
 
 type Props = {
   plans: TravelPlan[]; // '전체' 일정 목록
@@ -8,7 +9,7 @@ type Props = {
   setNotify: (Notification: {
     open: boolean,
     message: string,
-    type: AlertColor,
+    type: AlertType,
   }) => void;
 }
 const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, setNotify }) => {

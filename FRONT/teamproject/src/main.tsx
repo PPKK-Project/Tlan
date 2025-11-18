@@ -12,6 +12,7 @@ import MyPage from "./components/myPage/MyPage";
 import axios from "axios";
 import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
+import VerifyEmail from "./components/login/VerifyEmail";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,6 @@ declare global {
   interface Window {
     _axiosSetupDone?: boolean; // 설정이 이미 끝났는지
     __onUnauthorized?: () => void; // 401 받았을 때 실행할 콜백
-    __onLoginSuccess?: () => void;
   }
 }
 
@@ -39,19 +39,23 @@ if (!window._axiosSetupDone) {
   axios.interceptors.response.use(
     (res) => res,
     (error) => {
-      const status = error?.response?.status;
-      if (status === 401) {
-        // 1) 토큰 바로 삭제 (혹시 콜백 전에 실패해도 안전)
-        localStorage.removeItem("jwt");
+    const status = error.response?.status;
+    const hasToken = !!localStorage.getItem("jwt");
+    const errorCode = error.response?.data?.code;
+    // ↑ 백엔드에서 내려주는 에러 코드 이름에 맞춰 수정: 예) 'TOKEN_EXPIRED', 'TOKEN_INVALID' 등
 
-        // 2) Header가 등록한 콜백 사용(있으면)
-        if (typeof window.__onUnauthorized === "function") {
-          window.__onUnauthorized();
-        } else {
-          // 3) 콜백이 아직 등록 전이어도 강제로 메인으로 보내기(보호망)
-          window.location.assign("/");
-        }
+    // 1) 토큰이 있고
+    // 2) 401이고
+    // 3) 에러 코드가 '토큰 만료 / 토큰 잘못됨'일 때만 자동 로그아웃
+    if (
+      status === 401 &&
+      hasToken &&
+      (errorCode === "TOKEN_EXPIRED" || errorCode === "TOKEN_INVALID")
+    ) {
+      if (window.__onUnauthorized) {
+        window.__onUnauthorized();
       }
+    }
       return Promise.reject(error);
     }
   );
@@ -79,6 +83,10 @@ const router = createBrowserRouter([
   {
     path: "/signIn",
     element: <SignIn />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
   },
 ]);
 

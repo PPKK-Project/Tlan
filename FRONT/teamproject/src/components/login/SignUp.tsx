@@ -1,15 +1,11 @@
 import { ChangeEvent, useState, useEffect, KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { SignUpType } from "../../util/types";
 import axios from "axios";
 import "../../css/signUp.css";
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
-  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(""); //  에러 메시지 상태
   const navigate = useNavigate();
 
   const handleClose = () => {
@@ -31,6 +27,16 @@ function SignUp() {
     nickname: "",
   });
 
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    type: "success" | "info" | "warning" | "error";
+  }>({
+    open: false,
+    message: "",
+    type: "error",
+  });
+
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
   };
@@ -41,6 +47,14 @@ function SignUp() {
       handleSave();
     }
   };
+
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const timer = window.setTimeout(() => {
+      setSnackbar((prev) => ({ ...prev, open: false }));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [snackbar.open]);
 
   // 이메일, 비밀번호 조건 설정
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -146,18 +160,31 @@ function SignUp() {
 
       await axios.post(`${import.meta.env.VITE_BASE_URL}/signup`, userData);
       handleClose();
+    localStorage.setItem("signUpJustNow", "true");
       navigate("/");
     } catch (error) {
       console.error("회원가입 실패:", error);
 
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 409) {
-          setErrorMessage("이미 가입되어 있는 이메일입니다.");
-          setErrorSnackbarOpen(true);
+          setSnackbar({
+            open: true,
+            message: "이미 가입되어 있는 이메일입니다.",
+            type: "error",
+          });
         } else {
-          setErrorMessage("회원가입에 실패했습니다. 다시 시도해주세요.");
-          setErrorSnackbarOpen(true);
+          setSnackbar({
+            open: true,
+            message: "회원가입에 실패했습니다. 다시 시도해주세요.",
+            type: "error",
+          });
         }
+      } else {
+        setSnackbar({
+          open: true,
+          message: "알 수 없는 오류가 발생했습니다.",
+          type: "error",
+        });
       }
     }
   };
@@ -211,9 +238,38 @@ function SignUp() {
                 aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
               >
                 {showPassword ? (
-                  <VisibilityOff fontSize="small" />
+                  // 눈 감은 아이콘
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-5 0-9-3.5-11-8 0-1.16.26-2.27.74-3.28" />
+                    <path d="M6.1 6.1A9.77 9.77 0 0 1 12 4c5 0 9 3.5 11 8a10.52 10.52 0 0 1-2.22 3.34" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
                 ) : (
-                  <Visibility fontSize="small" />
+                  // 눈 뜬 아이콘
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
                 )}
               </button>
             </div>
@@ -243,9 +299,38 @@ function SignUp() {
                 aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
               >
                 {showPassword ? (
-                  <VisibilityOff fontSize="small" />
+                  // 눈 감은 아이콘
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-5 0-9-3.5-11-8 0-1.16.26-2.27.74-3.28" />
+                    <path d="M6.1 6.1A9.77 9.77 0 0 1 12 4c5 0 9 3.5 11 8a10.52 10.52 0 0 1-2.22 3.34" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
                 ) : (
-                  <Visibility fontSize="small" />
+                  // 눈 뜬 아이콘
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
                 )}
               </button>
             </div>
@@ -289,9 +374,10 @@ function SignUp() {
             </a>
           </p>
         </div>
-        {/* 에러 메시지 */}
-        {errorSnackbarOpen && (
-          <div className="toast toast-error">{errorMessage}</div>
+        {snackbar.open && (
+          <div className={`toast toast-${snackbar.type}`}>
+            {snackbar.message}
+          </div>
         )}
       </div>
     </>

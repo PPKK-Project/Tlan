@@ -11,7 +11,8 @@ import {
 import PlanSidebar from "./PlanSidebar";
 import PlanMap from "./PlanMap";
 import ItinerarySummary from "./ItinerarySummary";
-import { Alert, AlertColor, Snackbar } from "@mui/material";
+
+type AlertType = "success" | "info" | "warning" | "error";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -78,12 +79,21 @@ function TravelPlanPage() {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    type: AlertColor;
+    type: AlertType;
   }>({
     open: false,
     message: "",
     type: "success",
   });
+
+  // 🔹 토스트 자동 닫기 (3초 후)
+  useEffect(() => {
+    if (!snackbar.open) return;
+    const timer = window.setTimeout(() => {
+      setSnackbar((prev) => ({ ...prev, open: false }));
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [snackbar.open]);
 
   useEffect(() => {
     if (filter === "all") {
@@ -271,7 +281,7 @@ function TravelPlanPage() {
       setSnackbar({
         open: true,
         message: "일정이 삭제되었습니다.",
-        type: "info",
+        type: "warning",
       });
 
     } catch (err) {
@@ -367,27 +377,11 @@ function TravelPlanPage() {
           />
         </aside>
       </div>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })} // 닫기 버튼
-          severity={snackbar.type}
-          sx={{
-            width: "auto",
-            minWidth: "fit-content",
-            borderRadius: "8px",
-            px: 2,
-            py: 1,
-            fontSize: "0.95rem",
-          }}
-        >
+      {snackbar.open && (
+        <div className={`toast toast-${snackbar.type}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
+        </div>
+      )}
     </div>
   );
 }

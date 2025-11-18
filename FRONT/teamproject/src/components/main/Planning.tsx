@@ -56,6 +56,7 @@ function Planning() {
       console.error("새 여행 생성 실패:", err);
       // TODO: alert 대신 MUI Dialog 등으로 에러 메시지 표시
       alert("여행 생성에 실패했습니다. 로그인이 필요할 수 있습니다.");
+      navigate("/signIn");
     }
   };
 
