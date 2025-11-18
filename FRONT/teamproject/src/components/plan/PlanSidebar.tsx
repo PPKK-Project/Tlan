@@ -1,97 +1,128 @@
-import React from 'react';
-import { PlaceFilter, PlaceSearchResult } from '../../util/types';
+import React from "react";
+import { PlaceFilter, PlaceSearchResult } from "../../util/types";
 
 type Props = {
+  days: number[];
   selectedDay: number;
   onSelectDay: (day: number) => void;
   availablePlaces: PlaceSearchResult[];
   addedGooglePlaceIds: string[];
   onAddPlace: (place: PlaceSearchResult) => void;
   onDeletePlace: (planId: number) => void;
-  filter: PlaceFilter; // 현재 필터 상태
-  onFilterChange: (filter: PlaceFilter) => void; // 필터 변경 함수
-}
+  addedPlansMap: { [key: string]: number };
+  filter: PlaceFilter;
+  onFilterChange: (filter: PlaceFilter) => void;
+};
 
-// 이미지의 왼쪽 '숙소 (12)' 카드 예시
-const PlaceCard: React.FC<{ place: PlaceSearchResult, isAdded: boolean, onAdd: () => void }> =
-  ({ place, isAdded, onAdd }) => (
-  <div className="flex gap-4 p-3 border-b hover:bg-gray-50">
-    <img src={place.imageUrl} alt={place.name} className="w-24 h-24 rounded-md object-cover" 
-        onError={(e) => (e.currentTarget.src = 'https://placehold.co/100x100/cccccc/ffffff?text=Error')}
-    />
-    <div className="flex-1">
-      <h3 className="font-semibold text-lg">{place.name}</h3>
-      <p className="text-sm text-gray-600">
-        ⭐ {place.rating} (리뷰 {place.reviewCount})
-      </p>
-      <p className="text-sm text-gray-500">{place.category}</p>
-      {place.price && <p className="font-bold text-lg mt-1">₩{place.price.toLocaleString()}</p>}
-    </div>
-    <div className="flex items-center">
-      <button 
-        onClick={onAdd}
-        disabled={isAdded}
-        className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-          isAdded
-            ? 'bg-gray-200 text-gray-500 cursor-not-allowed' // ⬅️ 추가됨 스타일
-            : 'bg-blue-500 hover:bg-blue-600 text-white' // ⬅️ 추가 가능 스타일
-        }`}
-      >
-        {isAdded ? '✓' : '+'}
-      </button>
-    </div>
-  </div>
-);
+// 왼쪽 사이드 바의 장소 이미지
+const PlaceCard: React.FC<{
+  place: PlaceSearchResult;
+  isAdded: boolean;
+  onAdd: () => void;
+  onDelete: () => void;
+}> = ({ place, isAdded, onAdd, onDelete }) => {
 
-const PlanSidebar: React.FC<Props> = ({ 
+  return (
+    <div className="flex gap-4 p-4 border-b hover:bg-gray-50 transition-colors">
+      <img
+        src={place.imageUrl}
+        alt={place.name}
+        className="w-20 h-20 rounded-lg object-cover shadow-sm"
+        onError={(e) =>
+          (e.currentTarget.src =
+            "https://placehold.co/100x100/cccccc/ffffff?text=No+Image")
+        }
+      />
+      <div className="flex-1 min-w-0">
+        {" "}
+        {/* min-w-0: 텍스트 내용이 너무 길 때 말줄임(...)으로 처리하는 역할 */}
+        <div className="flex items-center mb-1">
+          <h3 className="font-bold text-base truncate">{place.name}</h3>
+        </div>
+        <div className="flex items-center text-xs text-gray-500 mb-1">
+          <span className="text-yellow-500 mr-1">⭐</span>
+          <span className="font-medium text-gray-700">{place.rating}</span>
+          <span className="mx-1">·</span>
+          <span>리뷰 {place.reviewCount}</span>
+          <span className="mx-1">·</span>
+          <span>{place.category}</span>
+        </div>
+      </div>
+      <div className="flex items-center">
+        {isAdded ? (
+          // 일정에서 장소 삭제
+          <button
+            onClick={onDelete}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-all shadow-sm"
+            title="일정에서 삭제"
+          >
+            🗑️
+          </button>
+        ) : (
+          // 일정에 추가
+          <button
+            onClick={onAdd}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white hover:shadow-md transition-all"
+            title="일정에 추가"
+          >
+            +
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const PlanSidebar: React.FC<Props> = ({
+  days,
   selectedDay,
   onSelectDay,
   availablePlaces,
   addedGooglePlaceIds,
+  addedPlansMap = {}, // 기본값을 빈 객체로 설정
   onAddPlace,
+  onDeletePlace,
   filter,
   onFilterChange,
 }) => {
-  const days = [1, 2, 3]; // TODO: 여행 기간에 맞게 동적으로 생성
-  const filters: { key: PlaceFilter, label: string }[] = [
-    { key: 'all', label: '전체' },
-    { key: '숙소', label: '숙소' },
-    { key: '관광지', label: '관광지' },
-    { key: '음식점', label: '음식점' },
+  const filters: { key: PlaceFilter; label: string }[] = [
+    { key: "all", label: "전체" },
+    { key: "숙소", label: "숙소" },
+    { key: "관광지", label: "관광지" },
+    { key: "음식점", label: "음식점" },
   ];
 
   return (
     <div className="flex flex-col h-full">
       {/* 1. 날짜 탭 */}
-      <div className="flex border-b">
-        {days.map(day => (
+      <div className="flex border-b bg-gray-50">
+        {days.map((day) => (
           <button
             key={day}
             onClick={() => onSelectDay(day)}
-            className={`flex-1 py-3 font-semibold ${
-              selectedDay === day 
-                ? 'border-b-2 border-blue-500 text-blue-500' 
-                : 'text-gray-500 hover:bg-gray-100'
+            className={`flex-1 py-3 text-sm font-semibold font-medium transition-colors border-b-2 ${
+              selectedDay === day
+                ? "border-blue-500 text-blue-600 bg-white"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             }`}
           >
             {day}일차
           </button>
         ))}
-        <button className="px-4 py-3 text-gray-500 hover:bg-gray-100">+</button>
+        <button className="px-4 py-3 text-gray-400 hover:bg-gray-200 transition-colors text-lg leading-none">+</button>
       </div>
-      
+
       {/* 2. 필터 및 정렬 */}
-      <div className="p-4 border-b">
-        <h2 className="font-bold text-xl mb-3">필터</h2>
-        <div className="flex gap-2 flex-wrap">
+      <div className="p-3 border-b bg-white sticky top-0 z-10">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {filters.map(f => (
             <button
               key={f.key}
               onClick={() => onFilterChange(f.key)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
                 filter === f.key
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  ? 'bg-gray-800 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
               }`}
             >
               {f.label}
@@ -102,21 +133,28 @@ const PlanSidebar: React.FC<Props> = ({
 
       {/* 3. 장소 목록 (스크롤) */}
       <div className="flex-1 overflow-y-auto">
-        {availablePlaces.length === 0 && <p className="p-4 text-center text-gray-500">표시할 장소가 없습니다.</p>}
-        {availablePlaces.map(place => {
+        {availablePlaces.length === 0 && (
+          <div className="flex flex-col items-center justify-center h-40 text-gray-400">
+            <p>검색된 장소가 없습니다.</p>
+          </div>
+        )}
+        {availablePlaces.map((place) => {
           // "이미 추가된 Google ID 목록"에 "현재 장소의 Google ID"가 포함되어 있는지 확인
           const isAdded = addedGooglePlaceIds.includes(place.placeId);
+          const planId = addedPlansMap[place.placeId];
+
           return (
-          <PlaceCard
-            key={place.placeId}
-            place={place}
-            isAdded={isAdded}
-            onAdd={() => onAddPlace(place)}
-          />
-        );
-      })}
+            <PlaceCard
+              key={place.placeId}
+              place={place}
+              isAdded={isAdded}
+              onAdd={() => onAddPlace(place)}
+              onDelete={() => onDeletePlace(planId)}
+            />
+          );
+        })}
+      </div>
     </div>
-  </div>
   );
 };
 

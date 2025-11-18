@@ -60,4 +60,10 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
+    // 닉네임 조회
+    public String getNickname(Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found " + principal.getName()));
+        return user.getNickname();
+    }
 }

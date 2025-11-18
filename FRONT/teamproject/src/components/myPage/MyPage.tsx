@@ -1,6 +1,7 @@
 import TravelPlanList from "./TravelPlanList";
 import MyPageHeader from "./MyPageHeader";
 import TopDestinationsBanner from "./TopDestinationsBanner";
+import Chat from "../../Chat";
 
 function MyPage() {
   return (
@@ -10,6 +11,7 @@ function MyPage() {
         <MyPageHeader />
         <TopDestinationsBanner />
         <TravelPlanList />
+        <Chat/>
       </div>
     </>
   );

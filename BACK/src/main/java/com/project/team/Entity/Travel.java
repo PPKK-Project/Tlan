@@ -2,8 +2,10 @@ package com.project.team.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.project.team.Entity.flight.Flight;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,14 +25,26 @@ public class Travel {
 
     private String countryCode;
     private String title;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<TravelPlan> travelPlans = new ArrayList<>();
 
-    public Travel(User user, String countryCode, String title) {
+    @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chat = new ArrayList<>();
+
+    // Flight와의 일대일 관계 설정
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Flight flight;
+
+    public Travel(User user, String countryCode, String title, LocalDate startDate, LocalDate endDate) {
         this.user = user;
         this.countryCode = countryCode;
         this.title = title;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 }

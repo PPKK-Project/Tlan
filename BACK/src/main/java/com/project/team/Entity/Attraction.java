@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @Setter
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Attraction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +18,9 @@ public class Attraction {
     @JsonIgnore
     private Place place;
 
-    private Boolean openingHours;
-    
+    @Column(length = 512) // 넉넉한 길이 설정
+    private String openingHoursText;
+
+    private Boolean openNow;
+
 }

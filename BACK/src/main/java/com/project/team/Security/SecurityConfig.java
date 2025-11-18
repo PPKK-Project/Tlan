@@ -4,7 +4,10 @@ import com.project.team.Service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -14,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -21,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -49,7 +54,8 @@ public class SecurityConfig {
     // 애플리케이션의 보안 정책(인증/인가/세션/CORS 등) 을 전부 설정
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화(Stateless JWT 사용)
+        http
+                .csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화(Stateless JWT 사용)
                 .cors(Customizer.withDefaults())    // CORS 설정(이하의 설정 사용) 어떤 로컬호스트를 기준으로 할것인가 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 대신 JWT를 사용하므로 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
@@ -76,7 +82,7 @@ public class SecurityConfig {
         // 허용할 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
         // 허용할 헤더
-        configuration.setAllowedHeaders(Arrays.asList("*"));    // 모든 헤더 허용
+        configuration.setAllowedHeaders(List.of("*"));    // 모든 헤더 허용
         // 쿠키나 인증 정보 허용
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -84,5 +90,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

@@ -35,7 +35,7 @@ if (!window._axiosSetupDone) {
     return config;
   });
 
-  // 응답 인터셉터: 만료/무효(401)면 즉시 로그아웃 콜백 호출
+// 응답 인터셉터: 만료/무효(401)면 즉시 로그아웃 콜백 호출
   axios.interceptors.response.use(
     (res) => res,
     (error) => {

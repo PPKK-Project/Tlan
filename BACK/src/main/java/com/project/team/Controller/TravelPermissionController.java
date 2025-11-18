@@ -13,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/travels/{travelId}/permissions")
 public class TravelPermissionController {
 
     private final TravelPermissionService permissionService;
@@ -21,13 +20,13 @@ public class TravelPermissionController {
     /**
      * 여행에 다른 사용자 초대 및 권한 부여
      */
-    @PostMapping
-    public ResponseEntity<TravelPermissionResponse> createPermission(
-            @PathVariable Long travelId,
+    @PostMapping("/travels/{travelId}/share") // Corrected URL mapping
+    public ResponseEntity<Void> createPermission(
+            @PathVariable Long travelId, // Use @PathVariable to capture the ID
             @RequestBody TravelPermissionCreateRequest request) {
-
-        TravelPermissionResponse response = permissionService.createPermission(travelId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        // ... implementation
+        permissionService.createPermission(travelId, request);
+        return ResponseEntity.ok().build();
     }
 
     /**
