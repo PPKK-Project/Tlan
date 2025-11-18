@@ -7,7 +7,6 @@ import { PlaceSearchBar } from "./PlaceSearchBar";
 import PlanSidebar from "./PlanSidebar";
 import PlanMap from "./PlanMap";
 import ItinerarySummary from "./ItinerarySummary";
-import { Alert, AlertColor, Snackbar } from "@mui/material";
 
 function TravelPlanPage() {
   // URL에서 /travels/:travelId 의 'travelId' 값을 가져옴
@@ -98,29 +97,11 @@ function TravelPlanPage() {
           />
         </aside>
       </div>
-
-      {/* 알림 스낵바 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.type as AlertColor}
-          sx={{
-            width: "auto",
-            minWidth: "fit-content",
-            borderRadius: "8px",
-            px: 2,
-            py: 1,
-            fontSize: "0.95rem",
-          }}
-        >
+      {snackbar.open && (
+        <div className={`toast toast-${snackbar.type}`}>
           {snackbar.message}
-        </Alert>
-      </Snackbar>
+        </div>
+      )}
     </div>
   );
 }

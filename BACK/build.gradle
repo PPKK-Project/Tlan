@@ -48,6 +48,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
     // 웹소켓 스타터 추가
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// 이메일 인증용 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {

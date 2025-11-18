@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // login 엔드포인트의 POST 요청은 모두 허용
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/verify-email").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/api/**").permitAll()

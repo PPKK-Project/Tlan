@@ -20,7 +20,7 @@ public class UserController {
 
     // 회원 가입
     @PostMapping("/signup")
-    public ResponseEntity<User> signUp(@RequestBody UserSignUpRequest dto) {
+    public ResponseEntity<?> signUp(@RequestBody UserSignUpRequest dto) {
         return userService.signUp(dto);
     }
 
