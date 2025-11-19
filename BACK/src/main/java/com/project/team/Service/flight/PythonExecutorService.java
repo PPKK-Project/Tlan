@@ -17,7 +17,7 @@ import java.io.IOException;
 public class PythonExecutorService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Value("${python-path=aa}")
+    @Value("${python-path}")
     private String pythonExecutable;
     @Value("${flight-py-path}")
     private String scriptPath;
