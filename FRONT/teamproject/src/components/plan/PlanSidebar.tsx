@@ -2,6 +2,7 @@ import React from "react";
 import { PlaceFilter, PlaceSearchResult } from "../../util/types";
 
 type Props = {
+  days: number[];
   selectedDay: number;
   onSelectDay: (day: number) => void;
   availablePlaces: PlaceSearchResult[];
@@ -73,6 +74,7 @@ const PlaceCard: React.FC<{
 };
 
 const PlanSidebar: React.FC<Props> = ({
+  days,
   selectedDay,
   onSelectDay,
   availablePlaces,
@@ -83,7 +85,6 @@ const PlanSidebar: React.FC<Props> = ({
   filter,
   onFilterChange,
 }) => {
-  const days = [1, 2, 3]; // TODO: 여행 기간에 맞게 동적으로 생성
   const filters: { key: PlaceFilter; label: string }[] = [
     { key: "all", label: "전체" },
     { key: "숙소", label: "숙소" },

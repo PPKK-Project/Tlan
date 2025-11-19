@@ -46,6 +46,12 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             username = (String) responseMap.get("email");
         }
 
+        // 카카오 로그인인지 확인
+        else if ( attributes.containsKey("kakao_account")) {
+            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+            username = (String) kakaoAccount.get("email");
+        }
+
         // 3. username이 여전히 null인지 검사 (정보 제공에 동의하지 않았거나, email이 없는 경우)
         if (username == null) {
             // oAuthUser.getName()은 공급자가 제공하는 고유 ID (sub, id 등)이다.
@@ -56,7 +62,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         final String finalUsername = username;
         User user = userRepository.findByEmail(username)
                 .orElseGet(() -> userRepository.save(new User(finalUsername, "social", "SocialUser"))); // password 필드에 임의의 값 할당
-
+        user.setEmailVerified(true);
         String token = jwtService.getToken(user.getEmail(), user.getId());
         // 프론트엔드로 리다이렉트 URL 생성(토큰을 쿼리 파라미터로 추가해줘야한다.)
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)

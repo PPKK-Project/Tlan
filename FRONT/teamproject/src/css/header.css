@@ -74,21 +74,29 @@
   background: rgba(255, 255, 255, 0.14);
   transform: translateY(-1px);
 }
+
 /* 로그아웃  */
 .header-logout-btn {
   background-color: #06b6d4;
   color: #ffffff;
 }
 
-/* active */
+/* hover:bg-cyan-600 */
+.header-logout-btn:hover {
+  background-color: #0891b2;
+  box-shadow: 0 14px 30px rgba(8, 145, 178, 0.4);
+  transform: translateY(-1px);
+}
+
+/* active:bg-cyan-700 */
 .header-logout-btn:active {
-  background-color: #3b30dc; /* 살짝 더 진하게 주고 싶으면 조정 가능 */
+  background-color: #0e7490;
   transform: translateY(0);
 }
 
-/* focus 링 */
+/* focus:ring-cyan-300 느낌 */
 .header-logout-btn:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.95),
-    0 10px 25px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.9),
+    /* 바깥 링 */ 0 10px 25px rgba(0, 0, 0, 0.18);
 }

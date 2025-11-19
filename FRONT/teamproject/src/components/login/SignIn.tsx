@@ -58,16 +58,11 @@ function SignIn() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
-    console.log("------");
-    console.log(token);
 
     if (!token) return;
 
     localStorage.setItem("jwt", token);
-
-    if (typeof window.__onLoginSuccess === "function") {
-      window.__onLoginSuccess();
-    }
+    localStorage.setItem("loginJustNow", "true");
 
     navigate("/", { replace: true });
   }, [location.search, navigate]);
@@ -96,9 +91,8 @@ function SignIn() {
         if (authHeader?.startsWith("Bearer ")) {
           const token = authHeader.slice(7);
           localStorage.setItem("jwt", token);
-          if (typeof window.__onLoginSuccess === "function") {
-            window.__onLoginSuccess();
-          }
+          localStorage.setItem("loginJustNow", "true"); // 🔹 추가
+
           navigate("/");
         } else {
           setSnackbar({
@@ -111,11 +105,34 @@ function SignIn() {
       })
       .catch((err) => {
         console.log(err);
-        setSnackbar({
-          open: true,
-          message: "이메일 혹은 비밀번호가 일치하지 않습니다.",
-          type: "error",
-        });
+
+        const status = err.response?.status;
+        const backendMessage =
+          err.response?.data?.message || err.response?.data;
+
+        if (status === 403) {
+          setSnackbar({
+            open: true,
+            message: backendMessage || "이메일 인증 완료 후 로그인 해주세요.",
+            type: "error",
+          });
+        } else if (status === 401) {
+          setSnackbar({
+            open: true,
+            message:
+              backendMessage || "이메일 혹은 비밀번호가 일치하지 않습니다.",
+            type: "error",
+          });
+        } else {
+          // 기타 에러
+          setSnackbar({
+            open: true,
+            message:
+              backendMessage ||
+              "로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+            type: "error",
+          });
+        }
       });
   };
 
@@ -124,14 +141,11 @@ function SignIn() {
   return (
     <div className="signin-page">
       <div className="signin-card">
-        {/* 상단 로고 */}
         <div className="signin-logo-area">
           <div className="signin-logo" onClick={() => navigate("/")}>
             TLAN
           </div>
         </div>
-
-        {/* <h2 className="signin-title">로그인</h2> */}
 
         <div className="form-group">
           <label htmlFor="email" className="form-label">
@@ -233,19 +247,31 @@ function SignIn() {
             className="sns-btn sns-google"
             type="button"
             onClick={() =>
-              (window.location.href = `${import.meta.env.VITE_BASE_URL}/oauth2/authorization/google`)
+              (window.location.href = `${
+                import.meta.env.VITE_BASE_URL
+              }/oauth2/authorization/google`)
             }
           >
             G
           </button>
-          <button className="sns-btn sns-kakao" type="button">
+          <button
+            className="sns-btn sns-kakao"
+            type="button"
+            onClick={() =>
+              (window.location.href = `${
+                import.meta.env.VITE_BASE_URL
+              }/oauth2/authorization/kakao`)
+            }
+          >
             K
           </button>
           <button
             className="sns-btn sns-naver"
             type="button"
             onClick={() =>
-              (window.location.href = `${import.meta.env.VITE_BASE_URL}/oauth2/authorization/naver`)
+              (window.location.href = `${
+                import.meta.env.VITE_BASE_URL
+              }/oauth2/authorization/naver`)
             }
           >
             N

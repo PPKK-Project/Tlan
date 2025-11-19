@@ -1,17 +1,15 @@
 import React from 'react';
-import { AlertColor } from '@mui/material';
 import { TravelPlan } from '../../util/types';
+import { useNavigate } from 'react-router-dom';
+
+// type AlertType = "success" | "info" | "warning" | "error";
 
 type Props = {
   plans: TravelPlan[]; // '전체' 일정 목록
   onDeletePlan: (planId: number) => void;
-  setNotify: (Notification: {
-    open: boolean,
-    message: string,
-    type: AlertColor,
-  }) => void;
+  isFlightLoading: boolean;
 }
-const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, setNotify }) => {
+const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, isFlightLoading }) => {
   
   // 날짜별로 그룹화 (dayNumber 기준)
   const plansByDay = plans.reduce((acc, plan) => {
@@ -21,24 +19,14 @@ const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, setNotify }) =
 
   // 날짜 키를 숫자로 변환하여 정렬
   const sortedDays = Object.keys(plansByDay).map(Number).sort((a, b) => a - b);
-
-  const handleSaveClick = () => {
-    const maxDay = sortedDays.length > 0 ? Math.max(...sortedDays) : 0;
-
-    if(maxDay === 0) {
-      setNotify({
-        open: true,
-        message: '저장할 일정이 없습니다.',
-        type: 'warning',
-      });
-    } else {
-      setNotify({
-        open: true,
-        message: `총 ${maxDay}일차의 일정이 성공적으로 저장되었습니다.`,
-        type: 'success',
-      })
-    }
+  const navigate = useNavigate();
+  // Flight 컴포넌트 페이지로 갈수있게
+  const handleMoveFlight = () => {
+    // const travelId = window.location.pathname.split('/')[2];
+    // window.location.href = `/travels/${travelId}/flight`;
+    navigate('flight');
   }
+
 
   return (
     <div className="p-4 h-full flex flex-col">
@@ -87,9 +75,13 @@ const ItinerarySummary: React.FC<Props> = ({ plans, onDeletePlan, setNotify }) =
           <span className="font-semibold">0시간 0분</span>
         </div>
         <button
-          onClick={handleSaveClick}
-          className="w-full bg-blue-500 text-white py-3 rounded-md font-bold hover:bg-blue-600 transition-colors">
-          여행 일정 저장하기
+          onClick={handleMoveFlight}
+          disabled={isFlightLoading}
+          className="w-full bg-blue-500 text-white py-3 rounded-md font-bold transition-colors
+                     hover:bg-blue-600 
+                     disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isFlightLoading ? "항공권 검색중..." : "항공권 보러가기"}
         </button>
       </div>
     </div>

@@ -26,6 +26,9 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Chat> chat = new ArrayList<>();

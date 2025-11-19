@@ -214,10 +214,6 @@
   border: 1px solid #dadce0;
 }
 
-.sns-apple {
-  background: #000000;
-  color: #ffffff;
-}
 
 /* 토스트 */
 .toast {
@@ -243,4 +239,64 @@
 
 .toast-success {
   background: #4caf50;
+}
+
+/* 이메일 인증 시 사용하는 css */
+.verify-title {
+  margin-top: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+.verify-message {
+  margin-top: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #666;
+}
+
+/* 로딩 상태에서 살짝 도는 동그라미 */
+.verify-spinner {
+  margin: 0 auto 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid #e0f4ff;
+  border-top-color: #00bcd4;
+  animation: verify-spin 0.8s linear infinite;
+}
+
+@keyframes verify-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.verify-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* 보조 버튼 (메인으로 돌아가기) */
+.verify-secondary-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #d0d7e2;
+  background: #fff;
+  color: #4c5667;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.verify-secondary-btn:hover {
+  background: #f4f7fb;
+  transform: translateY(-1px);
 }
