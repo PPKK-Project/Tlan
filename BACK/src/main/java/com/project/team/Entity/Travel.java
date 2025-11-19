@@ -40,6 +40,10 @@ public class Travel {
     @JsonIgnore
     private Flight flight;
 
+    @OneToMany(mappedBy = "travel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<TravelPermission> permissions = new ArrayList<>();
+
     public Travel(User user, String countryCode, String title, LocalDate startDate, LocalDate endDate) {
         this.user = user;
         this.countryCode = countryCode;
