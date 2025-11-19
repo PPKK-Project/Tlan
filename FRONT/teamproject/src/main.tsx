@@ -2,10 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./css/index.css";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MainPage from "./components/main/MainPage";
 import TravelPlanPage from "./components/plan/TravelPlanPage";
 import MyPage from "./components/myPage/MyPage";
@@ -14,6 +11,7 @@ import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
 import VerifyEmail from "./components/login/VerifyEmail";
 import Flight from "./components/plan/Flight";
+import TravelPlanPdfPage from "./components/pdfPages/TravelPlanpdfPage";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +91,10 @@ const router = createBrowserRouter([
   {
     path: "/verify-email",
     element: <VerifyEmail />,
+  },
+  {
+    path: "/travels/:travelId/pdf",
+    element: <TravelPlanPdfPage />,
   },
 ]);
 
