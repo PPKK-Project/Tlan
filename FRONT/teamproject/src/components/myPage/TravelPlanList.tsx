@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "../../ShareModal";
 
@@ -20,6 +20,7 @@ const getTravelPlanList = async () => {
 function TravelPlanList() {
   // QueryClient 인스턴스를 가져옵니다.
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // 어떤 플랜을 공유할지 상태로 관리합니다. null이면 모달이 닫힌 상태입니다.
   const [sharingPlan, setSharingPlan] = useState<TravelPlan | null>(null);
@@ -120,6 +121,12 @@ function TravelPlanList() {
                 {/* 수정, 삭제, 공유 버튼 영역 */}
 
                 <div className="plan-card-actions">
+                  <button
+                    onClick={() => navigate(`/travels/${plan.id}/pdf`)}
+                    className="plan-card-button edit-button"
+                  >
+                    pdf 저장
+                  </button>
                   <Link
                     to={`/travels/${plan.id}`}
                     className="plan-card-button edit-button"
