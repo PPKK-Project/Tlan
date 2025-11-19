@@ -3,6 +3,7 @@ package com.project.team.Service.flight;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.project.team.Dto.flight.FlightData;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -16,6 +17,10 @@ import java.io.IOException;
 public class PythonExecutorService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    @Value("${python-path=aa}")
+    private String pythonExecutable;
+    @Value("${flight-py-path}")
+    private String scriptPath;
 
     public List<FlightData> executeFlightCrawler(
             String departureAp,
@@ -24,9 +29,6 @@ public class PythonExecutorService {
             String returnDate,
             int adultCount
     ) {
-        // 1. 실제 비즈니스 로직을 Callable로 정의합니다.
-        String pythonExecutable = "C:\\Users\\rlack\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe";
-        String scriptPath = "C:\\Users\\rlack\\Desktop\\Code\\TeamProject\\FRONT\\teamproject\\src\\util\\flight.py";
         ProcessBuilder processBuilder = new ProcessBuilder(
                 pythonExecutable,
                 "-X", "utf8",

@@ -6,7 +6,7 @@ import sys
 
 # 🚨 개별 항공편 항목의 셀렉터 (정확함)
 FLIGHT_ITEM_SELECTOR = '.combination_ConcurrentItemContainer__uUEbl'
-MAX_FLIGHT_COUNT = 400
+MAX_FLIGHT_COUNT = 600
 
 async def crawl_and_parse_flights():
 # URL 생성 로직
