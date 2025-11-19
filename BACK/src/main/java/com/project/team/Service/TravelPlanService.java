@@ -6,6 +6,7 @@ import com.project.team.Dto.Travel.TravelPlanResponse;
 import com.project.team.Dto.Travel.TravelPlanUpdateRequest;
 import com.project.team.Entity.*;
 import com.project.team.Exception.AccessDeniedException;
+import com.project.team.Exception.BadRequestException;
 import com.project.team.Exception.ResourceNotFoundException;
 import com.project.team.Repository.*;
 import com.project.team.Service.API.PlaceApiService;
@@ -23,17 +24,12 @@ import java.util.stream.StreamSupport;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional // findOrCreatePlace에서 save 해야하므로 (readOnly = true) 제거했습니다.
+@Transactional
 public class TravelPlanService {
 
     private final TravelPlanRepository travelPlanRepository;
-    private final TravelRepository travelRepository; // TravelRepository 주입
-    private final PlaceRepository placeRepository; // PlaceRepository 주입
-
-    private final AccommodationRepository accommodationRepository;
-    private final AttractionRepository attractionRepository;
-    private final RestaurantRepository restaurantRepository;
-
+    private final TravelRepository travelRepository;
+    private final PlaceRepository placeRepository;
     private final PlaceApiService placeApiService;
 
     // 데이터 갱신 주기 30일
@@ -56,6 +52,7 @@ public class TravelPlanService {
      * @param user     현재 로그인한 사용자 (권한 확인용)
      * @return TravelPlanResponse 리스트
      */
+    @Transactional(readOnly = true) // 읽기전용으로 설정해두면 변경 상태를 추적할 필요가 없어서 최적화 가능
     public List<TravelPlanResponse> getTravelPlans(Long travelId, User user) {
         // 1. 여행 정보 조회 및 소유주 확인
         Travel travel = findTravelAndValidateOwner(travelId, user);
@@ -92,11 +89,30 @@ public class TravelPlanService {
             throw new AccessDeniedException("This plan does not belong to the specified travel.");
         }
 
+        // 4. 기존 값과 새로운 값 정의
+        int oldDay = travelPlan.getDayNumber();
+        int oldSeq = travelPlan.getSequence();
+        int newDay = request.dayNumber();
+        int newSeq = request.sequence();
+
+        // 5. 일차 또는 순서가 변경되었는지 확인
+        boolean needsResequence = (oldDay != newDay || oldSeq != newSeq);
+
+        // 만약 변경됐다면
+        if (needsResequence) {
+            // (삭제 로직) 기존 위치에서 해당 항목을 제거하고 뒤 항목들을 1씩 당김
+            reorderForDelete(travelId, oldDay, oldSeq);
+
+            // (삽입 로직) 새로운 위치에 해당 항목을 삽입하기 위해 뒤 항목들을 1씩 밀어냄
+            reorderForInsert(travelId, newDay, newSeq);
+        }
+
         // 4. 엔티티 데이터 수정 (변경 감지로 인해 자동 UPDATE)
-        travelPlan.setDayNumber(request.dayNumber());
-        travelPlan.setSequence(request.sequence());
+        travelPlan.setDayNumber(newDay);
+        travelPlan.setSequence(newSeq);
         travelPlan.setMemo(request.memo());
 
+        TravelPlan updatedPlan = travelPlanRepository.save(travelPlan);
         return new TravelPlanResponse(travelPlan);
     }
 
@@ -114,7 +130,17 @@ public class TravelPlanService {
             throw new AccessDeniedException("This plan does not belong to the specified travel.");
 
         }
+
+        // 3. 삭제 전, 정보 저장
+        int dayNumber = travelPlan.getDayNumber();
+        int deletedSequence = travelPlan.getSequence();
+
+        // 4. 일정 삭제
         travelPlanRepository.delete(travelPlan);
+        travelPlanRepository.flush(); // 삭제는 즉시 반영
+
+        // 5. (재정렬) 삭제된 항목보다 뒤에 있던 항목들의 sequence를 1씩 감소시킴
+        reorderForDelete(travelId, dayNumber, deletedSequence);
     }
 
     @Transactional
@@ -128,14 +154,50 @@ public class TravelPlanService {
             throw new AccessDeniedException("You do not have permission to add a plan to this travel.");
         }
 
-        // 3. 장소(Place) 찾기 또는 생성 (findOrCreate)
+        // 3. 장소(Place) 찾기 또는 생성
         Place place = findOrCreatePlace(request);
 
-        // 4. 새로운 TravelPlan 생성 및 저장
+        // 4. (재정렬) 새로운 일정이 삽입될 위치(request.sequence) 및 그 뒤의 모든 일정 순서를 1씩 밀어냄
+        reorderForInsert(travelId, request.dayNumber(), request.sequence());
+        travelPlanRepository.flush(); // 순서 변경을 DB에 즉시 반영
+
+        // 5. 새로운 TravelPlan 생성 및 저장
         TravelPlan newPlan = new TravelPlan(travel, request.sequence(), request.memo(), request.dayNumber(), place);
 
         return new TravelPlanResponse(travelPlanRepository.save(newPlan));
     }
+
+    /**
+     * 삽입을 위해 space 확보: targetSequence 이상인 항목들의 sequence를 +1
+     */
+    private void reorderForInsert(Long travelId, int dayNumber, int targetSequence) {
+        // 1. 해당 일차의 모든 일정을 순서대로 가져옴
+        List<TravelPlan> plans = travelPlanRepository.findByTravelIdAndDayNumberOrderBySequenceAsc(travelId, dayNumber);
+
+        // 2. 순회하며 sequence 변경
+        for (TravelPlan plan : plans) {
+            if (plan.getSequence() >= targetSequence) { // 변경할 일정과 그 뒤의 일정을 둘 다 변경하니까 ">=" 사용
+                plan.setSequence(plan.getSequence() + 1);
+                // JPA 영속성 컨텍스트가 변경을 감지하여 트랜잭션 종료 시 update 쿼리를 날린다.
+            }
+        }
+        // saveAll을 호출할 필요 없이, 트랜잭션이 종료되면 JPA가 변경된 것을 감지(Dirty Checking)하고 update 쿼리를 실행한다.
+    }
+
+    /**
+     * 삭제/이동 후 빈공간 메우기: deletedSequence 보다 큰 항목들의 sequence를 -1
+     */
+    private void reorderForDelete(Long travelId, int dayNumber, int deletedSequence) {
+        List<TravelPlan> plans = travelPlanRepository.findByTravelIdAndDayNumberOrderBySequenceAsc(travelId, dayNumber);
+
+        for (TravelPlan plan : plans) {
+            // 삭제된 항목 자체는 이미 리스트에 없으므로, 'deletedSequence' 보다 "큰" 항목들만 당긴다.
+            if (plan.getSequence() > deletedSequence) {
+                plan.setSequence(plan.getSequence() - 1);
+            }
+        }
+    }
+
 
     /**
      * Google Place ID를 기준으로 장소를 찾거나, 없으면 새로 생성하여 반환합니다.
@@ -177,11 +239,15 @@ public class TravelPlanService {
         newPlace.setType(request.type());
         newPlace.setLatitude(request.latitude());
         newPlace.setLongitude(request.longitude());
-        Place savedPlace = placeRepository.save(newPlace);
 
+        // save 하기 전에 폐업 여부 먼저 확인
         if(details != null){
-            saveOrUpdateDetailsByType(savedPlace, request.type(), details);
+            saveOrUpdateDetailsByType(newPlace, request.type(), details);
         }
+
+        // 폐업 예외가 발생하지 않은 경우에만 저장
+        Place savedPlace = placeRepository.save(newPlace);
+        savedPlace.setUpdatedAt(LocalDateTime.now()); // 생성 시에도 갱신 시간 마킹
         return savedPlace;
     }
 
@@ -194,6 +260,7 @@ public class TravelPlanService {
         if(details != null) {
             saveOrUpdateDetailsByType(placeToUpdate, placeToUpdate.getType(), details);
         }
+        placeToUpdate.setUpdatedAt(LocalDateTime.now()); // 갱신 시간 마킹
         return placeRepository.save(placeToUpdate);
     }
 
@@ -210,7 +277,8 @@ public class TravelPlanService {
         // 영구 폐업 여부 확인
         if(result.has("permanently_closed") && result.get("permanently_closed").asBoolean(false)) {
             log.warn("{} ({})는 폐업했습니다.", place.getName(), place.getGooglePlaceId());
-            // TODO: place 엔티티에 'isActive = false' 같은 플래그를 두어 비활성화 처리
+            // 폐업한 장소는 일정에 추가되지 않도록 예외 발생
+            throw new BadRequestException("'" + place.getName() + "'(은)는 영구적으로 폐업한 장소이므로 추가할 수 없습니다.");
         }
         String phoneNumber = result.has("formatted_phone_number") ?
                 result.get("formatted_phone_number").asText(null) : null;

@@ -1,6 +1,15 @@
 import { API_BASE_URL, getAxiosConfig, getCategoryFromTypes, getPhotoUrl, GOOGLE_MAPS_API_KEY } from './../util/planUtils';
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
+// API 응답에 맞게 타입을 정의합니다. 실제 데이터 구조에 따라 수정이 필요할 수 있습니다.
+interface FlightData {
+  airline: string;
+  priceKRW: number;
+  departureTime: string;
+  arrivalTime: string;
+  returnDepartureTime: string;
+  returnArrivalTime: string;
+}
 import { AddPlanRequest, PlaceFilter, PlaceSearchResult, Travel, TravelPlan, UpdateTravelRequest } from "../util/types";
 import { AlertColor } from "@mui/material";
 
@@ -15,6 +24,11 @@ export function useTravelData(travelId: string | undefined) {
   const [travelInfo, setTravelInfo] = useState<Travel | null>(null);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [dates, setDates] = useState({ startDate: "", endDate: "" });
+
+  // 1-1. 항공권 정보
+  const [flights, setFlights] = useState<FlightData[]>([]);
+  const [isFlightLoading, setIsFlightLoading] = useState(false);
+  const [flightError, setFlightError] = useState<string | null>(null);
 
   // 2. 일정(Plan) 목록
   const [plans, setPlans] = useState<TravelPlan[]>([]);
@@ -113,6 +127,41 @@ useEffect(() => {
   fetchPlans();
 }, [travelId]);
 
+// Effect: 항공권 정보 불러오기
+useEffect(() => {
+  const fetchFlightsData = async () => {
+    if (!travelId || !travelInfo?.startDate || !travelInfo?.endDate) {
+      // travelId 또는 날짜 정보가 없으면 불러오지 않음
+      setFlights([]); // 이전 항공권 정보 초기화
+      setIsFlightLoading(false);
+      return;
+    }
+
+    try {
+      setIsFlightLoading(true);
+      setFlightError(null);
+
+      const params = {
+        depAp: "SEL", // TODO: 추후 여행 정보에서 출발 공항 코드 가져오기
+        arrAp: "TYO", // TODO: 추후 여행 정보에서 도착 공항 코드 가져오기
+        depDate: travelInfo.startDate.replace(/-/g, ""),
+        retDate: travelInfo.endDate.replace(/-/g, ""),
+        adult: 1,
+      };
+
+      const flightRes = await axios.get("http://localhost:8080/flight", { params });
+      setFlights(flightRes.data);
+    } catch (err) {
+      console.error("항공권 정보를 불러오는 데 실패했습니다.", err);
+      setFlightError(err.message || "항공권 정보를 불러오는 데 실패했습니다.");
+      setFlights([]); // 에러 발생 시 항공권 정보 초기화
+    } finally {
+      setIsFlightLoading(false);
+    }
+  };
+  fetchFlightsData();
+}, [travelId, travelInfo?.startDate, travelInfo?.endDate]); // travelId와 여행 날짜 변경 시 재실행
+
 // Effect: 장소 검색(Places) API 호출
 useEffect(() => {
   if(!travelId) return;
@@ -170,6 +219,16 @@ useEffect(() => {
     }
   }, [filter, allPlaces]);
 
+
+  useEffect(() => {
+    if (snackbar.open) {
+      const timer = setTimeout(() => {
+        setSnackbar((prev) => ({ ...prev, open: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [snackbar.open, snackbar.message]);
+
   // Handler: 날짜 저장
   const handleSaveDates = useCallback(
     async (startDate: string, endDate: string) => {
@@ -199,7 +258,7 @@ useEffect(() => {
         });
       }
     },
-    [travelId] 
+    [travelId]
   );
 
   // Handler: 장소 검색
@@ -276,7 +335,26 @@ useEffect(() => {
           `${API_BASE_URL}/travels/${travelId}/plans/${planId}`,
           getAxiosConfig()
         );
-        setPlans((prev) => prev.filter((p) => p.planId !== planId));
+        // 순서(sequence) 재정렬
+        setPlans((prev) => {
+          // 1. 삭제되는 일정을 찾습니다.
+          const deletedPlan = prev.find((p) => p.planId === planId);
+          if (!deletedPlan) return prev;
+
+          // 2. 일정을 리스트에서 제거합니다.
+          const newPlans = prev.filter((p) => p.planId !== planId);
+
+          // 3. 같은 날짜(dayNumber)이면서, 삭제된 일정보다 뒤에 있는(sequence가 큰) 일정들의 순서를 1씩 당깁니다.
+          return newPlans.map((p) => {
+            if (
+              p.dayNumber === deletedPlan.dayNumber &&
+              p.sequence > deletedPlan.sequence
+            ) {
+              return { ...p, sequence: p.sequence - 1 };
+            }
+            return p;
+          });
+        });
         setSnackbar({
           open: true,
           message: "일정이 삭제되었습니다.",
@@ -325,7 +403,9 @@ useEffect(() => {
     snackbar,
     setSnackbar,
     addedPlansMap,
-    days
+    days,
+    flights, // 추가
+    isFlightLoading, // 추가
+    flightError, // 추가
   };
 }
-

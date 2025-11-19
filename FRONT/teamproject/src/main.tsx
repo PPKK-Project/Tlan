@@ -13,6 +13,7 @@ import axios from "axios";
 import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
 import VerifyEmail from "./components/login/VerifyEmail";
+import Flight from "./components/plan/Flight";
 
 const queryClient = new QueryClient();
 
@@ -35,27 +36,27 @@ if (!window._axiosSetupDone) {
     return config;
   });
 
-// 응답 인터셉터: 만료/무효(401)면 즉시 로그아웃 콜백 호출
+  // 응답 인터셉터: 만료/무효(401)면 즉시 로그아웃 콜백 호출
   axios.interceptors.response.use(
     (res) => res,
     (error) => {
-    const status = error.response?.status;
-    const hasToken = !!localStorage.getItem("jwt");
-    const errorCode = error.response?.data?.code;
-    // ↑ 백엔드에서 내려주는 에러 코드 이름에 맞춰 수정: 예) 'TOKEN_EXPIRED', 'TOKEN_INVALID' 등
+      const status = error.response?.status;
+      const hasToken = !!localStorage.getItem("jwt");
+      const errorCode = error.response?.data?.code;
+      // ↑ 백엔드에서 내려주는 에러 코드 이름에 맞춰 수정: 예) 'TOKEN_EXPIRED', 'TOKEN_INVALID' 등
 
-    // 1) 토큰이 있고
-    // 2) 401이고
-    // 3) 에러 코드가 '토큰 만료 / 토큰 잘못됨'일 때만 자동 로그아웃
-    if (
-      status === 401 &&
-      hasToken &&
-      (errorCode === "TOKEN_EXPIRED" || errorCode === "TOKEN_INVALID")
-    ) {
-      if (window.__onUnauthorized) {
-        window.__onUnauthorized();
+      // 1) 토큰이 있고
+      // 2) 401이고
+      // 3) 에러 코드가 '토큰 만료 / 토큰 잘못됨'일 때만 자동 로그아웃
+      if (
+        status === 401 &&
+        hasToken &&
+        (errorCode === "TOKEN_EXPIRED" || errorCode === "TOKEN_INVALID")
+      ) {
+        if (window.__onUnauthorized) {
+          window.__onUnauthorized();
+        }
       }
-    }
       return Promise.reject(error);
     }
   );
@@ -68,9 +69,14 @@ const router = createBrowserRouter([
     element: <MainPage />,
   },
   {
-    // :travelId 파라미터를 통해 어떤 여행인지 구분
     path: "/travels/:travelId",
     element: <TravelPlanPage />,
+    children: [
+      {
+        path: "flight",
+        element: <Flight />,
+      },
+    ],
   },
   {
     path: "/myPage",
