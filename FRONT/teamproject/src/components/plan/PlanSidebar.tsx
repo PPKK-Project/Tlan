@@ -1,5 +1,6 @@
 import React from "react";
 import { PlaceFilter, PlaceSearchResult } from "../../util/types";
+import { usePlanPagination } from "../../hooks/usePlanPagenation";
 
 type Props = {
   days: number[];
@@ -85,6 +86,11 @@ const PlanSidebar: React.FC<Props> = ({
   filter,
   onFilterChange,
 }) => {
+
+  // hooks 파일에 분리해둔 usePlanPagination 커스텀 훅 사용
+  const { visibleDays, hasPrev, hasNext, handlePrev, handleNext } =
+    usePlanPagination(days, selectedDay, 5);
+
   const filters: { key: PlaceFilter; label: string }[] = [
     { key: "all", label: "전체" },
     { key: "숙소", label: "숙소" },
@@ -95,21 +101,45 @@ const PlanSidebar: React.FC<Props> = ({
   return (
     <div className="flex flex-col h-full">
       {/* 1. 날짜 탭 */}
-      <div className="flex border-b bg-gray-50">
-        {days.map((day) => (
-          <button
-            key={day}
-            onClick={() => onSelectDay(day)}
-            className={`flex-1 py-3 text-sm font-semibold font-medium transition-colors border-b-2 ${
-              selectedDay === day
-                ? "border-blue-500 text-blue-600 bg-white"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            {day}일차
-          </button>
-        ))}
-        <button className="px-4 py-3 text-gray-400 hover:bg-gray-200 transition-colors text-lg leading-none">+</button>
+      <div className="border-b bg-gray-50">
+          <div className="flex">
+          {/* 이전 버튼 (-) */}
+          {hasPrev && (
+            <button
+              onClick={handlePrev}
+              className="px-3 py-3 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold bg-gray-100 border-b-2 border-transparent"
+              title="이전 날짜"
+            >
+              -
+            </button>
+          )}
+
+          {/* 현재 페이지의 날짜들 */}
+          {visibleDays.map((day) => (
+            <button
+              key={day}
+              onClick={() => onSelectDay(day)}
+              className={`flex-1 min-w-[60px] py-3 text-sm font-semibold transition-colors border-b-2 ${
+                selectedDay === day
+                  ? "border-blue-500 text-blue-600 bg-white"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              }`}
+            >
+              {day}일차
+            </button>
+          ))}
+
+          {/* 다음 버튼 (+) */}
+          {hasNext && (
+            <button
+              onClick={handleNext}
+              className="px-3 py-3 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold bg-gray-100 border-b-2 border-transparent"
+              title="다음 날짜"
+            >
+              +
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 2. 필터 및 정렬 */}
