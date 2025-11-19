@@ -335,7 +335,26 @@ useEffect(() => {
           `${API_BASE_URL}/travels/${travelId}/plans/${planId}`,
           getAxiosConfig()
         );
-        setPlans((prev) => prev.filter((p) => p.planId !== planId));
+        // 순서(sequence) 재정렬
+        setPlans((prev) => {
+          // 1. 삭제되는 일정을 찾습니다.
+          const deletedPlan = prev.find((p) => p.planId === planId);
+          if (!deletedPlan) return prev;
+
+          // 2. 일정을 리스트에서 제거합니다.
+          const newPlans = prev.filter((p) => p.planId !== planId);
+
+          // 3. 같은 날짜(dayNumber)이면서, 삭제된 일정보다 뒤에 있는(sequence가 큰) 일정들의 순서를 1씩 당깁니다.
+          return newPlans.map((p) => {
+            if (
+              p.dayNumber === deletedPlan.dayNumber &&
+              p.sequence > deletedPlan.sequence
+            ) {
+              return { ...p, sequence: p.sequence - 1 };
+            }
+            return p;
+          });
+        });
         setSnackbar({
           open: true,
           message: "일정이 삭제되었습니다.",

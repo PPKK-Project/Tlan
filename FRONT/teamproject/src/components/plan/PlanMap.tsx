@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   MarkerF,
   InfoWindowF,
+  PolylineF,
 } from "@react-google-maps/api";
 import { PlaceSearchResult, TravelPlan } from "../../util/types";
 
@@ -82,6 +83,28 @@ const PlanMap: React.FC<Props> = ({
     }
   }, [map, plans, mapCenter]);
 
+  // 마커를 잇는 경로 데이터 생성
+  const path = useMemo(() => {
+    return [...plans]
+      .sort((a, b) => a.sequence - b.sequence) // sequence 순으로 정렬
+      .map((plan) => ({
+        lat: plan.place.latitude,
+        lng: plan.place.longitude,
+      }));
+  }, [plans]);
+
+  // 경로 선 스타일 옵션
+  const polylineOptions = {
+    strokeColor: "#3B82F6", // 파란색 (Tailwind blue-500 색상)
+    strokeOpacity: 0.8,     // 투명도
+    strokeWeight: 5,        // 두께
+    clickable: false,       // 선 클릭 방지
+    draggable: false,       // 선 드래그 방지
+    editable: false,        // 선 편집 방지
+    visible: true,
+    zIndex: 1,              // 마커보다 뒤에 오도록 설정 (마커가 zIndex 10임)
+  };
+
   // 렌더링 로직
   if (loadError) {
     console.error("Google Maps API 로드 실패:", loadError);
@@ -117,6 +140,11 @@ const PlanMap: React.FC<Props> = ({
         fullscreenControl: false,
       }}
     >
+      {/* 경로 그리기 (일정이 2개 이상일 때만) */}
+      {path.length > 1 && (
+        <PolylineF path={path} options={polylineOptions} />
+      )}
+      
       {/* 1. 일정 마커 (빨간색 마커) */}
       {plans.map((plan) => (
         <MarkerF
@@ -150,7 +178,7 @@ const PlanMap: React.FC<Props> = ({
           icon={SEARCH_MARKER_ICON}
           onClick={() =>
             // 마커 클릭 시 정보창 state 설정
-            setSelectedMarker({ type: 'search', data: place })
+            setSelectedMarker({ type: "search", data: place })
           }
           zIndex={5} // 검색 마커가 일정 마커보다 아래에 있도록
         />
@@ -160,8 +188,14 @@ const PlanMap: React.FC<Props> = ({
       {selectedMarker && (
         <InfoWindowF
           position={{
-            lat: selectedMarker.type === 'plan' ? selectedMarker.data.place.latitude : selectedMarker.data.latitude,
-            lng: selectedMarker.type === 'plan' ? selectedMarker.data.place.longitude : selectedMarker.data.longitude,
+            lat:
+              selectedMarker.type === "plan"
+                ? selectedMarker.data.place.latitude
+                : selectedMarker.data.latitude,
+            lng:
+              selectedMarker.type === "plan"
+                ? selectedMarker.data.place.longitude
+                : selectedMarker.data.longitude,
           }}
           onCloseClick={() => setSelectedMarker(null)}
           options={{ zIndex: 20 }}
@@ -173,19 +207,25 @@ const PlanMap: React.FC<Props> = ({
             {/* 데이터 추출 */}
             {(() => {
               // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
-              const place = selectedMarker.type === 'plan' ? selectedMarker.data.place : selectedMarker.data;
+              const place =
+                selectedMarker.type === "plan"
+                  ? selectedMarker.data.place
+                  : selectedMarker.data;
 
               return (
                 <>
                   <h4 className="font-bold text-lg mb-1">{place.name}</h4>
-                  
+
                   <p className="text-sm text-gray-600 font-medium mb-1">
-                    {place.type || place.category} {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
+                    {place.type || place.category}{" "}
+                    {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
                   </p>
 
                   {/* 전화번호 */}
                   {place.phoneNumber && (
-                      <p className="text-xs text-gray-500 mb-1">📞 {place.phoneNumber}</p>
+                    <p className="text-xs text-gray-500 mb-1">
+                      📞 {place.phoneNumber}
+                    </p>
                   )}
 
                   {/* 주소 */}
@@ -193,13 +233,13 @@ const PlanMap: React.FC<Props> = ({
 
                   {/* 영업 시간 */}
                   {place.openingHours && (
-                      <div className="bg-gray-50 p-2 rounded text-xs text-gray-500 mb-2 max-h-32 overflow-y-auto whitespace-pre-wrap border">
-                          {place.openingHours}
-                      </div>
+                    <div className="bg-gray-50 p-2 rounded text-xs text-gray-500 mb-2 max-h-32 overflow-y-auto whitespace-pre-wrap border">
+                      {place.openingHours}
+                    </div>
                   )}
 
                   {/* '일정에 추가' 버튼은 '검색 결과' 마커일 때만 표시 */}
-                  {selectedMarker.type === 'search' && (
+                  {selectedMarker.type === "search" && (
                     <button
                       onClick={() => {
                         onAddPlace(place);
@@ -211,9 +251,10 @@ const PlanMap: React.FC<Props> = ({
                     </button>
                   )}
                   {/* '저장된 일정'일 때는 몇 번째 일정인지 표시 */}
-                  {selectedMarker.type === 'plan' && (
+                  {selectedMarker.type === "plan" && (
                     <p className="text-xs text-blue-600 font-bold text-center mt-1">
-                      {selectedMarker.data.dayNumber}일차 - {selectedMarker.data.sequence}번째 일정
+                      {selectedMarker.data.dayNumber}일차 -{" "}
+                      {selectedMarker.data.sequence}번째 일정
                     </p>
                   )}
                 </>
