@@ -4,6 +4,8 @@ import com.project.team.Dto.AccountCredentials;
 import com.project.team.Entity.User;
 import com.project.team.Repository.UserRepository;
 import com.project.team.Security.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+@Tag(name = "인증 API", description = "로그인 및 인증 관련 API")
 @RestController
 @RequiredArgsConstructor
 public class LoginController {
@@ -25,6 +28,7 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
+    @Operation(summary = "일반 로그인", description = "이메일과 비밀번호로 로그인하고, 성공 시 응답 헤더에 JWT 토큰을 반환합니다.")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AccountCredentials credentials) {
         UsernamePasswordAuthenticationToken creds = new UsernamePasswordAuthenticationToken(credentials.email(), credentials.password());

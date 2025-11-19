@@ -4,6 +4,9 @@ import com.project.team.Entity.EmailVerificationToken;
 import com.project.team.Entity.User;
 import com.project.team.Repository.EmailVerificationTokenRepository;
 import com.project.team.Repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import com.project.team.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
+@Tag(name = "인증 API")
 @RestController
 @RequiredArgsConstructor
 public class EmailVerificationController {
@@ -21,6 +25,7 @@ public class EmailVerificationController {
     private final EmailVerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
 
+    @Operation(summary = "이메일 주소 인증", description = "회원가입 시 발송된 이메일의 인증 링크를 통해 계정을 활성화합니다.")
     @GetMapping("/verify-email")
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
         EmailVerificationToken verificationToken = tokenRepository.findByToken(token)
