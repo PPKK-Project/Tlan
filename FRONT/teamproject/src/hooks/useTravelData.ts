@@ -1,4 +1,4 @@
-import { API_BASE_URL, getAxiosConfig, getCategoryFromTypes, getPhotoUrl, GOOGLE_MAPS_API_KEY } from './../util/planUtils';
+import { API_BASE_URL, getAxiosConfig, getCategoryFromTypes, getPhotoUrl} from './../util/planUtils';
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // API 응답에 맞게 타입을 정의합니다. 실제 데이터 구조에 따라 수정이 필요할 수 있습니다.
@@ -269,9 +269,10 @@ useEffect(() => {
     try {
       // 외부 Google API는 getAxiosConfig() 불필요
       const res = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json`,
-        { params: { address: query, key: GOOGLE_MAPS_API_KEY } }
-      );
+        `${API_BASE_URL}/api/geocode`, {
+        params: { address: query},
+        headers: getAxiosConfig().headers,
+    });
       if (res.data?.status !== "OK" || res.data.results.length === 0) {
         throw new Error("장소의 좌표를 찾을 수 없습니다.");
       }
@@ -280,7 +281,10 @@ useEffect(() => {
       setSearchQuery(query);
     } catch (err: any) {
       console.error("좌표 검색 실패: ", err);
-      setError(err.message || "장소 검색에 실패했습니다.");
+      const errorMessage = err.response?.data?.message || err.message || "장소 검색에 실패했습니다.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 

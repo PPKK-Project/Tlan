@@ -25,5 +25,11 @@ public class PlaceApiController {
         return placeApiService.fetchPlaceApiData(placeApiRequest);
     }
 
+    @GetMapping("/api/geocode")
+    @Operation(summary = "Google Geocoding API", description = "주소를 입력받아 좌표를 검색합니다.")
+    public Mono<JsonNode> getGeocodingApi(@RequestParam String address) {
+        return placeApiService.fetchGeocodingApiData(address);
+    }
+
 
 }
