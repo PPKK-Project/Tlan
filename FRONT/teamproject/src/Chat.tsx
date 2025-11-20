@@ -16,7 +16,6 @@ type ChatMessage = {
 // 채팅방(여행 계획)의 타입을 정의합니다.
 type TravelPlan = {
   id: number;
-  travelId: number; // TravelPlanList와 타입 일치를 위해 추가
   title: string;
 };
 
@@ -25,29 +24,28 @@ function Chat() {
   const [isLauncherOpen, setIsLauncherOpen] = useState(false); // 채팅 런처(창)의 열림/닫힘 상태
   const [activePlan, setActivePlan] = useState<TravelPlan | null>(null); // 현재 선택된 채팅방 정보
   const [inputMessage, setInputMessage] = useState("");
-  const [sender, setSender] = useState(
-    "Guest" + Math.floor(Math.random() * 1000)
-  );
+  const [userInfo, setUserInfo] = useState({ email: "", nickname: "Guest" });
   const clientRef = useRef<Client | null>(null);
 
-  // 컴포넌트 마운트 시 사용자 닉네임을 가져옵니다.
+  // 컴포넌트 마운트 시 사용자 정보를 가져옵니다.
   useEffect(() => {
-    const fetchUserNickname = async () => {
+    const fetchUserInfo = async () => {
       try {
-        // 백엔드에서 현재 로그인된 사용자의 정보를 가져오는 API 엔드포인트입니다.
-        // 실제 엔드포인트로 수정해야 합니다. (예: /api/members/me)
+        // 백엔드에서 현재 로그인된 사용자의 정보를 가져오는 API
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/users/nickname`
         );
-        // 백엔드 응답 데이터 구조에 맞게 'nickname' 필드를 사용합니다.
-        if (response.data) {
-          setSender(response.data);
+        if (response.data && response.data.email && response.data.nickname) {
+          setUserInfo({
+            email: response.data.email,
+            nickname: response.data.nickname,
+          });
         }
       } catch (error) {
-        console.error("사용자 닉네임을 가져오는 데 실패했습니다:", error);
+        console.error("사용자 정보를 가져오는 데 실패했습니다:", error);
       }
     };
-    fetchUserNickname();
+    fetchUserInfo();
   }, []);
 
   // activePlan이 변경될 때마다 웹소켓 연결을 설정/해제합니다.
@@ -74,10 +72,15 @@ function Chat() {
     };
     fetchHistory();
 
+    const token = localStorage.getItem("jwt");
+
     const client = new Client({
       webSocketFactory: () => new SockJS("http://localhost:8080/ws-stomp"),
       debug: (str) => {
         console.log(new Date(), str);
+      },
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
       },
       reconnectDelay: 5000, // 5초마다 재연결 시도
       onConnect: () => {
@@ -112,20 +115,26 @@ function Chat() {
       inputMessage.trim() !== "" &&
       activePlan
     ) {
-      const chatMessage: ChatMessage = {
-        sender: sender,
+      const chatMessage = {
+        sender: userInfo.email, // sender에 이메일을 담아 전송
         content: inputMessage,
-        // 백엔드에서 id와 createdAt을 요구하는 경우, 임시 값을 생성하여 전송합니다.
-        id: new Date().toISOString() + Math.random(), // 임시 고유 ID
-        createdAt: new Date().toISOString(), // 현재 시간
       };
+
+      // 낙관적 업데이트: 서버 응답을 기다리지 않고 UI에 먼저 메시지를 표시합니다.
+      // 백엔드에서 생성해주는 id와 createdAt은 임시 값을 사용합니다.
+      const tempMessage: ChatMessage = {
+        ...chatMessage,
+        id: new Date().toISOString(), // 임시 고유 ID
+        createdAt: new Date().toISOString(), // 임시 생성 시간
+      };
+      setMessages((prevMessages) => [...prevMessages, tempMessage]);
+
       clientRef.current.publish({
-        // 여행 계획 ID에 맞는 목적지로 메시지를 발행합니다.
         destination: `/app/chat/message/${activePlan.id}`,
         body: JSON.stringify(chatMessage),
       });
       setInputMessage("");
-      console.log(chatMessage)
+      console.log(chatMessage);
     }
   };
 
@@ -150,8 +159,19 @@ function Chat() {
             </div>
             <div className="messages-area">
               {messages.map((msg) => (
-                <div key={msg.id} className="message-item">
-                  <strong>{msg.sender}:</strong> {msg.content}
+                <div
+                  key={msg.id}
+                  className={`message-item ${
+                    msg.sender === userInfo.email ? "my-message" : ""
+                  }`}
+                >
+                  <strong>
+                    {msg.sender === userInfo.email
+                      ? userInfo.nickname
+                      : msg.sender}
+                    :
+                  </strong>{" "}
+                  {msg.content}
                 </div>
               ))}
             </div>

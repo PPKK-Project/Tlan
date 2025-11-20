@@ -1,6 +1,7 @@
 package com.project.team.Service;
 
 import com.project.team.Dto.PatchUsersRecord;
+import com.project.team.Dto.UserResponse;
 import com.project.team.Dto.UserSignUpRequest;
 import com.project.team.Entity.EmailVerificationToken;
 import com.project.team.Entity.User;
@@ -60,10 +61,10 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
-    // 닉네임 조회
-    public String getNickname(Principal principal) {
+    // 유저 정보(이메일, 닉네임) 조회 (새로운 메소드)
+    public UserResponse getUserInfo(Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found " + principal.getName()));
-        return user.getNickname();
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
+        return new UserResponse(user.getEmail(), user.getNickname());
     }
 }
