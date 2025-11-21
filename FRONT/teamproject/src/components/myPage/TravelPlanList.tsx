@@ -1,11 +1,10 @@
 import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "../../ShareModal";
 import PlanCard from "./PlanCard";
-import { TravelPlan } from "./SharedPlanList";
 
-type TravelPlan = {
+export type TravelPlan = {
   id: number;
   title: string;
   countryCode: string; // API 응답에 따라 수정
@@ -57,7 +56,7 @@ function TravelPlanList() {
         { email, role }
       );
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
       setSharingPlan(null);
     },
@@ -85,7 +84,7 @@ function TravelPlanList() {
       ) : (
         <div className="plan-cards-grid">
           {data &&
-            data.map((plan) => (
+            data.map((plan: TravelPlan) => (
               <PlanCard
                 key={plan.id}
                 plan={plan}

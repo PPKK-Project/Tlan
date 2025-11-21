@@ -11,7 +11,7 @@ import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
 import VerifyEmail from "./components/login/VerifyEmail";
 import Flight from "./components/plan/Flight";
-import TravelPlanPdfPage from "./components/pdfPages/TravelPlanpdfPage";
+import TravelPlanPdfPage from "./components/pdfPages/TravelPlanPdfPage";
 
 const queryClient = new QueryClient();
 

@@ -1,0 +1,97 @@
+name: Deploy Backend & Frontend to GCP VM (Docker CI/CD)
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 코드가 푸시될 때마다 자동 실행
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  AR_REPO_NAME: tlan-repo
+  AR_LOCATION: asia-northeast3
+  VM_NAME: ${{ secrets.VM_NAME }}
+  VM_ZONE: ${{ secrets.VM_ZONE }}
+  SSH_USER: mentki3
+
+jobs:
+  # ------------------------------------------------------------------
+  # CI (Continuous Integration): 이미지 빌드 및 Artifact Registry에 푸시
+  # ------------------------------------------------------------------
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+      
+      # 1. GCP 인증 (AR 및 VM 접속 권한 획득)
+      - name: 🔑 Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
+      # 2. Docker 인증 설정 (Artifact Registry 로그인)
+      - name: 🐳 Set up Docker auth
+        run: gcloud auth configure-docker ${{ env.AR_LOCATION }}-docker.pkg.dev
+
+      # 3. Backend 빌드 및 푸시
+      - name: Build & Push Backend
+        run: |
+          BACKEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest"
+          docker build --no-cache -t teamproject-backend:latest ./BACK
+          docker tag teamproject-backend:latest $BACKEND_TAG
+          docker push $BACKEND_TAG
+
+      # 4. Frontend 빌드 및 푸시
+      - name: Build & Push Frontend
+        run: |
+          FRONTEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest"
+          docker build --no-cache -t teamproject-frontend:latest ./FRONT/teamproject
+          docker tag teamproject-frontend:latest $FRONTEND_TAG
+          docker push $FRONTEND_TAG
+
+  # ------------------------------------------------------------------
+  # CD (Continuous Delivery): VM에 접속하여 컨테이너 업데이트 및 재실행
+  # ------------------------------------------------------------------
+  deploy:
+    needs: build-and-push # CI 단계 완료 후 실행
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔑 Authenticate for Deployment
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: 🔄 Deploy Containers via SSH
+        # gcloud compute ssh를 사용하여 VM에 명령 실행
+        run: |
+          BACKEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest"
+          FRONTEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest"
+          DB_PASSWORD='qwer1234'
+
+          # 1. VM에서 최신 Docker 이미지 Pull
+          echo "Pulling latest images on VM..."
+          gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --user ${{ env.SSH_USER }} --command "
+            docker pull $BACKEND_TAG; 
+            docker pull $FRONTEND_TAG
+          "
+          
+          # 2. 기존 컨테이너 모두 강제 삭제
+          echo "Removing existing containers..."
+          gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --user ${{ env.SSH_USER }} --command "
+            docker rm -f frontend-app spring-boot-app mariadb-server
+          "
+
+          # 3. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
+          echo "Restarting containers with latest images..."
+          gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --user ${{ env.SSH_USER }} --command "
+            docker run -d --name mariadb-server --network my-app-network -p 3306:3306 \
+            -e MARIADB_ROOT_PASSWORD='$DB_PASSWORD' -e MARIADB_DATABASE='beachcombine' \
+            -v mariadb_data:/var/lib/mysql mariadb:latest ;
+
+            # Backend 컨테이너 재실행
+            docker run -d -p 8080:8080 --network my-app-network --name spring-boot-app $BACKEND_TAG ;
+
+            # Frontend 컨테이너 재실행
+            docker run -d -p 80:80 --network my-app-network --name frontend-app $FRONTEND_TAG
+          "
+          echo "Deployment complete! Check VM status."

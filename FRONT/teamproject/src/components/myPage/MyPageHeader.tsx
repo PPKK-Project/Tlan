@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 function MyPageHeader() {
   const navigate = useNavigate();
-  const [isLogin, setLogin] = useState(!!localStorage.getItem("jwt"));
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -20,7 +19,6 @@ function MyPageHeader() {
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
-    setLogin(false);
     navigate("/", {
     replace: true,
     state: {

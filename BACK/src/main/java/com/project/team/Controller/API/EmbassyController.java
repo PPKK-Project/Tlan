@@ -18,7 +18,7 @@ public class EmbassyController {
 
     private final EmbassyService embassyService;
 
-    @GetMapping("api/embassy")
+    @GetMapping("/embassy")
     @Operation(summary = "재외공관 정보 조회", description = "국가명 또는 코드로 재외공관(대사관) 정보를 조회합니다.")
     public Mono<JsonNode> getEmbassyApi(@RequestParam String countryName) {
         return embassyService.fetchEmbassyApiData(countryName);

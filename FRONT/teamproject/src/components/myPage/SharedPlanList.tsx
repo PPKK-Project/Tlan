@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "../../ShareModal";
 import PlanCard from "./PlanCard";
@@ -48,7 +48,7 @@ function SharedPlanList() {
         { email, role }
       );
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
       setSharingPlan(null);
     },

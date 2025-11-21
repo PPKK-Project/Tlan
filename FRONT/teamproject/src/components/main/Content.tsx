@@ -13,12 +13,12 @@ type Embassy = {
 }
 
 const getCurrency = async (country_name: string) => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/currency?country=${country_name}`);
+  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/currency?country=${country_name}`);
   return response.data;
 };
 
 const getEmbassy = async (country_name: string) => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/embassy?countryName=${country_name}`)
+  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/embassy?countryName=${country_name}`)
   return response.data.response.body.items.item as Embassy[];
 }
 
