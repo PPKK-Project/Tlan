@@ -2,6 +2,7 @@ package com.project.team.Service;
 
 import com.project.team.Dto.Chat.ChatMessageRequest;
 import com.project.team.Dto.Chat.ChatMessageResponse;
+import com.project.team.Dto.Chat.ChattingResponse;
 import com.project.team.Entity.Chat;
 import com.project.team.Entity.Travel;
 import com.project.team.Entity.User;
@@ -10,11 +11,15 @@ import com.project.team.Repository.ChatRepository;
 import com.project.team.Repository.TravelRepository;
 import com.project.team.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.List;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +33,7 @@ public class ChatService {
 
     public void saveAndBroadcastMessage(Long travelId, ChatMessageRequest request, Principal principal) {
         // 1. 사용자 및 여행 정보 조회
-        User user = userRepository.findByEmail(principal.getName())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("사용자를 찾을 수 없습니다."));
 
         Travel travel = travelRepository.findById(travelId)
@@ -45,5 +50,13 @@ public class ChatService {
 
         // 4. 해당 여행 채팅방을 구독 중인 클라이언트들에게 메시지 브로드캐스팅
         messagingTemplate.convertAndSend("/chat/travels/" + travelId, response);
+    }
+
+    public ResponseEntity<List<ChattingResponse>> saveChat(Long travelId){
+        List<ChattingResponse> chatting = chatRepository.findByTravelIdOrderByCreatedAtAsc(travelId)
+                .stream().map(chat -> new ChattingResponse(userRepository.findById(chat.getUser().getId()).get().getNickname(), chat.getContent()))
+                .toList();
+
+        return ResponseEntity.ok(chatting);
     }
 }

@@ -1,3 +1,3 @@
 package com.project.team.Dto;
 
-public record UserResponse(String email, String nickname) {}
+public record UserResponse(Long userId ,String email, String nickname) {}

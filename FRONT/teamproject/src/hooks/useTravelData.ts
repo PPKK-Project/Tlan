@@ -1,4 +1,9 @@
-import { API_BASE_URL, getAxiosConfig, getCategoryFromTypes, getPhotoUrl} from './../util/planUtils';
+import {
+  API_BASE_URL,
+  getAxiosConfig,
+  getCategoryFromTypes,
+  getPhotoUrl,
+} from "./../util/planUtils";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // API 응답에 맞게 타입을 정의합니다. 실제 데이터 구조에 따라 수정이 필요할 수 있습니다.
@@ -10,7 +15,14 @@ interface FlightData {
   returnDepartureTime: string;
   returnArrivalTime: string;
 }
-import { AddPlanRequest, PlaceFilter, PlaceSearchResult, Travel, TravelPlan, UpdateTravelRequest } from "../util/types";
+import {
+  AddPlanRequest,
+  PlaceFilter,
+  PlaceSearchResult,
+  Travel,
+  TravelPlan,
+  UpdateTravelRequest,
+} from "../util/types";
 import { AlertColor } from "@mui/material";
 
 // 검색 결과로 사용할 초기 위치 (제주도)
@@ -20,7 +32,7 @@ const INITIAL_LOCATION = {
 };
 
 export function useTravelData(travelId: string | undefined) {
-   // 1. 여행 기본 정보 (날짜 등)
+  // 1. 여행 기본 정보 (날짜 등)
   const [travelInfo, setTravelInfo] = useState<Travel | null>(null);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [dates, setDates] = useState({ startDate: "", endDate: "" });
@@ -64,28 +76,27 @@ export function useTravelData(travelId: string | undefined) {
       if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
         return [];
       }
-      
+
       // 날짜 차이 계산 (밀리초)
       const diffTime = end.getTime() - start.getTime();
-      
+
       // 일(days) 단위로 변환
       const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-      
+
       // 여행 기간 (예: 1월 1일 ~ 1월 1일 = 0일 차이, 1일 여행)
       const duration = diffDays + 1;
 
       // [1, 2, 3, ..., duration] 배열 생성
       return Array.from({ length: duration }, (_, i) => i + 1);
-
     } catch (e) {
       console.error("날짜 계산 중 오류 발생:", e);
       return [];
     }
   }, [travelInfo]); // travelInfo가 변경될 때만 재계산
 
-   // Effect: 여행 기본 정보 불러오기
+  // Effect: 여행 기본 정보 불러오기
   useEffect(() => {
-    if(!travelId) return;
+    if (!travelId) return;
     const fetchTravelInfo = async () => {
       try {
         const res = await axios.get<Travel>(
@@ -93,7 +104,7 @@ export function useTravelData(travelId: string | undefined) {
           getAxiosConfig()
         );
         setTravelInfo(res.data);
-        if(!res.data.startDate || !res.data.endDate) {
+        if (!res.data.startDate || !res.data.endDate) {
           setIsDateModalOpen(true);
         } else {
           setDates({
@@ -101,7 +112,7 @@ export function useTravelData(travelId: string | undefined) {
             endDate: res.data.endDate,
           });
         }
-      } catch(err) {
+      } catch (err) {
         console.error("여행 정보 로딩 실패", err);
         setError("여행 정보를 불러오는 데 실패했습니다.");
       }
@@ -110,77 +121,81 @@ export function useTravelData(travelId: string | undefined) {
   }, [travelId]);
 
   // Effect: 여행 일정 목록(Plans) 불러오기
-useEffect(() => {
-  if(!travelId) return;
-  const fetchPlans = async () => {
-    try {
-      const response = await axios.get<TravelPlan[]>(
-        `${API_BASE_URL}/travels/${travelId}/plans`,
-        getAxiosConfig()
-      );
-      setPlans(response.data);
-    } catch(err) {
-      console.error("여행 일정 로딩 실패: ", err);
-      setError("일정을 불러오는 데 실패했습니다.");
-    }
-  };
-  fetchPlans();
-}, [travelId]);
+  useEffect(() => {
+    if (!travelId) return;
+    const fetchPlans = async () => {
+      try {
+        const response = await axios.get<TravelPlan[]>(
+          `${API_BASE_URL}/travels/${travelId}/plans`,
+          getAxiosConfig()
+        );
+        setPlans(response.data);
+      } catch (err) {
+        console.error("여행 일정 로딩 실패: ", err);
+        setError("일정을 불러오는 데 실패했습니다.");
+      }
+    };
+    fetchPlans();
+  }, [travelId]);
 
-// Effect: 항공권 정보 불러오기
-useEffect(() => {
-  const fetchFlightsData = async () => {
-    if (!travelId || !travelInfo?.startDate || !travelInfo?.endDate) {
-      // travelId 또는 날짜 정보가 없으면 불러오지 않음
-      setFlights([]); // 이전 항공권 정보 초기화
-      setIsFlightLoading(false);
-      return;
-    }
+  // Effect: 항공권 정보 불러오기
+  useEffect(() => {
+    const fetchFlightsData = async () => {
+      if (!travelId || !travelInfo?.startDate || !travelInfo?.endDate) {
+        // travelId 또는 날짜 정보가 없으면 불러오지 않음
+        setFlights([]); // 이전 항공권 정보 초기화
+        setIsFlightLoading(false);
+        return;
+      }
 
-    try {
-      setIsFlightLoading(true);
-      setFlightError(null);
+      try {
+        setIsFlightLoading(true);
+        setFlightError(null);
 
-      const params = {
-        depAp: "SEL", // TODO: 추후 여행 정보에서 출발 공항 코드 가져오기
-        arrAp: "TYO", // TODO: 추후 여행 정보에서 도착 공항 코드 가져오기
-        depDate: travelInfo.startDate.replace(/-/g, ""),
-        retDate: travelInfo.endDate.replace(/-/g, ""),
-        adult: 1,
-      };
+        const params = {
+          depAp: "SEL", // TODO: 추후 여행 정보에서 출발 공항 코드 가져오기
+          arrAp: "TYO", // TODO: 추후 여행 정보에서 도착 공항 코드 가져오기
+          depDate: travelInfo.startDate.replace(/-/g, ""),
+          retDate: travelInfo.endDate.replace(/-/g, ""),
+          adult: 1,
+        };
 
-      const flightRes = await axios.get("http://localhost:8080/flight", { params });
-      setFlights(flightRes.data);
-    } catch (err) {
-      console.error("항공권 정보를 불러오는 데 실패했습니다.", err);
-      setFlightError(err.message || "항공권 정보를 불러오는 데 실패했습니다.");
-      setFlights([]); // 에러 발생 시 항공권 정보 초기화
-    } finally {
-      setIsFlightLoading(false);
-    }
-  };
-  fetchFlightsData();
-}, [travelId, travelInfo?.startDate, travelInfo?.endDate]); // travelId와 여행 날짜 변경 시 재실행
+        const flightRes = await axios.get("http://localhost:8080/flight", {
+          params,
+        });
+        setFlights(flightRes.data);
+      } catch (err) {
+        console.error("항공권 정보를 불러오는 데 실패했습니다.", err);
+        setFlightError(
+          err.message || "항공권 정보를 불러오는 데 실패했습니다."
+        );
+        setFlights([]); // 에러 발생 시 항공권 정보 초기화
+      } finally {
+        setIsFlightLoading(false);
+      }
+    };
+    fetchFlightsData();
+  }, [travelId, travelInfo?.startDate, travelInfo?.endDate]); // travelId와 여행 날짜 변경 시 재실행
 
-// Effect: 장소 검색(Places) API 호출
-useEffect(() => {
-  if(!travelId) return;
-  const fetchPlaces = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const params = {
-        keyword: `${searchQuery} 숙소 관광지 음식점`,
-        lat: searchLocation.lat,
-        lon: searchLocation.lon,
-        radius: "30000",
-        type: "point_of_interest",
-      };
-      const res = await axios.get(`${API_BASE_URL}/api/place`, {
-        params,
-        headers: getAxiosConfig().headers,
-      });
-      if (res.data && res.data.results) {
+  // Effect: 장소 검색(Places) API 호출
+  useEffect(() => {
+    if (!travelId) return;
+    const fetchPlaces = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = {
+          keyword: `${searchQuery} 숙소 관광지 음식점`,
+          lat: searchLocation.lat,
+          lon: searchLocation.lon,
+          radius: "30000",
+          type: "point_of_interest",
+        };
+        const res = await axios.get(`${API_BASE_URL}/api/place`, {
+          params,
+          headers: getAxiosConfig().headers,
+        });
+        if (res.data && res.data.results) {
           const parsedPlaces: PlaceSearchResult[] = res.data.results
             .map((item: any) => ({
               placeId: item.place_id,
@@ -209,7 +224,6 @@ useEffect(() => {
     fetchPlaces();
   }, [travelId, searchLocation, searchQuery]);
 
-  
   // Effect: 장소 필터링
   useEffect(() => {
     if (filter === "all") {
@@ -218,7 +232,6 @@ useEffect(() => {
       setFilteredPlaces(allPlaces.filter((p) => p.category === filter));
     }
   }, [filter, allPlaces]);
-
 
   useEffect(() => {
     if (snackbar.open) {
@@ -242,7 +255,10 @@ useEffect(() => {
           getAxiosConfig()
         );
         setTravelInfo(res.data); // 최신 여행 정보로 갱신
-        setDates({ startDate: res.data.startDate!, endDate: res.data.endDate! }); // 내부 state도 갱신
+        setDates({
+          startDate: res.data.startDate!,
+          endDate: res.data.endDate!,
+        }); // 내부 state도 갱신
         setIsDateModalOpen(false);
         setSnackbar({
           open: true,
@@ -268,11 +284,10 @@ useEffect(() => {
     setError(null);
     try {
       // 외부 Google API는 getAxiosConfig() 불필요
-      const res = await axios.get(
-        `${API_BASE_URL}/api/geocode`, {
-        params: { address: query},
+      const res = await axios.get(`${API_BASE_URL}/api/geocode`, {
+        params: { address: query },
         headers: getAxiosConfig().headers,
-    });
+      });
       if (res.data?.status !== "OK" || res.data.results.length === 0) {
         throw new Error("장소의 좌표를 찾을 수 없습니다.");
       }
@@ -281,7 +296,10 @@ useEffect(() => {
       setSearchQuery(query);
     } catch (err: any) {
       console.error("좌표 검색 실패: ", err);
-      const errorMessage = err.response?.data?.message || err.message || "장소 검색에 실패했습니다.";
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        "장소 검색에 실패했습니다.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);

@@ -1,5 +1,6 @@
 package com.project.team.Controller;
 
+import com.project.team.Dto.Travel.TravelResponse;
 import com.project.team.Dto.TravelPermission.TravelPermissionCreateRequest;
 import com.project.team.Dto.TravelPermission.TravelPermissionResponse;
 import com.project.team.Dto.TravelPermission.TravelPermissionUpdateRequest;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Tag(name = "여행 공유 API", description = "여행 공유 및 사용자 권한을 관리합니다.")
@@ -46,6 +48,7 @@ public class TravelPermissionController {
         return ResponseEntity.ok(responseList);
     }
 
+
     /**
      * 특정 사용자 권한(역할) 수정 (OWNER만 가능)
      */
@@ -72,4 +75,10 @@ public class TravelPermissionController {
         permissionService.deletePermission(travelId, permissionId);
         return ResponseEntity.noContent().build(); // 204 No Content
     }
+
+    @GetMapping("/travels/share")
+    public ResponseEntity<List<TravelResponse>> getSharedTravels(Principal principal) {
+        return ResponseEntity.ok(permissionService.getSharedTravels(principal));
+    }
+
 }

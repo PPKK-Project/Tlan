@@ -33,7 +33,7 @@ public class UserController {
 
     // 유저 정보 조회
     @GetMapping("/users/nickname")
-    public UserResponse getUserInfo(Principal principal){
-        return userService.getUserInfo(principal);
+    public ResponseEntity<UserResponse> getUserInfo(Principal principal){
+        return ResponseEntity.ok(userService.getUserInfo(principal));
     }
 }

@@ -61,10 +61,12 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
-    // 유저 정보(이메일, 닉네임) 조회 (새로운 메소드)
+    /**
+     * [GET] 현재 로그인한 사용자 정보(ID, 이메일, 닉네임) 조회
+     */
     public UserResponse getUserInfo(Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
-        return new UserResponse(user.getEmail(), user.getNickname());
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다: " + principal.getName()));
+        return new UserResponse(user.getId(), user.getEmail(), user.getNickname());
     }
 }
