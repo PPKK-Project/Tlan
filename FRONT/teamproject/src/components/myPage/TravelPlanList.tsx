@@ -1,5 +1,5 @@
-import axios, { AxiosRequestConfig } from "axios";
-import React, { useState } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "../../ShareModal";
@@ -64,17 +64,19 @@ function TravelPlanList() {
         { email, role } // API 명세에 따라 body 구성 (role 추가)
       );
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
       setSharingPlan(null); // 성공 시 모달 닫기
     },
-    onError: (error: any) => {
-      // API 응답에 에러 메시지가 포함된 경우, 해당 메시지를 보여줍니다.
-      const message =
-        error.response?.data?.message || "공유 요청 중 오류가 발생했습니다.";
+    onError: (error: unknown) => {
       console.error("공유 실패:", error);
-      alert(message);
-      console.log(data);
+      // Axios 에러인지 확인하고, 서버에서 보낸 에러 메시지를 우선적으로 사용합니다.
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        // 그 외의 경우 일반적인 에러 메시지를 보여줍니다.
+        alert("공유 요청 중 오류가 발생했습니다.");
+      }
     },
   });
 
@@ -94,7 +96,8 @@ function TravelPlanList() {
           </p>
         ) : (
           <div className="plan-cards-grid">
-            {data.map((plan) => (
+            {data.map((plan:TravelPlan
+            ) => (
               <article key={plan.id} className="travel-plan-card">
                 {/* 1. 이미지 영역 추가 */}
                 <div className="plan-card-image-wrapper">

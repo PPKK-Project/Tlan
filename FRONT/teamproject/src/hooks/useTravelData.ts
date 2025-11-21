@@ -149,11 +149,19 @@ useEffect(() => {
         adult: 1,
       };
 
-      const flightRes = await axios.get("http://localhost:8080/flight", { params });
+      const flightRes = await axios.get("/flight", { params });
       setFlights(flightRes.data);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("항공권 정보를 불러오는 데 실패했습니다.", err);
-      setFlightError(err.message || "항공권 정보를 불러오는 데 실패했습니다.");
+      // Axios 에러인 경우 서버 응답 메시지를 사용하고, 그렇지 않으면 일반 에러 메시지를 사용합니다.
+      if (axios.isAxiosError(err)) {
+        const errorMessage = err.response?.data?.message || err.message || "항공권 정보를 불러오는 데 실패했습니다.";
+        setFlightError(errorMessage);
+      } else if (err instanceof Error) {
+        setFlightError(err.message);
+      } else {
+        setFlightError("알 수 없는 오류로 항공권 정보를 불러오는 데 실패했습니다.");
+      }
       setFlights([]); // 에러 발생 시 항공권 정보 초기화
     } finally {
       setIsFlightLoading(false);

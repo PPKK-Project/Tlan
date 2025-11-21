@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import axios from "axios";
@@ -16,7 +16,7 @@ type ChatMessage = {
 // 채팅방(여행 계획)의 타입을 정의합니다.
 type TravelPlan = {
   id: number;
-  travelId: number; // TravelPlanList와 타입 일치를 위해 추가
+  travelId?: number; // TravelPlanList와 타입 일치를 위해 추가 (선택적으로 변경)
   title: string;
 };
 
@@ -178,7 +178,7 @@ function Chat() {
                 &times;
               </button>
             </div>
-            <ChatRoomList onSelectRoom={(plan) => setActivePlan(plan)} />
+            <ChatRoomList onSelectRoom={setActivePlan} />
           </>
         )}
       </div>
