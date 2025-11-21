@@ -22,13 +22,13 @@ jobs:
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
-      
+
       # 1. GCP 인증 (AR 및 VM 접속 권한 획득)
       - name: 🔑 Authenticate to GCP
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-          
+
       # 2. Docker 인증 설정 (Artifact Registry 로그인)
       - name: 🐳 Set up Docker auth
         run: gcloud auth configure-docker ${{ env.AR_LOCATION }}-docker.pkg.dev
@@ -60,7 +60,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-          
+
       # 1. 시크릿 환경 변수 선언 (Secret 값 참조)
       - name: Set Configuration Secrets
         # Secret 값을 환경 변수로 저장하여 SSH 명령어에서 사용
@@ -75,7 +75,7 @@ jobs:
           BACKEND_TAG: ${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest
           FRONTEND_TAG: ${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest
           # DB 비밀번호는 application.properties에 포함되어 있다고 가정하고, DB 컨테이너 실행을 위해 사용
-          DB_PASSWORD: 'qwer1234' 
+          DB_PASSWORD: "qwer1234"
 
         run: |
           # SSH 명령을 하나의 블록으로 묶어 실행 효율성을 높이고 Secret 값을 전달합니다.
@@ -118,4 +118,4 @@ jobs:
             -v /tmp/.env:/.env \
             ${{ env.FRONTEND_TAG }}
           "
-        echo "Deployment complete! Check VM status."
+          echo "Deployment complete! Check VM status."
