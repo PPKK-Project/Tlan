@@ -60,40 +60,62 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: 🔄 Deploy Containers via SSH
-        # gcloud compute ssh를 사용하여 VM에 명령 실행
+          
+      # 1. 시크릿 환경 변수 선언 (Secret 값 참조)
+      - name: Set Configuration Secrets
+        # Secret 값을 환경 변수로 저장하여 SSH 명령어에서 사용
         run: |
-          BACKEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest"
-          FRONTEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest"
-          DB_PASSWORD='qwer1234'
+          echo "BACKEND_CONFIG_SECRET=${{ secrets.BACKEND_CONFIG_FILE }}" >> $GITHUB_ENV
+          echo "FRONTEND_CONFIG_SECRET=${{ secrets.FRONTEND_CONFIG_FILE }}" >> $GITHUB_ENV
 
-          # 1. VM에서 최신 Docker 이미지 Pull
-          echo "Pulling latest images on VM..."
+      # 2. 컨테이너 배포 및 설정 파일 주입
+      - name: 🔄 Deploy Containers & Inject Configs via SSH
+        env:
+          # 여기서 정의한 환경 변수들은 다음 단계의 run 스크립트에서 사용됨
+          BACKEND_TAG: ${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest
+          FRONTEND_TAG: ${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest
+          # DB 비밀번호는 application.properties에 포함되어 있다고 가정하고, DB 컨테이너 실행을 위해 사용
+          DB_PASSWORD: 'qwer1234' 
+
+        run: |
+          # SSH 명령을 하나의 블록으로 묶어 실행 효율성을 높이고 Secret 값을 전달합니다.
+          echo "Starting SSH deployment to VM..."
           gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --command "
+            # 1. Docker 인증 및 이미지 Pull
             gcloud auth configure-docker asia-northeast3-docker.pkg.dev;
-            docker pull $BACKEND_TAG; 
-            docker pull $FRONTEND_TAG
-          "
-          # 2. 기존 컨테이너 모두 강제 삭제
-          echo "Removing existing containers..."
-          gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --command "
-            docker rm -f frontend-app spring-boot-app mariadb-server
-          "
-          # 3. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
-          echo "Restarting containers with latest images..."
-          gcloud compute ssh ${{ env.VM_NAME }} --zone ${{ env.VM_ZONE }} --command "
+            docker pull ${{ env.BACKEND_TAG }}; 
+            docker pull ${{ env.FRONTEND_TAG }};
+
+            # 2. 기존 컨테이너 모두 강제 삭제
+            echo 'Removing existing containers...'
+            docker rm -f frontend-app spring-boot-app mariadb-server;
+
+            # 3. GitHub Secret 내용을 VM의 임시 파일로 생성
+            echo 'Creating config files on VM...'
+            # application.properties 생성 (백엔드용)
+            # SSH 내부에서 환경 변수를 사용할 때는 '$' 기호를 이스케이프해야 합니다.
+            # SECRET 내용을 파일로 안전하게 작성합니다.
+            echo \"${{ env.BACKEND_CONFIG_SECRET }}\" > /tmp/application.properties
+            
+            # .env 파일 생성 (프론트엔드용)
+            echo \"${{ env.FRONTEND_CONFIG_SECRET }}\" > /tmp/.env
+
+            # 4. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
+            echo 'Starting mariadb-server container...'
             docker run -d --name mariadb-server --network my-app-network -p 3306:3306 \
-            -e MARIADB_ROOT_PASSWORD='$DB_PASSWORD' -e MARIADB_DATABASE='tlandb' \
+            -e MARIADB_ROOT_PASSWORD='${{ env.DB_PASSWORD }}' -e MARIADB_DATABASE='tlandb' \
             -v mariadb_data:/var/lib/mysql mariadb:latest ;
-            # Backend 컨테이너 재실행
+
+            echo 'Starting spring-boot-app container...'
+            # Backend: application.properties 파일을 컨테이너 내부의 설정 경로로 마운트
             docker run -d -p 8080:8080 --network my-app-network --name spring-boot-app \
-            -e SPRING_DATASOURCE_URL='jdbc:mariadb://mariadb-server:3306/tlandb' \
-            -e SPRING_DATASOURCE_USERNAME='root' \
-            -e SPRING_DATASOURCE_PASSWORD='$DB_PASSWORD' \
-            -e SPRING_DATASOURCE_DRIVER_CLASS_NAME='org.mariadb.jdbc.Driver' \
-            $BACKEND_TAG ;
-            # Frontend 컨테이너 재실행
-            docker run -d -p 80:80 --network my-app-network --name frontend-app $FRONTEND_TAG
+            -v /tmp/application.properties:/app/application.properties \
+            ${{ env.BACKEND_TAG }} ;
+            
+            echo 'Starting frontend-app container...'
+            # Frontend: .env 파일을 컨테이너 내부의 루트 경로로 마운트
+            docker run -d -p 80:80 --network my-app-network --name frontend-app \
+            -v /tmp/.env:/.env \
+            ${{ env.FRONTEND_TAG }}
           "
-          echo "Deployment complete! Check VM status."
+        echo "Deployment complete! Check VM status."
