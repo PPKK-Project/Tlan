@@ -41,11 +41,11 @@ jobs:
           docker tag teamproject-backend:latest $BACKEND_TAG
           docker push $BACKEND_TAG
 
-      # 4. Frontend 빌드 및 푸시 (*** /api 주소 빌드 아규먼트로 주입 ***)
+      # 4. Frontend 빌드 및 푸시 (*** VITE_BASE_URL 빌드 아규먼트로 주입 ***)
       - name: Build & Push Frontend
         run: |
           FRONTEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest"
-          # VITE_BASE_URL=/api 값을 빌드 아규먼트로 전달 (Dockerfile의 ARG와 연결됨)
+          # VITE_BASE_URL=/api 값을 빌드 아규먼트로 전달 (이 값은 빌드 시점에 코드에 고정됨)
           docker build --no-cache \
             --build-arg VITE_BASE_URL=/api \
             -t teamproject-frontend:latest ./FRONT/teamproject
@@ -64,16 +64,19 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           
-      # 1. 시크릿 환경 변수 선언 (application.properties 만 유지)
+      # 1. 시크릿 환경 변수 선언 (application.properties 및 .env 복원)
       - name: Set Configuration Secrets
         shell: bash
         run: |
-          # 백엔드 설정 파일(application.properties)만 EOF로 처리합니다.
+          # 1. 백엔드 설정 파일(application.properties)
           echo "BACKEND_CONFIG_SECRET<<EOF_BACKEND" >> $GITHUB_ENV
           echo "${{ secrets.BACKEND_CONFIG_FILE }}" >> $GITHUB_ENV
           echo "EOF_BACKEND" >> $GITHUB_ENV
           
-          # 프론트엔드 Secret (FRONTEND_CONFIG_FILE)은 빌드 시점에 해결되어 제거됨
+          # 2. 프론트엔드 설정 파일 (.env) 복원 (다른 런타임 변수들을 위해)
+          echo "FRONTEND_CONFIG_SECRET<<EOF_FRONTEND" >> $GITHUB_ENV
+          echo "${{ secrets.FRONTEND_CONFIG_FILE }}" >> $GITHUB_ENV
+          echo "EOF_FRONTEND" >> $GITHUB_ENV
 
       # 2. 컨테이너 배포 및 설정 파일 주입
       - name: 🔄 Deploy Containers & Inject Configs via SSH
@@ -95,12 +98,12 @@ jobs:
             echo 'Removing existing containers...'
             docker rm -f frontend-app spring-boot-app mariadb-server;
 
-            # 3. GitHub Secret 내용을 VM의 임시 파일로 생성 (application.properties 만)
+            # 3. GitHub Secret 내용을 VM의 임시 파일로 생성 (application.properties 및 .env)
             echo 'Creating config files on VM...'
             echo \"${{ env.BACKEND_CONFIG_SECRET }}\" > /tmp/application.properties
+            # .env 파일 생성 복원
+            echo \"${{ env.FRONTEND_CONFIG_SECRET }}\" > /tmp/.env
             
-            # .env 파일 생성 로직 제거됨
-
             # 4. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
             echo 'Starting mariadb-server container...'
             docker run -d --name mariadb-server --network my-app-network -p 3306:3306 \
@@ -114,8 +117,9 @@ jobs:
             ${{ env.BACKEND_TAG }} ;
             
             echo 'Starting frontend-app container...'
-            # Frontend: VITE_BASE_URL은 빌드 시점에 하드코딩되었고, .env 파일 마운트는 불필요함
+            # Frontend: .env 파일을 컨테이너 내부에 마운트 (다른 런타임 변수용)
             docker run -d -p 80:80 --network my-app-network --name frontend-app \
+            -v /tmp/.env:/.env \
             ${{ env.FRONTEND_TAG }}
           " --ssh-flag="-vvv -o StrictHostKeyChecking=no"
           echo "Deployment complete! Check VM status."
