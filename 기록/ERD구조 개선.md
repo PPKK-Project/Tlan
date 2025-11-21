@@ -102,3 +102,149 @@ erDiagram
     PLACE ||--o{ RESTAURANT : "details_as"
 
 ```
+
+
+```mermaid
+erDiagram
+    USER {
+        Long id PK "사용자 ID"
+        String email UK "이메일 (로그인 ID)"
+        String password "비밀번호"
+        String nickname "닉네임"
+        String provider "소셜 로그인 제공자 (e.g., KAKAO, GOOGLE)"
+    }
+
+    COUNTRY {
+        String code PK "국가 코드 (ISO 3166-1 alpha-2)"
+        String name "국가명"
+    }
+
+    TRAVEL {
+        Long id PK "여행 ID"
+        Long user_id FK "여행 생성자"
+        String country_code FK "여행 국가"
+        String title "여행 제목"
+        Date startDate "여행 시작일"
+        Date endDate "여행 종료일"
+    }
+
+    TRAVEL_PERMISSION {
+        Long id PK "권한 ID"
+        Long travel_id FK "공유된 여행"
+        Long user_id FK "공유받은 사용자"
+        String role "역할 (OWNER, EDITOR, VIEWER)"
+    }
+
+    PLACE {
+        Long id PK "장소 ID"
+        String googlePlaceId UK "Google Place ID"
+        String name "장소 이름"
+        String type "장소 유형 (e.g., accommodation, attraction, restaurant)"
+        String address "주소"
+        Double latitude "위도"
+        Double longitude "경도"
+        Double rating "평점"
+        int reviewCount "리뷰 수"
+        String imageUrl "대표 이미지 URL"
+    }
+
+    ACCOMMODATION {
+        Long id PK "숙소 ID"
+        Long place_id FK "장소 정보"
+        String phoneNumber "전화번호"
+        String website "웹사이트"
+    }
+
+    ATTRACTION {
+        Long id PK "관광지 ID"
+        Long place_id FK "장소 정보"
+        Boolean openingHours "개장 여부 (현재)"
+    }
+
+    RESTAURANT {
+        Long id PK "음식점 ID"
+        Long place_id FK "장소 정보"
+        String phoneNumber "전화번호"
+        String cuisineType "음식 종류"
+        String priceLevel "가격대"
+    }
+
+    TRAVEL_PLAN {
+        Long id PK "세부 일정 ID"
+        Long travel_id FK "소속된 여행"
+        Long place_id FK "계획된 장소"
+        int dayNumber "여행 일차"
+        int sequence "일차 내 순서"
+        String memo "메모"
+    }
+
+    CHAT_MESSAGE {
+        Long id PK "메시지 ID"
+        Long travel_id FK "채팅방(여행)"
+        Long user_id FK "발신자"
+        String content "메시지 내용"
+        datetime createdAt "전송 시간"
+    }
+
+    RESTRICTION {
+        Long id PK "제한 정보 ID"
+        String country_code FK "국가 코드"
+        int level "여행경보 단계"
+        String description "경보 내용"
+    }
+
+    EMBASSY {
+        Long id PK "대사관 ID"
+        String country_code FK "국가 코드"
+        String name "대사관명"
+        String address "주소"
+        String phoneNumber "전화번호"
+        Double latitude "위도"
+        Double longitude "경도"
+    }
+
+    EMERGENCY_NUMBER {
+        Long id PK "응급 번호 ID"
+        String country_code FK "국가 코드"
+        String type "유형 (경찰, 소방, 구급차)"
+        String number "전화번호"
+    }
+
+    TRAVEL_TIP {
+        Long id PK "여행 팁 ID"
+        String country_code FK "국가 코드"
+        String category "카테고리 (문화, 교통 등)"
+        String content "팁 내용"
+    }
+
+    CURRENCY {
+        Long id PK "환율 ID"
+        String country_code FK "국가 코드"
+        String currencyCode "화폐 코드 (e.g., USD, JPY)"
+        String currencyName "화폐명"
+        String symbol "화폐 기호"
+        Double exchangeRate "기준 환율"
+        datetime lastUpdated "최종 업데이트 시간"
+    }
+
+    USER ||--o{ TRAVEL : "creates"
+    USER ||--o{ TRAVEL_PERMISSION : "has"
+    USER ||--o{ CHAT_MESSAGE : "sends"
+
+    COUNTRY ||--o{ TRAVEL : "is_destination_of"
+    COUNTRY ||--o{ RESTRICTION : "has"
+    COUNTRY ||--o{ EMBASSY : "has"
+    COUNTRY ||--o{ EMERGENCY_NUMBER : "has"
+    COUNTRY ||--o{ TRAVEL_TIP : "has"
+    COUNTRY ||--o{ CURRENCY : "has"
+
+    TRAVEL ||--o{ TRAVEL_PERMISSION : "is_shared_via"
+    TRAVEL ||--o{ TRAVEL_PLAN : "contains"
+    TRAVEL ||--o{ CHAT_MESSAGE : "has_room_for"
+
+    PLACE ||--o{ TRAVEL_PLAN : "is_planned_in"
+    PLACE ||--o| ACCOMMODATION : "details_as"
+    PLACE ||--o| ATTRACTION : "details_as"
+    PLACE ||--o| RESTAURANT : "details_as"
+
+```
