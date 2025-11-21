@@ -1,7 +1,7 @@
 FROM gradle:7.6.1-jdk17 AS build
 WORKDIR /app
 COPY . .
-# 테스트는 제외하고 빌드합니다.
+RUN chmod +x ./gradlew
 RUN ./gradlew clean build -x test
 
 # Runtime Stage: JAR 파일이 실행되는 최종 환경
