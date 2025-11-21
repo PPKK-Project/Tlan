@@ -7,16 +7,13 @@ import ChatRoomList from "./ChatRoomList"; // 채팅방 목록 컴포넌트
 import "../src/ChatRoomList.css";
 
 type ChatMessage = {
-  sender: string;
+  nickname: string;
   content: string;
-  id: string; // 메시지 고유 ID
-  createdAt: string; // 메시지 생성 시간
 };
 
 // 채팅방(여행 계획)의 타입을 정의합니다.
 type TravelPlan = {
   id: number;
-  travelId: number; // TravelPlanList와 타입 일치를 위해 추가
   title: string;
 };
 
@@ -25,29 +22,39 @@ function Chat() {
   const [isLauncherOpen, setIsLauncherOpen] = useState(false); // 채팅 런처(창)의 열림/닫힘 상태
   const [activePlan, setActivePlan] = useState<TravelPlan | null>(null); // 현재 선택된 채팅방 정보
   const [inputMessage, setInputMessage] = useState("");
-  const [sender, setSender] = useState(
-    "Guest" + Math.floor(Math.random() * 1000)
-  );
+  const [userInfo, setUserInfo] = useState({
+    email: "",
+    nickname: "Guest",
+    userId: 0,
+  });
   const clientRef = useRef<Client | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지 목록의 끝을 참조할 ref
 
-  // 컴포넌트 마운트 시 사용자 닉네임을 가져옵니다.
+  // 컴포넌트 마운트 시 사용자 정보를 가져옵니다.
   useEffect(() => {
-    const fetchUserNickname = async () => {
+    const fetchUserInfo = async () => {
       try {
-        // 백엔드에서 현재 로그인된 사용자의 정보를 가져오는 API 엔드포인트입니다.
-        // 실제 엔드포인트로 수정해야 합니다. (예: /api/members/me)
+        // 백엔드에서 현재 로그인된 사용자의 정보를 가져오는 API
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/users/nickname`
         );
-        // 백엔드 응답 데이터 구조에 맞게 'nickname' 필드를 사용합니다.
-        if (response.data) {
-          setSender(response.data);
+        if (
+          response.data &&
+          response.data.email &&
+          response.data.nickname &&
+          response.data.userId
+        ) {
+          setUserInfo({
+            email: response.data.email,
+            nickname: response.data.nickname,
+            userId: response.data.userId,
+          });
         }
       } catch (error) {
-        console.error("사용자 닉네임을 가져오는 데 실패했습니다:", error);
+        console.error("사용자 정보를 가져오는 데 실패했습니다:", error);
       }
     };
-    fetchUserNickname();
+    fetchUserInfo();
   }, []);
 
   // activePlan이 변경될 때마다 웹소켓 연결을 설정/해제합니다.
@@ -66,6 +73,7 @@ function Chat() {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/chat/message/${activePlan.id}`
         );
+        console.log(response.data)
         setMessages(response.data);
       } catch (error) {
         console.error("채팅 기록을 불러오는 데 실패했습니다.", error);
@@ -74,10 +82,15 @@ function Chat() {
     };
     fetchHistory();
 
+    const token = localStorage.getItem("jwt");
+
     const client = new Client({
       webSocketFactory: () => new SockJS("http://localhost:8080/ws-stomp"),
       debug: (str) => {
         console.log(new Date(), str);
+      },
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
       },
       reconnectDelay: 5000, // 5초마다 재연결 시도
       onConnect: () => {
@@ -85,7 +98,17 @@ function Chat() {
         // 여행 계획 ID에 맞는 토픽을 구독합니다.
         client.subscribe(`/chat/message/${activePlan.id}`, (message) => {
           const receivedMessage: ChatMessage = JSON.parse(message.body);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+          // 서버로부터 실제 메시지를 받으면, 임시 메시지를 실제 메시지로 교체합니다.
+          // 임시 메시지는 chatId가 숫자(Date.now())이고, 실제 메시지는 문자열 ID를 가질 것으로 가정합니다.
+          setMessages((prevMessages) => {
+            // 임시 메시지를 제외하고 새 메시지 배열을 만듭니다.
+            const newMessages = prevMessages.filter(
+              (msg) =>
+                typeof msg.nickname === "string" ||
+                msg.content !== receivedMessage.content
+            );
+            return [...newMessages, receivedMessage];
+          });
         });
       },
       onStompError: (frame) => {
@@ -104,6 +127,12 @@ function Chat() {
     };
   }, [activePlan]); // activePlan이 바뀔 때마다 이 useEffect가 다시 실행됩니다.
 
+  // 메시지 목록이 업데이트될 때마다 스크롤을 맨 아래로 이동시킵니다.
+  useEffect(() => {
+    // 부드럽게 스크롤
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]); // messages 배열이 변경될 때마다 실행
+
   // 4. 메시지 전송 함수
   const sendMessage = () => {
     if (
@@ -112,20 +141,26 @@ function Chat() {
       inputMessage.trim() !== "" &&
       activePlan
     ) {
-      const chatMessage: ChatMessage = {
-        sender: sender,
+      const chatMessage = {
+        // 서버에는 메시지 내용만 보냅니다.
+        email:userInfo.email,
         content: inputMessage,
-        // 백엔드에서 id와 createdAt을 요구하는 경우, 임시 값을 생성하여 전송합니다.
-        id: new Date().toISOString() + Math.random(), // 임시 고유 ID
-        createdAt: new Date().toISOString(), // 현재 시간
       };
+
+      // 낙관적 업데이트: UI에 즉시 표시할 임시 메시지를 만듭니다.
+      const tempMessage: ChatMessage = {
+        nickname: userInfo.nickname,
+        content: inputMessage,
+        
+      };
+      // 화면에 임시 메시지를 먼저 추가합니다.
+      setMessages((prevMessages) => [...prevMessages, tempMessage]);
+
       clientRef.current.publish({
-        // 여행 계획 ID에 맞는 목적지로 메시지를 발행합니다.
         destination: `/app/chat/message/${activePlan.id}`,
         body: JSON.stringify(chatMessage),
       });
       setInputMessage("");
-      console.log(chatMessage)
     }
   };
 
@@ -149,11 +184,20 @@ function Chat() {
               </button>
             </div>
             <div className="messages-area">
-              {messages.map((msg) => (
-                <div key={msg.id} className="message-item">
-                  <strong>{msg.sender}:</strong> {msg.content}
-                </div>
-              ))}
+              {messages.map((msg, index) => {
+
+
+                return (
+                  <div
+                    key={index}
+                    className={`message-item`}
+                  >
+                    <strong>{msg.nickname}:</strong> {msg.content}
+                  </div>
+                );
+              })}
+              {/* 스크롤의 기준점이 될 빈 div */}
+              <div ref={messagesEndRef} />
             </div>
             <div className="input-area">
               <input
