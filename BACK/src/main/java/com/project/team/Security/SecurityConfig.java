@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/verify-email").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/countries", "/embassy", "/place", "/currency").permitAll()
                         .anyRequest().authenticated())
                 // oauth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
@@ -78,7 +78,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 프론트 엔드 주소
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost"));
         // 허용할 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
         // 허용할 헤더
