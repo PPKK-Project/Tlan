@@ -196,7 +196,7 @@ export function useTravelData(travelId: string | undefined) {
           radius: "30000",
           type: "point_of_interest",
         };
-        const res = await axios.get(`${API_BASE_URL}/api/place`, {
+        const res = await axios.get(`${API_BASE_URL}/place`, {
           params,
           headers: getAxiosConfig().headers,
         });
@@ -289,7 +289,7 @@ export function useTravelData(travelId: string | undefined) {
     setError(null);
     try {
       // 외부 Google API는 getAxiosConfig() 불필요
-      const res = await axios.get(`${API_BASE_URL}/api/geocode`, {
+      const res = await axios.get(`${API_BASE_URL}/geocode`, {
         params: { address: query },
         headers: getAxiosConfig().headers,
       });
