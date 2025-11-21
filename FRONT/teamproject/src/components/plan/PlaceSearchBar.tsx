@@ -24,13 +24,6 @@ export function PlaceSearchBar({ travelInfo, onSearch, isLoading }: Props) {
       <div className="flex flex-wrap gap-4 items-center max-w-6xl mx-auto">
         <input
           type="text"
-          placeholder="출발지"
-          defaultValue="서울"
-          className="border p-2 rounded-md"
-          disabled
-        />
-        <input
-          type="text"
           placeholder="도착지"
           value={destinationInput}
           onChange={(e) => setDestinationInput(e.target.value)}

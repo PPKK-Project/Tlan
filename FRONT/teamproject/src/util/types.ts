@@ -90,6 +90,8 @@ export type CreateTravelRequest = {
   startDate: string | null;
   endDate: string | null;
   countryCode?: string;
+  travelerCount: number;
+  departure: string;
 };
 
 
