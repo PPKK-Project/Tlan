@@ -49,45 +49,139 @@
 
 -----
 
-## 4\. 실전 예제: Node.js 애플리케이션 도커파일
+## 💡 실전 예제: Spring Boot 및 React 애플리케이션 도커파일
 
-다음은 간단한 Node.js 기반의 웹 애플리케이션을 컨테이너화하는 효율적인 도커파일 예시입니다.
+멀티 스테이지 빌드는 빌드 환경과 최종 실행 환경을 분리하여 **최종 이미지 크기를 대폭 줄이는** 현대적인 도커파일 작성 방식입니다.
 
-### 파일 구조
+-----
+
+### 1\. ☕ Spring Boot 애플리케이션 도커파일 (멀티 스테이지)
+
+Spring Boot 애플리케이션은 보통 Maven이나 Gradle로 빌드하여 `.jar` 파일을 생성합니다.
+
+#### 파일 구조
 
 ```
-/project
+/spring-app
+  ├── Dockerfile
+  ├── build.gradle
+  └── src/ (소스 코드)
+```
+
+#### 📄 Dockerfile 내용
+
+```dockerfile
+# ----------------------------------------------------
+# 1단계: 빌드 환경 (Build Stage)
+# Gradle을 사용하여 JAR 파일을 빌드합니다.
+# ----------------------------------------------------
+FROM gradle:8.5-jdk17 AS builder
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# Gradle Wrapper 및 종속성 파일 복사 (캐시 활용)
+# 자주 변경되지 않는 파일들을 먼저 복사하여 도커 캐시를 효율적으로 사용합니다.
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+
+# 종속성 다운로드 (새로운 레이어)
+# 소스 코드가 변경되어도 이 레이어는 캐시를 유지할 수 있습니다.
+RUN ./gradlew dependencies
+
+# 나머지 소스 코드 복사
+COPY src ./src
+
+# 애플리케이션 빌드
+# 'build/libs/' 디렉토리에 JAR 파일이 생성됩니다.
+RUN ./gradlew build -x test
+
+# ----------------------------------------------------
+# 2단계: 실행 환경 (Runtime Stage)
+# 가볍고 안전한 JRE(Java Runtime Environment)만 사용합니다.
+# ----------------------------------------------------
+FROM openjdk:17-jre-slim
+
+# 아규먼트 (빌드 단계에서 생성된 JAR 파일 이름)
+# Spring Boot의 기본 JAR 파일 패턴을 따릅니다.
+ARG JAR_FILE=build/libs/*.jar
+
+# 작업 디렉토리 설정
+WORKDIR /usr/app
+
+# 1단계(builder)에서 생성된 JAR 파일을 복사
+# cp 명령을 사용하여 'app.jar'이라는 이름으로 복사합니다.
+COPY --from=builder /app/${JAR_FILE} app.jar
+
+# 컨테이너 실행 시 사용할 포트 노출
+EXPOSE 8080
+
+# 애플리케이션 실행 명령
+# -Djava.security.egd=file:/dev/./urandom: 난수 생성 속도 개선 옵션
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+```
+-----
+
+### 2\. ⚛️ React 애플리케이션 도커파일 (멀티 스테이지)
+
+React 애플리케이션은 Node.js로 빌드된 후, 빌드된 정적 파일(HTML, CSS, JS)을 **Nginx** 같은 웹 서버를 통해 서비스하는 것이 일반적이며 가장 효율적입니다.
+
+#### 파일 구조
+
+```
+/react-app
   ├── Dockerfile
   ├── package.json
   ├── package-lock.json
-  └── server.js
+  ├── .env (환경 변수)
+  ├── nginx.conf (Nginx 설정 파일)
+  └── src/ (소스 코드)
 ```
 
-### 📄 Dockerfile 내용
+#### 📄 Dockerfile 내용
 
 ```dockerfile
-# 1. Base Image 설정
-FROM node:18-alpine
+# ----------------------------------------------------
+# 1단계: 빌드 환경 (Build Stage)
+# Node.js를 사용하여 React 프로젝트를 빌드합니다.
+# ----------------------------------------------------
+FROM node:18-alpine AS builder
 
-# 2. 작업 디렉토리 설정
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# 3. 종속성 파일 복사 및 설치
-# 캐시를 효율적으로 사용하기 위해 자주 바뀌지 않는 파일을 먼저 복사합니다.
+# 종속성 파일 복사
 COPY package*.json ./
 
-# 4. 종속성 설치 (새로운 레이어)
-RUN npm install --production
+# 종속성 설치 (캐시 레이어)
+RUN npm install
 
-# 5. 나머지 애플리케이션 파일 복사
+# 나머지 소스 코드 복사
 COPY . .
 
-# 6. 애플리케이션 포트 노출 (문서화용)
-EXPOSE 3000
+# React 프로젝트 빌드 (정적 파일 생성)
+# 'build' 디렉토리에 결과물이 생성됩니다.
+RUN npm run build
 
-# 7. 컨테이너 실행 명령 정의
-# ENTRYPOINT와 CMD를 함께 사용하여 실행 인수를 분리합니다.
-CMD [ "npm", "start" ]
+# ----------------------------------------------------
+# 2단계: 실행 환경 (Runtime Stage)
+# 매우 가벼운 Nginx를 사용하여 정적 파일을 서빙합니다.
+# ----------------------------------------------------
+FROM nginx:alpine
+
+# Nginx 설정을 컨테이너 내부의 기본 경로로 복사
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# 1단계(builder)에서 생성된 빌드 결과물을 Nginx의 웹 서버 루트 디렉토리로 복사
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Nginx 기본 포트 노출
+EXPOSE 80
+
+# Nginx는 기본적으로 CMD가 설정되어 있으므로 별도로 정의하지 않아도 됩니다.
 ```
 
------
+#### 🌟 특징
+  * **환경 설정:** `nginx.conf` 파일을 통해 프록시 설정, 캐시 설정 등 상세한 웹 서버 제어가 가능합니다.
+

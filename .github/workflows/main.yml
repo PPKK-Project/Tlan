@@ -125,9 +125,13 @@ jobs:
             ${{ env.BACKEND_TAG }} ;
             
             echo 'Starting frontend-app container...'
-            # Frontend: .env 파일을 컨테이너 내부에 마운트 (다른 런타임 변수용)
-            docker run -d -p 80:80 --network my-app-network --name frontend-app \
+            # Frontend(Nginx): .env 파일, Certbot 인증서/인증용 웹루트 볼륨 마운트 및 443 포트 추가
+            docker run -d --network my-app-network --name frontend-app \
+            -p 80:80 \
+            -p 443:443 \
             -v /tmp/.env:/.env \
+            -v /etc/letsencrypt:/etc/letsencrypt:ro \
+            -v /var/www/certbot:/var/www/certbot:ro \
             ${{ env.FRONTEND_TAG }} ;
 
             # 5. 디스크 공간 확보: 사용하지 않는 모든 Docker 아티팩트 정리
