@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - main # main 브랜치에 코드가 푸시될 때마다 자동 실행
-
+    paths:
+      # 변경 사항이 다음 경로에 있을 때만 워크플로우 실행
+      - 'BACK/**' # 백엔드 코드 변경 시
+      - 'FRONT/teamproject/**' # 프론트엔드 코드 변경 시
+      - '.github/workflows/main.yml' # 워크플로우 파일 자체 변경 시
+      - 'docker-compose.yml' # Docker Compose 파일 변경 시 (배포 구성 변경)
+      - 'Dockerfile.*' # Dockerfile 변경 시
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   AR_REPO_NAME: tlan-repo
