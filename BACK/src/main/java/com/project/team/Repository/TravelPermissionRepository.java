@@ -10,5 +10,5 @@ public interface TravelPermissionRepository extends JpaRepository<TravelPermissi
     List<TravelPermission> findByTravelId(Long travelId);
     Optional<TravelPermission> findByTravelIdAndUserId(Long travelId, Long userId);
     Optional<TravelPermission> findByTravelIdAndId(Long travelId, Long permissionId);
+    List<TravelPermission> findByUserId(Long userId);
 }
-

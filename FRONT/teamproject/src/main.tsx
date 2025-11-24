@@ -11,8 +11,12 @@ import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
 import VerifyEmail from "./components/login/VerifyEmail";
 import Flight from "./components/plan/Flight";
+<<<<<<< HEAD
 import TravelPlanPdfPage from "./components/pdfPages/TravelPlanpdfPage";
 import CreateTravelPage from "./components/plan/CreateTravelPage";
+=======
+import TravelPlanPdfPage from "./components/pdfPages/TravelPlanPdfPage";
+>>>>>>> 99da7077513c9b27b5dfd311bf891d4e23dbd08a
 
 const queryClient = new QueryClient();
 

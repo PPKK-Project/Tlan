@@ -3,28 +3,20 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "../../ShareModal";
 import PlanCard from "./PlanCard";
+import { TravelPlan } from "./TravelPlanList";
 
-export type TravelPlan = {
-  id: number;
-  title: string;
-  countryCode: string; // API 응답에 따라 수정
-  startDate: string;
-  endDate: string;
+const getSharedPlanList = async (): Promise<TravelPlan[]> => {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels/share`);
+  return response.data;
 };
 
-const getTravelPlanList = async () => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels`);
-  console.log(response.data);
-  return response.data
-};
-
-function TravelPlanList() {
+function SharedPlanList() {
   const queryClient = useQueryClient();
   const [sharingPlan, setSharingPlan] = useState<TravelPlan | null>(null);
 
   const { data, error, isLoading } = useQuery({
-    queryKey: ["plans"], // 쿼리 키를 분리하여 캐시 충돌 방지
-    queryFn: getTravelPlanList,
+    queryKey: ["sharedPlans"], // 쿼리 키를 분리하여 캐시 충돌 방지
+    queryFn: getSharedPlanList,
   });
 
   const deleteMutation = useMutation({
@@ -73,18 +65,18 @@ function TravelPlanList() {
   }
 
   if (error) {
-    return <span> 여행을 불러오는데 실패했습니다.😱</span>;
+    return <span> 친구에게 초대받은 여행을 불러오는데 실패했습니다.😱</span>;
   }
 
   return (
     <div className="travel-plan-list-container">
-      <h2 className="list-header">나의 여행 계획</h2>
+      <h2 className="list-header">친구에게 초대받은 여행</h2>
       {data && data.length === 0 ? (
-        <p className="no-plans-message">아직 여행 계획이 없습니다.</p>
+        <p className="no-plans-message">아직 초대받은 여행 계획이 없습니다.</p>
       ) : (
         <div className="plan-cards-grid">
           {data &&
-            data.map((plan: TravelPlan) => (
+            data.map((plan) => (
               <PlanCard
                 key={plan.id}
                 plan={plan}
@@ -110,5 +102,4 @@ function TravelPlanList() {
     </div>
   );
 }
-
-export default TravelPlanList;
+export default SharedPlanList;

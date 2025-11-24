@@ -1,5 +1,6 @@
 package com.project.team.Service;
 
+import com.project.team.Dto.Travel.TravelResponse;
 import com.project.team.Dto.TravelPermission.TravelPermissionCreateRequest;
 import com.project.team.Dto.TravelPermission.TravelPermissionResponse;
 import com.project.team.Dto.TravelPermission.TravelPermissionUpdateRequest;
@@ -15,10 +16,14 @@ import com.project.team.Repository.TravelRepository;
 import com.project.team.Repository.UserRepository;
 import com.project.team.Util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -203,4 +208,22 @@ public class TravelPermissionService {
                 permission.getRole()
         );
     }
+
+    /**
+     * [GET] 현재 사용자가 공유받은 모든 여행 목록 조회
+     */
+    public List<TravelResponse> getSharedTravels(Principal principal){
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
+
+        // 1. 현재 사용자의 ID로 모든 TravelPermission을 조회
+        List<TravelPermission> permissions = permissionRepository.findByUserId(user.getId());
+
+        // 2. 각 Permission에서 Travel 엔티티를 추출하여 TravelResponse DTO로 변환
+        return permissions.stream()
+                .map(TravelPermission::getTravel) // TravelPermission에서 Travel을 가져옴
+                .map(TravelResponse::new)         // Travel을 TravelResponse DTO로 변환
+                .collect(Collectors.toList());
+    }
+
 }

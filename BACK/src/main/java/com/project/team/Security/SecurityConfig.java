@@ -59,12 +59,20 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())    // CORS 설정(이하의 설정 사용) 어떤 로컬호스트를 기준으로 할것인가 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))   // 세션 대신 JWT를 사용하므로 세션 비활성화
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/assets/**",
+                                "/vite.svg",
+                                "/api/assets/**",
+                                "/api/vite.svg"
+                        ).permitAll()
                         // login 엔드포인트의 POST 요청은 모두 허용
                         .requestMatchers(HttpMethod.POST, "/login", "/signup").permitAll()
                         .requestMatchers(HttpMethod.GET, "/verify-email").permitAll()
                         .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/countries", "/embassy", "/place", "/currency").permitAll()
                         .anyRequest().authenticated())
                 // oauth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
@@ -78,7 +86,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // 허용할 프론트 엔드 주소
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:5174", "http://localhost", "https://tlan.kro.kr"));
         // 허용할 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
         // 허용할 헤더

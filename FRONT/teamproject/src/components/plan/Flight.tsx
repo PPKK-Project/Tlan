@@ -50,7 +50,7 @@ function Flight() {
   const [visibleCount, setVisibleCount] = useState(15); // 한 번에 보여줄 항목 수
 
   // IntersectionObserver를 저장할 ref
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver | null>(null);
 
   // 목록의 마지막 요소를 감지하는 콜백 ref
   const lastFlightElementRef = useCallback((node: HTMLDivElement) => {
