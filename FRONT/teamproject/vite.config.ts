@@ -24,7 +24,12 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080', // 👈 로컬 백엔드 서버 주소
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), 
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/ws-stomp': {
+        target: 'http://localhost:8080', // 👈 백엔드 서버 주소
+        changeOrigin: true,
+        ws: true, // 👈 WebSocket 프록시 활성화 옵션
       },
       // 📌 기존 설정 유지
       '/1262000': {
