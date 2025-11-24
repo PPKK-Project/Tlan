@@ -71,18 +71,15 @@ function TravelPlanPage() {
         {/* 검색바 영역 (항공권 페이지가 아닐 때만 표시) */}
         {!isFlightPage && (
           <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4">
-            <div className="w-full shadow-sm">
-              <PlaceSearchBar
-                travelInfo={travelInfo}
-                onSearch={handleSearch}
-                isLoading={isLoading}
-              />
-            </div>
+            <PlaceSearchBar
+              travelInfo={travelInfo}
+              onSearch={handleSearch}
+              isLoading={isLoading}
+            />
           </div>
         )}
         <div className="w-10"></div>
       </div>
-      
 
       {/* 메인 콘텐츠 영역 */}
       <div className="flex-1 overflow-hidden relative flex flex-col">

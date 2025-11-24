@@ -9,31 +9,49 @@ type Props = {
 
 export function PlaceSearchBar({ onSearch, isLoading }: Props) {
   const [destinationInput, setDestinationInput] = useState("제주도");
+
   const handleSearchClick = () => {
+    if (!destinationInput.trim()) return;
     onSearch(destinationInput);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if(e.key === "Enter") {
+    if (e.key === "Enter") {
       handleSearchClick();
     }
   };
-  
+
   return (
-    <div className="bg-white p-4 border-b shadow-sm">
-      <div className="flex flex-wrap gap-4 items-center max-w-6xl mx-auto">
+    <div className="w-full">
+      <div className="relative flex items-center w-full bg-gray-100 rounded-full border border-transparent focus-within:border-blue-500 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-100 transition-all duration-200">
+        {/* 검색 아이콘 (SVG) */}
+        <div className="pl-4 text-gray-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+        {/* 입력 필드 */}
         <input
           type="text"
-          placeholder="여행지"
+          placeholder="여행지나 장소를 검색해보세요"
           value={destinationInput}
           onChange={(e) => setDestinationInput(e.target.value)}
-          className="border p-2 rounded-md"
+          className="w-full bg-transparent border-none text-gray-800 text-sm px-3 py-2.5 focus:outline-none placeholder-gray-400 rounded-full"
           onKeyDown={handleKeyDown}
         />
         <button
           onClick={handleSearchClick}
           disabled={isLoading}
-          className="bg-blue-500 text-white px-6 py-2 rounded-md font-semibold hover:bg-blue-600 disabled:bg-gray-400"
+          className="mr-1 my-1 px-4 py-1.5 bg-blue-500 text-white text-sm font-semibold rounded-full hover:bg-blue-600 disabled:bg-gray-400 transition-colors duration-200 shrink-0"
         >
           {isLoading ? "검색 중..." : "검색"}
         </button>
