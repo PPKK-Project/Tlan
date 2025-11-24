@@ -15,7 +15,7 @@ function Warning() {
   ];
 
   const getWarningData = async () => {
-    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/countries`);
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/countries`);
     return response.data.filter((item:countryInfo) => item.alarmLevel > 0).sort((a:countryInfo, b:countryInfo) => b.alarmLevel - a.alarmLevel);
   }
 

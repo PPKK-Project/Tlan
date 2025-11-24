@@ -1,0 +1,14 @@
+### Build-related files ###
+target/
+.gradle/
+build/
+.settings/
+.idea/
+.vscode/
+
+### IDE and OS files ###
+*.iml
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*

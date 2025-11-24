@@ -160,15 +160,20 @@ export function useTravelData(travelId: string | undefined) {
           adult: 1,
         };
 
-        const flightRes = await axios.get("http://localhost:8080/flight", {
+        const flightRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/flight`, {
           params,
         });
         setFlights(flightRes.data);
       } catch (err) {
         console.error("항공권 정보를 불러오는 데 실패했습니다.", err);
-        setFlightError(
-          err.message || "항공권 정보를 불러오는 데 실패했습니다."
-        );
+        if (axios.isAxiosError(err)) {
+          const errorMessage = err.response?.data?.message || err.message || "항공권 정보를 불러오는 데 실패했습니다.";
+          setFlightError(errorMessage);
+        } else if (err instanceof Error) {
+          setFlightError(err.message);
+        } else {
+          setFlightError("알 수 없는 오류로 항공권 정보를 불러오는 데 실패했습니다.");
+        }
         setFlights([]); // 에러 발생 시 항공권 정보 초기화
       } finally {
         setIsFlightLoading(false);
@@ -191,7 +196,7 @@ export function useTravelData(travelId: string | undefined) {
           radius: "30000",
           type: "point_of_interest",
         };
-        const res = await axios.get(`${API_BASE_URL}/api/place`, {
+        const res = await axios.get(`${API_BASE_URL}/place`, {
           params,
           headers: getAxiosConfig().headers,
         });
@@ -284,7 +289,7 @@ export function useTravelData(travelId: string | undefined) {
     setError(null);
     try {
       // 외부 Google API는 getAxiosConfig() 불필요
-      const res = await axios.get(`${API_BASE_URL}/api/geocode`, {
+      const res = await axios.get(`${API_BASE_URL}/geocode`, {
         params: { address: query },
         headers: getAxiosConfig().headers,
       });
