@@ -12,6 +12,17 @@ const AIRPORT_LIST = [
   { name: "서울/김포", code: "GMP", country: "대한민국" },
   { name: "부산/김해", code: "PUS", country: "대한민국" },
   { name: "제주", code: "CJU", country: "대한민국" },
+  { name: "대구", code: "TAE", country: "대한민국" },
+  { name: "청주", code: "CJJ", country: "대한민국" },
+  { name: "무안", code: "MWX", country: "대한민국" },
+  { name: "양양", code: "YNY", country: "대한민국" },
+  { name: "광주", code: "KWJ", country: "대한민국" },
+  { name: "여수", code: "RSU", country: "대한민국" },
+  { name: "울산", code: "USN", country: "대한민국" },
+  { name: "포항/경주", code: "KPO", country: "대한민국" },
+  { name: "사천", code: "HIN", country: "대한민국" },
+  { name: "군산", code: "KUV", country: "대한민국" },
+  { name: "원주", code: "WJU", country: "대한민국" },
 ];
 
 function CreateTravelPage() {
@@ -36,7 +47,6 @@ function CreateTravelPage() {
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value;
 
-    // 날짜를 지웠을 경우 (빈 값) 처리
     if (!newDate) {
       setStartDate("");
       return;
@@ -44,7 +54,7 @@ function CreateTravelPage() {
 
     if (newDate < today) {
       alert("과거 일자는 선택할 수 없습니다.");
-      return; // 상태 업데이트를 하지 않으므로 입력창은 변하지 않음 (또는 빈 값 유지)
+      return;
     }
 
     setStartDate(newDate);
@@ -122,7 +132,7 @@ function CreateTravelPage() {
 
     const requestData: CreateTravelRequest = {
       title,
-      countryCode: "KR", // 일단 기본값 (또는 도착지 입력 추가 가능)
+      countryCode: "KR", // 기본값
       startDate,
       endDate,
       travelerCount,
