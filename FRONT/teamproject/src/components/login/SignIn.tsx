@@ -8,7 +8,6 @@ type User = {
   password: string;
 };
 
-type AlertType = "success" | "info" | "warning" | "error";
 
 function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +22,7 @@ function SignIn() {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    type: AlertType;
+    type: "success" | "info" | "warning" | "error";
   }>({
     open: false,
     message: "",
@@ -91,7 +90,7 @@ function SignIn() {
         if (authHeader?.startsWith("Bearer ")) {
           const token = authHeader.slice(7);
           localStorage.setItem("jwt", token);
-          localStorage.setItem("loginJustNow", "true"); // 🔹 추가
+          localStorage.setItem("loginJustNow", "true");
 
           navigate("/");
         } else {

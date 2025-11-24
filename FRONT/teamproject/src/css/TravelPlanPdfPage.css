@@ -115,19 +115,37 @@
   justify-content: center;
 }
 
-/* ✅ 세로로 글자 쌓기 */
+/* 세로 두 줄 (DAY / 01) */
 .travel-pdf-day-label-text {
   display: flex;
-  flex-direction: column; /* 위→아래로 쌓기 */
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2px; /* 글자 사이 간격 */
+  justify-content: center;  /* 가운데 정렬 */
+  gap: 4px;                 /* DAY랑 숫자 사이 간격 */
 }
 
-.travel-pdf-day-label-char {
-  font-size: 13px;
+/* 위: DAY */
+.travel-pdf-day-label-word {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;      /* DAY 간격만 약간 띄우기 */
+  color: #ffffff;
+}
+
+/* 아래: 01, 02, 03... */
+.travel-pdf-day-label-num {
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 2px;
+  color: #ffffff;
+}
+
+
+.travel-pdf-day-label-char {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px; /* 살짝만 띄우기 */
+  line-height: 1;
   color: #ffffff;
 }
 
@@ -217,4 +235,9 @@
   font-size: 11px;
   color: #4b5563;
   margin-top: 1px;
+}
+
+.travel-pdf-plan-empty-message {
+  font-size: 14px;
+  color: #555;
 }

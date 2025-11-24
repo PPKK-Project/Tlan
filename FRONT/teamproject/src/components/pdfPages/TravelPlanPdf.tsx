@@ -1,4 +1,4 @@
-// src/pages/TravelPlanPdf.tsx (경로는 네 구조에 맞게)
+// src/components/pdfPages/TravelPlanPdf.tsx
 
 import React from "react";
 import {
@@ -16,11 +16,11 @@ Font.register({
   fonts: [
     {
       src: "/fonts/NotoSansKR-Regular.ttf",
-      fontWeight: "normal",
+      fontWeight: 400, // normal
     },
     {
       src: "/fonts/NotoSansKR-Bold.ttf",
-      fontWeight: "bold",
+      fontWeight: 700, // bold
     },
   ],
 });
@@ -42,6 +42,7 @@ export type TravelPlanForPdf = {
 type Props = {
   plans: TravelPlanForPdf[];
   title?: string;
+  dateRange?: string; // "2025-11-20 ~ 2025-12-05"
 };
 
 // ====== PDF 전용 스타일 ======
@@ -54,26 +55,26 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
     fontFamily: "NotoSansKR",
   },
+
+  // 상단 제목 영역
   header: {
     marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
-    paddingBottom: 6,
+    paddingBottom: 12,
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 4,
+    fontWeight: 700,
+    textAlign: "center",
+    marginBottom: 15, // 제목과 날짜 사이 간격
   },
   headerSub: {
     fontSize: 10,
     color: "#555555",
+    textAlign: "center",
   },
-  sectionTitle: {
-    fontSize: 12,
-    marginBottom: 6,
-    marginTop: 4,
-  },
+
+  // Day 블록 (원래 카드 스타일)
   dayBlock: {
     borderWidth: 1,
     borderColor: "#dddddd",
@@ -91,8 +92,9 @@ const styles = StyleSheet.create({
   },
   dayHeaderText: {
     fontSize: 11,
-    fontWeight: "bold",
+    fontWeight: 700,
   },
+
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "#cfe9ff",
@@ -102,13 +104,14 @@ const styles = StyleSheet.create({
   thTime: {
     width: 70,
     fontSize: 9,
-    fontWeight: "bold",
+    fontWeight: 700,
   },
   thActivity: {
     flex: 1,
     fontSize: 9,
-    fontWeight: "bold",
+    fontWeight: 700,
   },
+
   row: {
     flexDirection: "row",
     paddingVertical: 4,
@@ -116,7 +119,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: "#eeeeee",
   },
-  // ✅ 새로 추가
   cellTimeCol: {
     width: 70,
     fontSize: 9,
@@ -127,14 +129,12 @@ const styles = StyleSheet.create({
   orderText: {
     marginBottom: 2,
   },
-
   cellActivity: {
     flex: 1,
   },
-
   placeName: {
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: 400,
   },
   placeAddress: {
     fontSize: 9,
@@ -145,7 +145,6 @@ const styles = StyleSheet.create({
     color: "#444444",
   },
 
-  // ✅ 뱃지를 “글자 길이만큼” 예쁘게
   typeBadge: {
     fontSize: 8,
     paddingHorizontal: 6,
@@ -153,9 +152,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: "#dbeafe",
     color: "#1d4ed8",
-    alignSelf: "flex-start", // 왼쪽 정렬
+    alignSelf: "flex-start",
     marginTop: 2,
   },
+
   footer: {
     position: "absolute",
     fontSize: 8,
@@ -167,11 +167,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const TravelPlanPdf: React.FC<Props> = ({ plans, title = "여행 계획" }) => {
-  // Day 번호 모아서 정렬
-  const dayNumbers = Array.from(new Set(plans.map((p) => p.dayNumber))).sort(
-    (a, b) => a - b
-  );
+const TravelPlanPdf: React.FC<Props> = ({
+  plans,
+  title = "여행 계획",
+  dateRange,
+}) => {
+  // Day 번호 범위를 1 ~ 최대 Day 까지로 잡기
+  const maxDayNumber = Math.max(...plans.map((p) => p.dayNumber));
+  const dayNumbers = Array.from({ length: maxDayNumber }, (_, i) => i + 1);
 
   return (
     <Document>
@@ -179,6 +182,9 @@ const TravelPlanPdf: React.FC<Props> = ({ plans, title = "여행 계획" }) => {
         {/* 상단 헤더 */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{title}</Text>
+          {dateRange ? (
+            <Text style={styles.headerSub}>{dateRange}</Text>
+          ) : null}
         </View>
 
         {/* Day별 일정 */}
@@ -192,10 +198,10 @@ const TravelPlanPdf: React.FC<Props> = ({ plans, title = "여행 계획" }) => {
               {/* Day 헤더 */}
               <View style={styles.dayHeader}>
                 <Text style={styles.dayHeaderText}>
-                  Day {String(dayNumber).padStart(2, "0")}
+                  {`Day ${String(dayNumber).padStart(2, "0")}`}
                 </Text>
                 <Text style={styles.dayHeaderText}>
-                  {dayPlans.length}개의 일정
+                  {`${dayPlans.length}개의 일정`}
                 </Text>
               </View>
 
@@ -205,27 +211,46 @@ const TravelPlanPdf: React.FC<Props> = ({ plans, title = "여행 계획" }) => {
                 <Text style={styles.thActivity}>Activity</Text>
               </View>
 
-              {/* 각 일정 행 */}
-              {dayPlans.map((plan) => (
-                <View key={plan.planId} style={styles.row}>
-                  {/* 왼쪽: 순서 + 타입 뱃지 */}
+              {/* 각 일정 행 / 또는 비어 있을 때 메시지 */}
+              {dayPlans.length === 0 ? (
+                <View style={styles.row}>
                   <View style={styles.cellTimeCol}>
-                    <Text style={styles.orderText}>{plan.sequence}번째</Text>
-                    <Text style={styles.typeBadge}>{plan.place.type}</Text>
+                    <Text style={styles.orderText}>-</Text>
                   </View>
-
-                  {/* 오른쪽: 이름 / 주소 / 메모 */}
                   <View style={styles.cellActivity}>
-                    <Text style={styles.placeName}>{plan.place.name}</Text>
-                    <Text style={styles.placeAddress}>
-                      {plan.place.address}
+                    <Text style={styles.placeName}>
+                      아직 일정이 정해지지 않았습니다.
                     </Text>
-                    {plan.memo && plan.memo.trim().length > 0 && (
-                      <Text style={styles.memo}>메모: {plan.memo}</Text>
-                    )}
                   </View>
                 </View>
-              ))}
+              ) : (
+                dayPlans.map((plan) => (
+                  <View key={plan.planId} style={styles.row}>
+                    {/* 왼쪽: 순서 + 타입 뱃지 */}
+                    <View style={styles.cellTimeCol}>
+                      <Text style={styles.orderText}>
+                        {`${plan.sequence}번째`}
+                      </Text>
+                      <Text style={styles.typeBadge}>{plan.place.type}</Text>
+                    </View>
+
+                    {/* 오른쪽: 이름 / 주소 / 메모 */}
+                    <View style={styles.cellActivity}>
+                      <Text style={styles.placeName}>
+                        {plan.place.name}
+                      </Text>
+                      <Text style={styles.placeAddress}>
+                        {plan.place.address}
+                      </Text>
+                      {plan.memo && plan.memo.trim().length > 0 ? (
+                        <Text style={styles.memo}>
+                          {`메모: ${plan.memo}`}
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
+                ))
+              )}
             </View>
           );
         })}
