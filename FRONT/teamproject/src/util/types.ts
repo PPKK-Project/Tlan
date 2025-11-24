@@ -79,6 +79,8 @@ export type Travel = {
   countryCode: string | null;
   startDate: string | null;
   endDate: string | null;
+  travelerCount: number;
+  departure: string;
 };
 
 /**

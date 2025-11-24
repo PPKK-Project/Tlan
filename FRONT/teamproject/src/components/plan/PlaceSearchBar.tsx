@@ -7,7 +7,7 @@ type Props = {
   isLoading: boolean;
 };
 
-export function PlaceSearchBar({ travelInfo, onSearch, isLoading }: Props) {
+export function PlaceSearchBar({ onSearch, isLoading }: Props) {
   const [destinationInput, setDestinationInput] = useState("제주도");
   const handleSearchClick = () => {
     onSearch(destinationInput);
@@ -24,26 +24,11 @@ export function PlaceSearchBar({ travelInfo, onSearch, isLoading }: Props) {
       <div className="flex flex-wrap gap-4 items-center max-w-6xl mx-auto">
         <input
           type="text"
-          placeholder="도착지"
+          placeholder="여행지"
           value={destinationInput}
           onChange={(e) => setDestinationInput(e.target.value)}
           className="border p-2 rounded-md"
           onKeyDown={handleKeyDown}
-        />
-        {/* 여행 정보에 날짜가 있으면 표시, 없으면 비활성화 */}
-        <input
-          type="date"
-          value={travelInfo?.startDate || ""}
-          className="border p-2 rounded-md bg-gray-100"
-          readOnly
-          disabled
-        />
-        <input
-          type="date"
-          value={travelInfo?.endDate || ""}
-          className="border p-2 rounded-md bg-gray-100"
-          readOnly
-          disabled
         />
         <button
           onClick={handleSearchClick}
