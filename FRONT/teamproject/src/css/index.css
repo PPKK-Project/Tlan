@@ -302,7 +302,7 @@ body {
   flex-wrap: wrap;
   gap: 25px;
   padding: 20px 0;
-  background-color: #fff;
+  background-color: #FAFAF8;
 }
 
 /* 각 범례 항목 (예: 0단계 (정상)) */
@@ -464,7 +464,7 @@ body {
 .footer {
   background-color: #171c26;
   color: #e5e7eb;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1.5rem;
   font-family: Arial, sans-serif;
 }
 
@@ -478,28 +478,26 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 2rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid #374151;
 }
 
 .footer-section {
   flex-grow: 1;
   min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
-@media (max-width: 640px) {
-  .footer-sections {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
+/* 
 @media (min-width: 768px) {
   .footer-sections {
     display: flex;
     justify-content: space-between;
   }
-}
+} */
 
 .section-header {
   font-size: 1.125rem;
@@ -556,7 +554,7 @@ body {
 /* MyPage 전체를 감싸는 부모 요소가 있다면 추가 (예: <div id="mypage-root">) */
 /* body 배경은 기본값으로 되돌립니다. */
 body {
-  background-color: #fff;
+  background-color: #FAFAF8;
 }
 
 /* 1. 배경 레이어 스타일 */
