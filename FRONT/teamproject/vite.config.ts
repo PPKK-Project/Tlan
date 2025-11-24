@@ -1,18 +1,35 @@
+// vite.config.js
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    outDir: 'build',
+  },
   plugins: [react()],
   define: {
-    // JavaScript 환경의 global을 브라우저의 window 객체로 대체합니다.
-    global: 'window', 
+    // global: 'window', // 제거
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
   },
   server: {
     proxy: {
+      // 📌 [추가] 로컬 백엔드 서버 프록시 설정
+      '/api': {
+        target: 'http://localhost:8080', // 👈 로컬 백엔드 서버 주소
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), 
+      },
+      // 📌 기존 설정 유지
       '/1262000': {
-        target: 'https://apis.data.go.kr', 
-        changeOrigin: true, 
+        target: 'https://apis.data.go.kr',
+        changeOrigin: true,
       },
       '/kosis': {
         target: 'https://kosis.kr',
@@ -20,6 +37,5 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/kosis/, ''),
       },
     },
-    
   }
 });

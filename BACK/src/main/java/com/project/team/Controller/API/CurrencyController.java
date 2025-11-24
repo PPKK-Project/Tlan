@@ -21,7 +21,7 @@ public class CurrencyController {
     private final CurrencyService currencyService;
 
     @Operation(summary = "환율 정보 조회", description = "특정 국가의 통화에 대한 원화(KRW) 1000원 기준 환율 정보를 조회합니다.")
-    @GetMapping("/api/currency")
+    @GetMapping("/currency")
     public String getRateFromDb(@Parameter(description = "조회할 국가의 한글 이름", example = "일본") String country) {
         return currencyService.getKrw1000RateByCountryName(country);
     }

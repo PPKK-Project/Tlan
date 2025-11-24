@@ -8,7 +8,7 @@ function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const logoutTimeRef = useRef(null);
+  const logoutTimeRef = useRef<number | null>(null);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -40,7 +40,7 @@ function Header() {
   };
 
   // base64url → JSON 파싱해서 exp(ms) 추출
-  const decodeExpMs = (token) => {
+  const decodeExpMs = (token: string) => {
     try {
       const base64Url = token.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");

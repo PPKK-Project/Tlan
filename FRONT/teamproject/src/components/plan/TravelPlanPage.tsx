@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, Outlet, useLocation } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar"; // Snackbar import 추가
 import { useTravelData } from "../../hooks/useTravelData";

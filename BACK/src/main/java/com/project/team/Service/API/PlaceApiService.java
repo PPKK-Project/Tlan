@@ -51,4 +51,18 @@ public class PlaceApiService {
                 .retrieve()
                 .bodyToMono(JsonNode.class); // API 응답을 JsonNode로 받음
     }
+
+    /**
+     * Geocoding API를 이용해 프론트엔드의 검색창에서 특정 장소를 입력받아 그 장소의 위도/경도 좌표를 반환합니다.
+     */
+    public Mono<JsonNode> fetchGeocodingApiData(String address) {
+        return placeApiWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/maps/api/geocode/json")
+                        .queryParam("address", address)
+                        .queryParam("key", placeApiKey)
+                        .build())
+                .retrieve()
+                .bodyToMono(JsonNode.class);
+    }
 }
