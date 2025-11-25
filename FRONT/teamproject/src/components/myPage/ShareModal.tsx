@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ShareModal.css"; // 모달 스타일을 위한 CSS 파일
+import "../../css/ShareModal.css"; // 모달 스타일을 위한 CSS 파일
 
 type ShareModalProps = {
   onClose: () => void;
@@ -13,7 +13,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   planTitle,
 }) => {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("ROLE_VIEWER"); // 권한 상태 추가, 기본값 'VIEWER'
+  const [role, setRole] = useState("ROLE_VIEWER");
 
   const handleShareClick = () => {
     const trimmedEmail = email.trim(); // 입력된 이메일의 앞뒤 공백 제거
@@ -23,7 +23,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
       alert("올바른 이메일 주소를 입력해주세요.");
       return;
     }
-    onShare(trimmedEmail, role); // 공백이 제거된 email과 role을 전달
+    onShare(trimmedEmail, role);
   };
 
   return (

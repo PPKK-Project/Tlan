@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query"; // useQueries에서 useQuery로 변경해도 됩니다.
 import axios from "axios";
-import "./ChatRoomList.css";
+import "../../css/ChatRoomList.css";
 
 type TravelPlan = {
   id: number;

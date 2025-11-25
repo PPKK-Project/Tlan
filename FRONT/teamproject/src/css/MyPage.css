@@ -1,0 +1,208 @@
+/* ==========================================================================
+   MyPage General Layout & Styles
+   ========================================================================== */
+
+:root {
+  --primary-color: #3498db;
+  --primary-hover-color: #2980b9;
+  --secondary-color: #f1f1f1;
+  --text-color: #333;
+  --light-text-color: #777;
+  --border-color: #e0e0e0;
+  --card-bg-color: #ffffff;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --card-hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  --border-radius: 12px;
+}
+
+.mypage-container {
+  background-color: #f9f9f9; /* 배경 이미지 대신 단색 배경 적용 */
+  min-height: 100vh;
+}
+
+.mypage-main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.mypage-plans-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  margin-top: 2rem;
+}
+
+/* ==========================================================================
+   MyPage Header
+   ========================================================================== */
+
+.header.transparent-header {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.mypage-header-btn {
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mypage-header-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* ==========================================================================
+   Travel Plan List & Shared Plan List
+   ========================================================================== */
+
+.travel-plan-list-container {
+  background-color: var(--card-bg-color);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.list-header {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.no-plans-message {
+  color: var(--light-text-color);
+  text-align: center;
+  padding: 3rem 0;
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   Plan Card
+   ========================================================================== */
+
+.travel-plan-card {
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.travel-plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--card-hover-shadow);
+}
+
+.plan-card-image-wrapper {
+  height: 160px;
+  overflow: hidden;
+}
+
+.plan-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.travel-plan-card:hover .plan-card-image {
+  transform: scale(1.05);
+}
+
+.plan-card-link-area {
+  padding: 1rem;
+  flex-grow: 1;
+  text-decoration: none;
+  color: inherit;
+}
+
+.plan-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plan-card-destination {
+  font-size: 0.9rem;
+  color: var(--light-text-color);
+  margin-bottom: 0.25rem;
+}
+
+.plan-card-dates {
+  font-size: 0.9rem;
+  color: var(--light-text-color);
+}
+
+.plan-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+
+.plan-card-button {
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.plan-card-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* ==========================================================================
+   Share Modal
+   ========================================================================== */
+
+.modal-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #fff;
+  margin-top: 1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 0.65em auto;
+}
+
+.modal-button.share-button {
+  background-color: var(--primary-color);
+}
+
+.modal-button.share-button:hover {
+  background-color: var(--primary-hover-color);
+}

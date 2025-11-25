@@ -1,7 +1,7 @@
 import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import axios from "axios";
 import "../../css/signIn.css";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 type User = {
   email: string;
@@ -230,9 +230,9 @@ function SignIn() {
 
         <p className="signin-helper">
           아직 회원이 아니세요?{" "}
-          <a href="/signup" className="signin-link">
+          <Link to="/signup" className="signin-link">
             이메일회원가입
-          </a>
+          </Link>
         </p>
 
         <div className="signin-divider">
@@ -246,8 +246,7 @@ function SignIn() {
             className="sns-btn sns-google"
             type="button"
             onClick={() =>
-              (window.location.href = `${
-                import.meta.env.VITE_BASE_URL
+            (window.location.href = `${import.meta.env.VITE_BASE_URL
               }/oauth2/authorization/google`)
             }
           >
@@ -257,8 +256,7 @@ function SignIn() {
             className="sns-btn sns-kakao"
             type="button"
             onClick={() =>
-              (window.location.href = `${
-                import.meta.env.VITE_BASE_URL
+            (window.location.href = `${import.meta.env.VITE_BASE_URL
               }/oauth2/authorization/kakao`)
             }
           >
@@ -268,8 +266,7 @@ function SignIn() {
             className="sns-btn sns-naver"
             type="button"
             onClick={() =>
-              (window.location.href = `${
-                import.meta.env.VITE_BASE_URL
+            (window.location.href = `${import.meta.env.VITE_BASE_URL
               }/oauth2/authorization/naver`)
             }
           >

@@ -79,6 +79,8 @@ export type Travel = {
   countryCode: string | null;
   startDate: string | null;
   endDate: string | null;
+  travelerCount: number;
+  departure: string;
 };
 
 /**
@@ -90,6 +92,8 @@ export type CreateTravelRequest = {
   startDate: string | null;
   endDate: string | null;
   countryCode?: string;
+  travelerCount: number;
+  departure: string;
 };
 
 
