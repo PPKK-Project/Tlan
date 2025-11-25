@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import axios from "axios";
-import "./Chat.css";
+import "../../css/Chat.css";
 import ChatRoomList from "./ChatRoomList"; // 채팅방 목록 컴포넌트
-import "../src/ChatRoomList.css";
+
 
 type ChatMessage = {
   nickname: string;
@@ -74,7 +74,7 @@ function Chat() {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/chat/message/${activePlan.id}`
         );
-        console.log(response.data)
+        console.log(response.data);
         setMessages(response.data);
       } catch (error) {
         console.error("채팅 기록을 불러오는 데 실패했습니다.", error);
@@ -144,7 +144,7 @@ function Chat() {
     ) {
       const chatMessage = {
         // 서버에는 메시지 내용만 보냅니다.
-        email:userInfo.email,
+        email: userInfo.email,
         content: inputMessage,
       };
 
@@ -152,7 +152,6 @@ function Chat() {
       const tempMessage: ChatMessage = {
         nickname: userInfo.nickname,
         content: inputMessage,
-        
       };
       // 화면에 임시 메시지를 먼저 추가합니다.
       setMessages((prevMessages) => [...prevMessages, tempMessage]);
@@ -186,13 +185,8 @@ function Chat() {
             </div>
             <div className="messages-area">
               {messages.map((msg, index) => {
-
-
                 return (
-                  <div
-                    key={index}
-                    className={`message-item`}
-                  >
+                  <div key={index} className={`message-item`}>
                     <strong>{msg.nickname}:</strong> {msg.content}
                   </div>
                 );

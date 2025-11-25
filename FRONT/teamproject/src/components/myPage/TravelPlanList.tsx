@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ShareModal from "../../ShareModal";
+import ShareModal from "./ShareModal";
 import PlanCard from "./PlanCard";
 
 export type TravelPlan = {
@@ -15,7 +15,7 @@ export type TravelPlan = {
 const getTravelPlanList = async () => {
   const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels`);
   console.log(response.data);
-  return response.data
+  return response.data;
 };
 
 function TravelPlanList() {
