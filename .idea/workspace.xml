@@ -26,8 +26,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
-    "url": "https://github.com/PPKK-Project/Tran.git",
-    "accountId": "c56e6c0f-47c8-406a-9190-460977a43b41"
+    "url": "https://github.com/PPKK-Project/Tran",
+    "accountId": "56a227f6-9aa2-4653-a715-12267ba23f74"
   }
 }]]></component>
   <component name="ProjectColorInfo">{
@@ -44,7 +44,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/planpage",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/rlack/Desktop/Code/TeamProject"

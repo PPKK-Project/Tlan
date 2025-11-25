@@ -1,5 +1,5 @@
 import { ChangeEvent, useState, useEffect, KeyboardEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SignUpType } from "../../util/types";
 import axios from "axios";
 import "../../css/signUp.css";
@@ -160,7 +160,7 @@ function SignUp() {
 
       await axios.post(`${import.meta.env.VITE_BASE_URL}/signup`, userData);
       handleClose();
-    localStorage.setItem("signUpJustNow", "true");
+      localStorage.setItem("signUpJustNow", "true");
       navigate("/");
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -225,9 +225,8 @@ function SignUp() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${
-                  errors.password ? "input-error" : ""
-                }`}
+                className={`form-input password-input ${errors.password ? "input-error" : ""
+                  }`}
                 value={signUp.password}
                 onChange={handleChange}
               />
@@ -286,9 +285,8 @@ function SignUp() {
                 id="passwordCheck"
                 name="passwordCheck"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${
-                  errors.passwordCheck ? "input-error" : ""
-                }`}
+                className={`form-input password-input ${errors.passwordCheck ? "input-error" : ""
+                  }`}
                 value={signUp.passwordCheck}
                 onChange={handleChange}
               />
@@ -369,9 +367,9 @@ function SignUp() {
 
           <p className="signin-helper">
             이미 가입 되어있으신가요?{" "}
-            <a href="/signin" className="signin-link">
+            <Link to="/signin" className="signin-link">
               로그인하러가기
-            </a>
+            </Link>
           </p>
         </div>
         {snackbar.open && (

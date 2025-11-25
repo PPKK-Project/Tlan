@@ -1,12 +1,12 @@
 import { useParams, Outlet, useLocation } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar"; // Snackbar import 추가
 import { useTravelData } from "../../hooks/useTravelData";
-import { DateSelectionModal } from "./DateSelectionModal";
 import { PlaceSearchBar } from "./PlaceSearchBar";
 import PlanSidebar from "./PlanSidebar";
 import PlanMap from "./PlanMap";
 import ItinerarySummary from "./ItinerarySummary";
 import { Alert } from "@mui/material";
+import Header from "../main/Header";
 
 function TravelPlanPage() {
   // URL에서 /travels/:travelId 의 'travelId' 값을 가져옴
@@ -16,9 +16,7 @@ function TravelPlanPage() {
   // 커스텀 훅에서 모든 상태와 핸들러를 가져온다.
   const {
     travelInfo,
-    isDateModalOpen,
     dates,
-    handleSaveDates,
     plans,
     filteredPlaces,
     filter,
@@ -40,85 +38,117 @@ function TravelPlanPage() {
     days,
   } = useTravelData(travelId);
 
+  // 날짜 포맷팅 함수 (예: 2025-12-10)
+  const formattedDateRange =
+    dates.startDate && dates.endDate
+      ? `${dates.startDate} ~ ${dates.endDate}`
+      : "날짜 정보 불러오는 중...";
+
+  // 현재 항공권 페이지인지 확인
+  const isFlightPage = location.pathname.includes("/flight");
+
   // [렌더링]
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* 1. 공통 헤더 */}
+      <Header />
 
-      {/* 날짜 선택 모달 */}
-      <DateSelectionModal
-        open={isDateModalOpen}
-        onSave={handleSaveDates}
-        initialStartDate={dates.startDate}
-        initialEndDate={dates.endDate}
-      />
-
-      {/* 현재 경로가 /flight를 포함하는지 확인 */}
-      {location.pathname.includes("/flight") ? (
-        // /travels/:travelId/flight 경로일 때 Flight 컴포넌트를 렌더링
-        // useTravelData에서 가져온 항공권 관련 데이터를 context로 전달
-        <Outlet context={{ flights, isFlightLoading, flightError }} />
-      ) : (
-        // 그 외의 /travels/:travelId 경로일 때 기존 여행 계획 화면 렌더링
-        <>
-          {/* 검색 바 */}
-          <PlaceSearchBar
-            travelInfo={travelInfo}
-            onSearch={handleSearch}
-            isLoading={isLoading}
-          />
-          {error && (
-            <div className="max-w-6xl mx-auto mt-2 text-red-600 text-sm text-center">
-              {error}
-            </div>
-          )}
-
-          {/* 메인 콘텐츠 (3단) */}
-          <div className="flex-1 flex overflow-hidden">
-            {/* 1. 왼쪽 사이드바 (일정 추가) */}
-            <aside className="w-1/3 max-w-md bg-white border-r overflow-y-auto shadow-lg z-10">
-              <PlanSidebar
-                days={days}
-                selectedDay={selectedDay}
-                onSelectDay={setSelectedDay}
-                availablePlaces={filteredPlaces}
-                addedGooglePlaceIds={plans.map((p) => p.place.googlePlaceId)}
-                addedPlansMap={addedPlansMap}
-                onAddPlace={handleAddPlan}
-                onDeletePlace={handleDeletePlan}
-                filter={filter}
-                onFilterChange={setFilter}
-              />
-            </aside>
-
-            {/* 2. 중앙 지도 */}
-            <main className="flex-1 relative">
-              <PlanMap
-                plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
-                searchPlaces={filteredPlaces}
-                onAddPlace={handleAddPlan}
-                mapCenter={{ lat: searchLocation.lat, lng: searchLocation.lon }}
-              />
-            </main>
-
-            {/* 3. 오른쪽 요약 (일정 목록) */}
-            <aside className="w-1/4 max-w-sm bg-white border-l overflow-y-auto shadow-lg z-10">
-              <ItinerarySummary
-                plans={plans} // 전체 일정 전달
-                onDeletePlan={handleDeletePlan}
-                isFlightLoading={isFlightLoading}
-              />
-            </aside>
+      {/* 여행 제목 및 날짜 정보 */}
+      <div className="bg-white border-b px-8 py-3 relative flex items-center justify-between shadow-sm z-20 min-h-[70px]">
+        <div className="flex flex-col items-start justify-center z-10 pointer-events-none">
+          <div className="pointer-events-auto">
+            <h1 className="text-xl font-bold text-gray-800 whitespace-nowrap">
+              {travelInfo?.title || "여행 계획"}
+            </h1>
+            <span className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
+              🗓️ {formattedDateRange}
+              {travelInfo?.travelerCount &&
+                ` · 👥 ${travelInfo.travelerCount}명`}
+            </span>
           </div>
-        </>
-      )}
+        </div>
+
+        {/* 검색바 영역 (항공권 페이지가 아닐 때만 표시) */}
+        {!isFlightPage && (
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4">
+            <PlaceSearchBar
+              travelInfo={travelInfo}
+              onSearch={handleSearch}
+              isLoading={isLoading}
+            />
+          </div>
+        )}
+        <div className="w-10"></div>
+      </div>
+
+      {/* 메인 콘텐츠 영역 */}
+      <div className="flex-1 overflow-hidden relative flex flex-col">
+        {isFlightPage ? (
+          <Outlet context={{ flights, isFlightLoading, flightError }} />
+        ) : (
+          <>
+            {error && (
+              <div className="w-full bg-red-50 text-red-600 p-2 text-center text-sm border-b border-red-100">
+                {error}
+              </div>
+            )}
+
+            {/* 3단 레이아웃 (사이드바 - 지도 - 요약) */}
+            <div className="flex-1 flex overflow-hidden">
+              {/* 1. 왼쪽 사이드바 (일정 추가) */}
+              <aside className="w-1/3 max-w-md bg-white border-r overflow-y-auto z-10 custom-scrollbar">
+                <PlanSidebar
+                  days={days}
+                  selectedDay={selectedDay}
+                  onSelectDay={setSelectedDay}
+                  availablePlaces={filteredPlaces}
+                  addedGooglePlaceIds={plans.map((p) => p.place.googlePlaceId)}
+                  addedPlansMap={addedPlansMap}
+                  onAddPlace={handleAddPlan}
+                  onDeletePlace={handleDeletePlan}
+                  filter={filter}
+                  onFilterChange={setFilter}
+                />
+              </aside>
+
+              {/* 2. 중앙 지도 */}
+              <main className="flex-1 relative">
+                <PlanMap
+                  plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
+                  searchPlaces={filteredPlaces}
+                  onAddPlace={handleAddPlan}
+                  mapCenter={{
+                    lat: searchLocation.lat,
+                    lng: searchLocation.lon,
+                  }}
+                />
+              </main>
+
+              {/* 3. 오른쪽 요약 (일정 목록) */}
+              <aside className="w-1/4 max-w-sm bg-white border-l overflow-y-auto z-10 custom-scrollbar">
+                <ItinerarySummary
+                  plans={plans} // 전체 일정 전달
+                  onDeletePlan={handleDeletePlan}
+                  isFlightLoading={isFlightLoading}
+                />
+              </aside>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Snackbar는 최상단에 유지 */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))} severity={snackbar.type} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          severity={snackbar.type}
+          sx={{ width: "100%", boxShadow: 3 }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -11,6 +11,7 @@ import SignUp from "./components/login/SignUp";
 import SignIn from "./components/login/SignIn";
 import VerifyEmail from "./components/login/VerifyEmail";
 import Flight from "./components/plan/Flight";
+import CreateTravelPage from "./components/plan/CreateTravelPage";
 import TravelPlanPdfPage from "./components/pdfPages/TravelPlanPdfPage";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <MainPage />,
+  },
+  {
+    path: "/create-travel",
+    element: <CreateTravelPage />,
   },
   {
     path: "/travels/:travelId",
