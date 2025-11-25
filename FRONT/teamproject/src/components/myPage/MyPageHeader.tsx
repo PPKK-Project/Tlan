@@ -1,33 +1,20 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function MyPageHeader() {
   const navigate = useNavigate();
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    type: "info",
-  });
-
-    useEffect(() => {
-      if (!snackbar.open) return;
-      const timer = window.setTimeout(() => {
-        setSnackbar((prev) => ({ ...prev, open: false }));
-      }, 3000);
-      return () => clearTimeout(timer);
-    }, [snackbar.open]);
 
   const handleLogout = () => {
     localStorage.removeItem("jwt");
+    // 페이지 이동 시 state를 통해 토스트 메시지 전달
     navigate("/", {
-    replace: true,
-    state: {
-      toast: {
-        message: "로그아웃 되었습니다.",
-        type: "info",
+      replace: true,
+      state: {
+        toast: {
+          message: "로그아웃 되었습니다.",
+          type: "info",
+        },
       },
-    },
-  });
+    });
   };
 
   const handleMain = () => {
@@ -35,23 +22,22 @@ function MyPageHeader() {
   };
 
   return (
-    <>
-      <header className="header transparent-header">
-        <div className="header-left">
-          <button className="header-brand-name" onClick={handleMain}>
-            Tlan
-          </button>
-        </div>
-        <div className="header-user-actions">
-          <button className="header-logout" onClick={handleLogout}>
-            로그아웃
-          </button>
-        </div>
-      </header>
-      {snackbar.open && (
-        <div className={`toast toast-${snackbar.type}`}>{snackbar.message}</div>
-      )}
-    </>
+    <header className="header transparent-header">
+      <div className="header-left">
+        <button className="header-brand-name" onClick={handleMain}>
+          Tlan
+        </button>
+      </div>
+      <div className="header-user-actions">
+        {/* TODO: 아이콘 라이브러리(예: react-icons)를 사용하여 아이콘 추가 */}
+        <button
+          className="header-logout mypage-header-btn"
+          onClick={handleLogout}
+        >
+          로그아웃
+        </button>
+      </div>
+    </header>
   );
 }
 export default MyPageHeader;

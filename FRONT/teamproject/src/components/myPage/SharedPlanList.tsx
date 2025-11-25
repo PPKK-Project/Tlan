@@ -1,12 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ShareModal from "../../ShareModal";
+import ShareModal from "./ShareModal";
 import PlanCard from "./PlanCard";
 import { TravelPlan } from "./TravelPlanList";
 
 const getSharedPlanList = async (): Promise<TravelPlan[]> => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels/share`);
+  const response = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/travels/share`
+  );
   return response.data;
 };
 
