@@ -249,3 +249,10 @@ Let's Encrypt 인증서는 90일마다 갱신해야 합니다. Certbot이 설치
 
 > 어렵다면 AI에게 Springboot React 기반 프로젝트를 GCP VM인스턴스에 Docker 이용해서 배포하고싶다고 말하면 잘 설명 해줍니다 \
 오류나면 그대로 복사해서 물어보면 해결가능해요
+
+
+도커 빌드
+vm인스턴스 도커설치
+artifact registory 도커 푸쉬
+vm인스턴스에서 컨테이너 pull
+vm인스턴스 안에서 도커 실행시키고 컨테이너실행
