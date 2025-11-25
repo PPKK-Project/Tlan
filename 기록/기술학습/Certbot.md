@@ -1,4 +1,4 @@
-## 🛠️ Certbot HTTPS 적용 명령어 수정 및 정리
+# 🛠️ Certbot HTTPS 적용 명령어 수정 및 정리
 
 | 번호 | 구분 | 수정/정리된 명령어 | 수정/정리 사유 및 설명 |
 | :--- | :--- | :--- | :--- |
@@ -14,3 +14,52 @@
 | 10 | **인증서 발급** | `sudo certbot certonly --webroot -w /var/www/certbot -d tlan.kro.kr` | 최종적으로 인증서를 발급받습니다. (중복된 명령어를 하나로 통일하고, `tlan.kro.kr` 도메인으로 명확히 했습니다.) |
 
 -----
+
+# 발급받은 후 Nginx.conf 설정
+
+저는 nginx.conf 를 프론트에 넣어서 사용중이에용
+tlan.kro.kr 라고 되어있는부분이나 자기에게 맞게 수정 필요
+이거 그대로 적으면 오류나용
+
+```conf
+# 80 포트 서버: HTTP 요청을 HTTPS로 리디렉션
+server {
+    listen 80;
+    server_name tlan.kro.kr;
+
+    # Certbot 도메인 소유권 인증을 위한 경로
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # 그 외 모든 HTTP 요청은 HTTPS로 리디렉션
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# 443 포트 서버: 실제 HTTPS 서비스
+server {
+    listen 443 ssl;
+    server_name tlan.kro.kr;
+
+    # SSL 인증서 경로
+    ssl_certificate /etc/letsencrypt/live/tlan.kro.kr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tlan.kro.kr/privkey.pem;
+
+    # SSL 관련 권장 설정
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    root   /usr/share/nginx/html; # 모든 정적 파일의 기본 위치 설정
+    index  index.html;
+
+    # Certbot 도메인 소유권 인증을 위한 경로
+    # Let's Encrypt가 http://tlan.kro.kr/.well-known/acme-challenge/xxxx 에 접속하여 인증 파일을 확인합니다.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+    
+    ....(생략)
+}
+```
