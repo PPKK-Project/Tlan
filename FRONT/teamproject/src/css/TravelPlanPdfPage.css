@@ -115,19 +115,36 @@
   justify-content: center;
 }
 
-/* ✅ 세로로 글자 쌓기 */
+/* 세로 두 줄 (DAY / 01) */
 .travel-pdf-day-label-text {
   display: flex;
-  flex-direction: column; /* 위→아래로 쌓기 */
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 2px; /* 글자 사이 간격 */
+  justify-content: center; /* 가운데 정렬 */
+  gap: 4px; /* DAY랑 숫자 사이 간격 */
+}
+
+/* 위: DAY */
+.travel-pdf-day-label-word {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px; /* DAY 간격만 약간 띄우기 */
+  color: #ffffff;
+}
+
+/* 아래: 01, 02, 03... */
+.travel-pdf-day-label-num {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
 }
 
 .travel-pdf-day-label-char {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1px; /* 살짝만 띄우기 */
+  line-height: 1;
   color: #ffffff;
 }
 
@@ -217,4 +234,77 @@
   font-size: 11px;
   color: #4b5563;
   margin-top: 1px;
+}
+
+.travel-pdf-plan-empty-message {
+  font-size: 14px;
+  color: #555;
+}
+
+/* 대사관 섹션 + 긴급전화 섹션 위 여백 */
+.travel-pdf-embassy-section,
+.travel-pdf-emergency-section {
+  margin-top: 24px;
+}
+
+/* 전체 카드: DAY 박스랑 크기 맞추기 */
+.embassy-card,
+.emergency-card {
+  width: 100%; /* 가로 전체 사용 */
+  max-width: none; /* 예전 460px 제한 제거 */
+  background-color: #ffffff;
+  border-radius: 16px; /* DAY 카드 둥근 정도에 맞춰서 조절 */
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  font-size: 13px;
+}
+
+/* 상단 Info / Detail 바 / Type / 전화번호 바 */
+.embassy-card-topbar,
+.emergency-card-topbar {
+  display: grid;
+  grid-template-columns: 90px 1fr; /* 아래 행이랑 맞추기 (key: 90px) */
+  padding: 8px 16px;
+  background-color: #dbeeff;
+  font-weight: 600;
+}
+
+/* Info / Detail / Type / 전화번호 텍스트 공통 */
+.embassy-card-topbar-title,
+.emergency-card-topbar-title {
+  text-align: left; /* 왼쪽 정렬 */
+}
+
+/* 리스트 기본 스타일 */
+.embassy-card-list,
+.emergency-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 각 행 */
+.embassy-card-row,
+.emergency-card-row {
+  display: flex;
+  padding: 8px 16px;
+  border-top: 1px solid #eeeeee;
+}
+
+/* 왼쪽 라벨 */
+.embassy-card-key,
+.emergency-card-key {
+  width: 90px;
+  font-weight: 600;
+  color: #555555;
+}
+
+/* 오른쪽 값 */
+.embassy-card-value,
+.emergency-card-value {
+  flex: 1;
+  color: #333333;
+  line-height: 1.4;
+  white-space: pre-line; /* 줄바꿈 */
 }
