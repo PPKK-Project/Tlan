@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function MyPageHeader() {
   const navigate = useNavigate();
@@ -17,16 +17,12 @@ function MyPageHeader() {
     });
   };
 
-  const handleMain = () => {
-    navigate("/");
-  };
-
   return (
     <header className="header transparent-header">
       <div className="header-left">
-        <button className="header-brand-name" onClick={handleMain}>
+        <Link className="header-brand-name" to="/">
           Tlan
-        </button>
+        </Link>
       </div>
       <div className="header-user-actions">
         {/* TODO: 아이콘 라이브러리(예: react-icons)를 사용하여 아이콘 추가 */}
