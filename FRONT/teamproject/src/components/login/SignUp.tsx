@@ -160,7 +160,11 @@ function SignUp() {
 
     try {
       // 구조분해로 백엔드에 데이터를 보낼 때 passwordCheck를 뺴서 보냄
-      const { passwordCheck, ...userData } = signUp;
+      const userData = {
+        email: signUp.email,
+        password: signUp.password,
+        nickname: signUp.nickname,
+      };
 
       await axios.post(`${import.meta.env.VITE_BASE_URL}/signup`, userData);
       handleClose();
@@ -231,8 +235,9 @@ function SignUp() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${errors.password ? "input-error" : ""
-                  }`}
+                className={`form-input password-input ${
+                  errors.password ? "input-error" : ""
+                }`}
                 value={signUp.password}
                 onChange={handleChange}
               />
@@ -291,8 +296,9 @@ function SignUp() {
                 id="passwordCheck"
                 name="passwordCheck"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${errors.passwordCheck ? "input-error" : ""
-                  }`}
+                className={`form-input password-input ${
+                  errors.passwordCheck ? "input-error" : ""
+                }`}
                 value={signUp.passwordCheck}
                 onChange={handleChange}
               />

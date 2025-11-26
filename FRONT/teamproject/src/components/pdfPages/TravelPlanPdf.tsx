@@ -39,10 +39,25 @@ export type TravelPlanForPdf = {
   place: PlaceResponse;
 };
 
+export type EmbassyForPdf = {
+  embassyName?: string;
+  address?: string;
+  emergencyTel?: string;
+};
+
+type EmergencyGroup = { all: string[] };
+
+export type EmergencyDataForPdf = {
+  ambulance?: EmergencyGroup;
+  police?: EmergencyGroup;
+};
+
 type Props = {
   plans: TravelPlanForPdf[];
   title?: string;
   dateRange?: string; // "2025-11-20 ~ 2025-12-05"
+  embassy?: EmbassyForPdf;
+  emergency?: EmergencyDataForPdf;
 };
 
 // ====== PDF 전용 스타일 ======
@@ -156,6 +171,57 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
+  // 대사관/긴급연락처 공통 섹션
+  infoSection: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: 700,
+    marginBottom: 4,
+  },
+  infoCard: {
+    borderWidth: 1,
+    borderColor: "#dddddd",
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+
+  // 공통 행 스타일
+  infoCardRow: {
+    flexDirection: "row",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderTopWidth: 0.5,
+    borderTopColor: "#eeeeee",
+  },
+
+  // 헤더 행에만 추가로 들어갈 스타일
+  infoCardHeaderRow: {
+    backgroundColor: "#dbeeff",
+  },
+
+  // 헤더 텍스트(굵게만)
+  infoCardHeaderText: {
+    fontWeight: 700,
+  },
+
+  // 왼쪽 key 칸 (70px 고정)
+  infoCardKey: {
+    width: 70,
+    fontSize: 9,
+    fontWeight: 700,
+    color: "#555555",
+  },
+
+  // 오른쪽 value 칸 (나머지)
+  infoCardValue: {
+    flex: 1,
+    fontSize: 9,
+    color: "#333333",
+  },
+
   footer: {
     position: "absolute",
     fontSize: 8,
@@ -171,6 +237,8 @@ const TravelPlanPdf: React.FC<Props> = ({
   plans,
   title = "여행 계획",
   dateRange,
+  embassy,
+  emergency,
 }) => {
   // Day 번호 범위를 1 ~ 최대 Day 까지로 잡기
   const maxDayNumber = Math.max(...plans.map((p) => p.dayNumber));
@@ -182,9 +250,7 @@ const TravelPlanPdf: React.FC<Props> = ({
         {/* 상단 헤더 */}
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{title}</Text>
-          {dateRange ? (
-            <Text style={styles.headerSub}>{dateRange}</Text>
-          ) : null}
+          {dateRange ? <Text style={styles.headerSub}>{dateRange}</Text> : null}
         </View>
 
         {/* Day별 일정 */}
@@ -236,17 +302,10 @@ const TravelPlanPdf: React.FC<Props> = ({
 
                     {/* 오른쪽: 이름 / 주소 / 메모 */}
                     <View style={styles.cellActivity}>
-                      <Text style={styles.placeName}>
-                        {plan.place.name}
-                      </Text>
+                      <Text style={styles.placeName}>{plan.place.name}</Text>
                       <Text style={styles.placeAddress}>
                         {plan.place.address}
                       </Text>
-                      {plan.memo && plan.memo.trim().length > 0 ? (
-                        <Text style={styles.memo}>
-                          {`메모: ${plan.memo}`}
-                        </Text>
-                      ) : null}
                     </View>
                   </View>
                 ))
@@ -254,6 +313,75 @@ const TravelPlanPdf: React.FC<Props> = ({
             </View>
           );
         })}
+
+        {/* 대사관 정보 섹션 */}
+        {embassy && (
+          <View style={styles.infoSection}>
+            <Text style={styles.sectionTitle}>대사관 정보</Text>
+            <View style={styles.infoCard}>
+              <View style={[styles.infoCardRow, styles.infoCardHeaderRow]}>
+                <Text style={[styles.infoCardKey, styles.infoCardHeaderText]}>
+                  Info
+                </Text>
+                <Text style={[styles.infoCardValue, styles.infoCardHeaderText]}>
+                  Detail
+                </Text>
+              </View>
+
+              <View style={styles.infoCardRow}>
+                <Text style={styles.infoCardKey}>대사관명</Text>
+                <Text style={styles.infoCardValue}>
+                  {embassy.embassyName || "-"}
+                </Text>
+              </View>
+
+              <View style={styles.infoCardRow}>
+                <Text style={styles.infoCardKey}>주소</Text>
+                <Text style={styles.infoCardValue}>
+                  {embassy.address || "-"}
+                </Text>
+              </View>
+
+              <View style={styles.infoCardRow}>
+                <Text style={styles.infoCardKey}>긴급 연락처</Text>
+                <Text style={styles.infoCardValue}>
+                  {embassy.emergencyTel || "-"}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* 긴급 연락처(병원/경찰 등) 섹션 */}
+        {emergency && (
+          <View style={styles.infoSection}>
+            <Text style={styles.sectionTitle}>긴급 연락처</Text>
+            <View style={styles.infoCard}>
+              <View style={[styles.infoCardRow, styles.infoCardHeaderRow]}>
+                <Text style={[styles.infoCardKey, styles.infoCardHeaderText]}>
+                  Type
+                </Text>
+                <Text style={[styles.infoCardValue, styles.infoCardHeaderText]}>
+                  전화번호
+                </Text>
+              </View>
+
+              <View style={styles.infoCardRow}>
+                <Text style={styles.infoCardKey}>구급차</Text>
+                <Text style={styles.infoCardValue}>
+                  {emergency.ambulance?.all?.[0] || "-"}
+                </Text>
+              </View>
+
+              <View style={styles.infoCardRow}>
+                <Text style={styles.infoCardKey}>경찰</Text>
+                <Text style={styles.infoCardValue}>
+                  {emergency.police?.all?.[0] || "-"}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* 페이지 번호 */}
         <Text
