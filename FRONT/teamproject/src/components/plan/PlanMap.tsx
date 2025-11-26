@@ -54,32 +54,38 @@ const PlanMap: React.FC<Props> = ({
     setMap(null);
   }, []);
 
-  // plans(일정) 또는 mapCenter(검색 좌표)가 변경될 때 지도를 이동
+  const centerLat = mapCenter.lat;
+  const centerLng = mapCenter.lng;
+
+  // 검색어 입력 등으로 좌표(숫자)가 바뀔 때만 지도 이동
   useEffect(() => {
-    // 지도가 로드되지 않았으면 아무것도 안함
-    if (!map) return;
-    // 현재 날짜에 "일정"이 1개 이상 있으면, 일정에 맞춰 지도를 조정
-    if (plans.length > 0) {
-      const bounds = new window.google.maps.LatLngBounds();
-
-      plans.forEach((plan) => {
-        bounds.extend({
-          lat: plan.place.latitude,
-          lng: plan.place.longitude,
-        });
-      });
-
-      // 계산된 경계로 지도를 이동
-      map.fitBounds(bounds);
-
-      // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로
-      // 수동으로 줌 레벨을 조절
-      if (plans.length === 1) {
-        map.setZoom(15);
-      }
-    } else if (mapCenter) {
-      map.panTo(mapCenter);
+    if (map) {
+      map.panTo({ lat: centerLat, lng: centerLng });
       map.setZoom(12);
+    }
+  }, [map, centerLat, centerLng]);
+
+
+  // 'plans'(일차)가 변경되면 마커들이 선으로 이어진 일정 전체가 보이도록 지도 범위 조정
+  useEffect(() => {
+    if (!map || plans.length === 0) return;
+
+    const bounds = new window.google.maps.LatLngBounds();
+
+    plans.forEach((plan) => {
+      bounds.extend({
+        lat: plan.place.latitude,
+        lng: plan.place.longitude,
+      });
+    });
+
+    // 계산된 경계로 지도를 이동
+    map.fitBounds(bounds);
+
+    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로
+    // 수동으로 줌 레벨을 조절
+    if (plans.length === 1) {
+      map.setZoom(15);
     }
   }, [map, plans, mapCenter]);
 
@@ -96,13 +102,13 @@ const PlanMap: React.FC<Props> = ({
   // 경로 선 스타일 옵션
   const polylineOptions = {
     strokeColor: "#3B82F6", // 파란색 (Tailwind blue-500 색상)
-    strokeOpacity: 0.8,     // 투명도
-    strokeWeight: 5,        // 두께
-    clickable: false,       // 선 클릭 방지
-    draggable: false,       // 선 드래그 방지
-    editable: false,        // 선 편집 방지
+    strokeOpacity: 0.8, // 투명도
+    strokeWeight: 5, // 두께
+    clickable: false, // 선 클릭 방지
+    draggable: false, // 선 드래그 방지
+    editable: false, // 선 편집 방지
     visible: true,
-    zIndex: 1,              // 마커보다 뒤에 오도록 설정 (마커가 zIndex 10임)
+    zIndex: 1, // 마커보다 뒤에 오도록 설정 (마커가 zIndex 10임)
   };
 
   // 렌더링 로직
@@ -141,10 +147,8 @@ const PlanMap: React.FC<Props> = ({
       }}
     >
       {/* 경로 그리기 (일정이 2개 이상일 때만) */}
-      {path.length > 1 && (
-        <PolylineF path={path} options={polylineOptions} />
-      )}
-      
+      {path.length > 1 && <PolylineF path={path} options={polylineOptions} />}
+
       {/* 1. 일정 마커 (빨간색 마커) */}
       {plans.map((plan) => (
         <MarkerF

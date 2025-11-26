@@ -36,6 +36,7 @@ function CreateTravelPage() {
   const [departureInput, setDepartureInput] = useState("");
   const [selectedAirportCode, setSelectedAirportCode] = useState("");
   const [travelerCount, setTravelerCount] = useState(1);
+  const [country, setCountry] = useState("");
 
   // 2. 공항 검색 드롭다운 상태
   const [filteredAirports, setFilteredAirports] = useState<typeof AIRPORT_LIST>(
@@ -120,8 +121,8 @@ function CreateTravelPage() {
 
   // 5. 여행 생성 핸들러
   const handleCreate = async () => {
-    if (!title || !startDate || !endDate || !selectedAirportCode) {
-      alert("모든 정보를 입력해주세요. (출발지는 목록에서 선택해야 합니다)");
+    if (!title || !startDate || !endDate || !selectedAirportCode || !country) {
+      alert("모든 정보를 입력해주세요. (출발지와 국가를 확인해주세요)");
       return;
     }
 
@@ -132,7 +133,7 @@ function CreateTravelPage() {
 
     const requestData: CreateTravelRequest = {
       title,
-      countryCode: "KR", // 기본값
+      countryCode: country,
       startDate,
       endDate,
       travelerCount,
@@ -207,7 +208,7 @@ function CreateTravelPage() {
               </div>
             </div>
 
-            {/* 출발지 (공항 선택) & 인원 수 */}
+            {/* 출발지 (공항 선택), 도착 국가, 인원 수 */}
             <div className="flex gap-4">
               <div className="flex-1 flex flex-col text-left relative">
                 <label className="font-semibold text-gray-600 mb-2">
@@ -228,7 +229,7 @@ function CreateTravelPage() {
                   }}
                 />
 
-                {/* 항공 목록 자동 드롭다운 */}
+                {/* 공항 목록 드롭다운 */}
                 {showDropdown && (
                   <ul className="absolute z-10 w-full bg-white border border-gray-200 mt-20 top-0 rounded-lg shadow-xl max-h-60 overflow-y-auto">
                     {filteredAirports.map((airport) => (
@@ -241,9 +242,6 @@ function CreateTravelPage() {
                           <span className="font-bold text-gray-800">
                             {airport.name}
                           </span>
-                          <span className="text-sm text-gray-500 ml-2">
-                            ({airport.country})
-                          </span>
                         </div>
                         <span className="font-mono font-semibold text-cyan-600 bg-cyan-50 px-2 py-1 rounded">
                           {airport.code}
@@ -254,7 +252,22 @@ function CreateTravelPage() {
                 )}
               </div>
 
-              <div className="w-1/3 flex flex-col text-left">
+              {/* 여행지 입력 */}
+              <div className="flex-1 flex flex-col text-left">
+                <label className="font-semibold text-gray-600 mb-2">
+                  여행지(특정 국가의 도시)
+                </label>
+                <input
+                  type="text"
+                  className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
+                  placeholder="예: 일본 오사카, 미국 라스베가스"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                />
+              </div>
+
+              {/* 인원 수 */}
+              <div className="w-1/4 flex flex-col text-left">
                 <label className="font-semibold text-gray-600 mb-2">인원</label>
                 <input
                   type="number"
@@ -263,7 +276,6 @@ function CreateTravelPage() {
                   value={travelerCount}
                   onChange={(e) => setTravelerCount(Number(e.target.value))}
                   onBlur={() => {
-                    // 포커스 해제 시 값이 비었거나 1 미만이면 1로 자동 보정
                     if (!travelerCount || travelerCount < 1)
                       setTravelerCount(1);
                   }}

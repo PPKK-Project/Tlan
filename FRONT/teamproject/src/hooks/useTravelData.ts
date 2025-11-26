@@ -93,6 +93,7 @@ export function useTravelData(travelId: string | undefined) {
       return [];
     }
   }, [travelInfo]); // travelInfo가 변경될 때만 재계산
+  
 
   // Effect: 여행 기본 정보 불러오기
   useEffect(() => {
@@ -186,22 +187,34 @@ export function useTravelData(travelId: string | undefined) {
   useEffect(() => {
     if (!travelId) return;
     const fetchPlaces = async () => {
+
       setIsLoading(true);
       setError(null);
+
       try {
-        const params = {
-          keyword: `${searchQuery} 숙소 관광지 음식점`,
-          lat: searchLocation.lat,
-          lon: searchLocation.lon,
-          radius: "30000",
-          type: "point_of_interest",
-        };
-        const res = await axios.get(`${API_BASE_URL}/place`, {
-          params,
-          headers: getAxiosConfig().headers,
-        });
+        const categories = ["숙소", "관광지", "음식점"];
+
+        const requests = categories.map((category) =>
+          axios.get(`${API_BASE_URL}/place`, {
+            params: {
+              // "일본 숙소", "일본 맛집" 처럼 구체적으로 검색됨
+              keyword: `${searchQuery} ${category}`,
+              lat: searchLocation.lat,
+              lon: searchLocation.lon,
+              radius: "10000", // 반경 10km
+              type: "point_of_interest",
+            },
+            headers: getAxiosConfig().headers,
+          })
+        );
+
+        const responses = await Promise.all(requests);
+
+        let combinedPlaces: PlaceSearchResult[] = [];
+
+        responses.forEach((res) => {
         if (res.data && res.data.results) {
-          const parsedPlaces: PlaceSearchResult[] = res.data.results
+          const parsed = res.data.results
             .map((item: any) => ({
               placeId: item.place_id,
               name: item.name,
@@ -215,10 +228,16 @@ export function useTravelData(travelId: string | undefined) {
               openNow: item.opening_hours?.open_now,
             }))
             .filter((p: PlaceSearchResult) => p.name && p.address);
-          setAllPlaces(parsedPlaces);
-        } else {
-          setAllPlaces([]);
-        }
+          combinedPlaces = [...combinedPlaces, ...parsed];
+          }
+        });
+        // 중복 제거 (혹시 겹치는 장소가 있을 수 있음)
+        const uniquePlaces = Array.from(
+          new Map(combinedPlaces.map((p) => [p.placeId, p])).values()
+        );
+
+        setAllPlaces(uniquePlaces);
+        
       } catch (err) {
         console.error("장소 검색 실패:", err);
         setError("장소를 불러오는 데 실패했습니다.");
@@ -246,6 +265,7 @@ export function useTravelData(travelId: string | undefined) {
       return () => clearTimeout(timer);
     }
   }, [snackbar.open, snackbar.message]);
+  
 
   // Handler: 날짜 저장
   const handleSaveDates = useCallback(
@@ -408,6 +428,13 @@ export function useTravelData(travelId: string | undefined) {
       return acc;
     }, {} as { [key: string]: number });
   }, [plans]);
+
+  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동
+  useEffect(() => {
+    if (travelInfo && travelInfo.countryCode) {
+        handleSearch(travelInfo.countryCode);
+    }
+  }, [travelInfo, handleSearch]);
 
   // UI 컴포넌트에 필요한 모든 것 반환
   return {
