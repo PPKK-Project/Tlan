@@ -49,6 +49,7 @@ const getTravel = async (travelId: number) => {
 };
 
 function TravelPlanPdfPage() {
+
   const { travelId } = useParams<{ travelId: string }>();
 
   const numTravelId = Number(travelId);
