@@ -1,4 +1,4 @@
-package com.project.team.Entity;
+package com.project.team.Entity.flight;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

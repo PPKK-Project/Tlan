@@ -81,6 +81,7 @@ export type Travel = {
   endDate: string | null;
   travelerCount: number;
   departure: string;
+  destinationCity?: string;
 };
 
 /**
@@ -94,8 +95,8 @@ export type CreateTravelRequest = {
   countryCode?: string;
   travelerCount: number;
   departure: string;
+  destinationCity?: string;
 };
-
 
 /**
  * 여행 수정 요청 DTO
@@ -114,4 +115,4 @@ export type Airport = {
   name: string;
   country: string;
   city: string;
-}
+};

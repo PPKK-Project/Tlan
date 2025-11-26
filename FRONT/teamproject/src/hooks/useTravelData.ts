@@ -439,15 +439,17 @@ export function useTravelData(travelId: string | undefined) {
     }
   }, [travelInfo, handleSearch]);
 
-  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동 및 준비 완료 처리
+  // 여행 정보가 로드되면 입력된 도시(destinationCity) 또는 공항코드(countryCode)로 지도 중심 이동
   useEffect(() => {
-    if (travelInfo && travelInfo.countryCode) {
-      // handleSearch가 비동기 함수이므로, 완료 후 isMapReady를 true로 설정
-      handleSearch(travelInfo.countryCode).finally(() => {
+    // [수정] 검색 우선순위: 도시 이름 > 공항 코드
+    const searchKeyword = travelInfo?.destinationCity || travelInfo?.countryCode;
+
+    if (searchKeyword) {
+      handleSearch(searchKeyword).finally(() => {
         setIsMapReady(true);
       });
     } else if (travelInfo) {
-      // 국가 정보가 없는 경우에도 지도는 띄워야 하므로 true 처리
+      // 정보가 없어도 지도는 띄움
       setIsMapReady(true);
     }
   }, [travelInfo, handleSearch]);

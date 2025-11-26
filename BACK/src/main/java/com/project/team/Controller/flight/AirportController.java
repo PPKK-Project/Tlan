@@ -1,6 +1,6 @@
 package com.project.team.Controller.flight;
 
-import com.project.team.Entity.Airport;
+import com.project.team.Entity.flight.Airport;
 import com.project.team.Repository.AirportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,11 +11,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/airports")
+@RequestMapping("/api")
 public class AirportController {
     private final AirportRepository airportRepository;
 
-    @GetMapping
+    @GetMapping("/airports")
     public List<Airport> getAllAirports() {
         return airportRepository.findAll();
     }

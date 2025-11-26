@@ -21,11 +21,11 @@ function CreateTravelPage() {
   const [destinationInput, setDestinationInput] = useState("");
   const [selectedDestinationCode, setSelectedDestinationCode] = useState("");
   const [travelerCount, setTravelerCount] = useState(1);
-
   const [filteredDepartures, setFilteredDepartures] = useState<Airport[]>([]);
   const [filteredDestinations, setFilteredDestinations] = useState<Airport[]>(
     []
   );
+  const [selectedDestinationCity, setSelectedDestinationCity] = useState("");
 
   // 2. 공항 검색 드롭다운 상태
   const [showDepDropdown, setShowDepDropdown] = useState(false);
@@ -116,7 +116,7 @@ function CreateTravelPage() {
   // 출발지 공항 선택 핸들러
   const handleSelectDeparture = (airport: Airport) => {
     setDepartureInput(`${airport.city} - ${airport.name} (${airport.code})`); // 입력창에 보기 좋게 표시
-    setSelectedDepartureCode(airport.code); // 실제 백엔드에 보낼 '항공키'(공항코드) 저장
+    setSelectedDepartureCode(airport.code); // 백엔드에 보낼 '항공키'(공항코드) 저장
     setShowDepDropdown(false);
   };
 
@@ -152,6 +152,7 @@ function CreateTravelPage() {
   const handleSelectDestination = (airport: Airport) => {
     setDestinationInput(`${airport.city} - ${airport.name} (${airport.code})`);
     setSelectedDestinationCode(airport.code);
+    setSelectedDestinationCity(airport.city);
     setShowDestDropdown(false);
   };
 
@@ -180,11 +181,12 @@ function CreateTravelPage() {
 
     const requestData: CreateTravelRequest = {
       title,
-      countryCode: selectedDestinationCode,
       startDate,
       endDate,
       travelerCount,
-      departure: selectedDepartureCode, // "ICN" 같은 공항 코드
+      countryCode: selectedDestinationCode, // 도착지 공항 코드
+      departure: selectedDepartureCode, // 출발지 공항 코드
+      destinationCity: selectedDestinationCity, // 도시 이름
     };
 
     try {
@@ -316,6 +318,7 @@ function CreateTravelPage() {
                   onChange={(e) => {
                     setDestinationInput(e.target.value);
                     setSelectedDestinationCode("");
+                    setSelectedDestinationCity("");
                   }}
                   onFocus={() => {
                     if (destinationInput && filteredDestinations.length > 0)

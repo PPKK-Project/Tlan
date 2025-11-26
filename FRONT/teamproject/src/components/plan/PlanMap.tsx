@@ -82,8 +82,7 @@ const PlanMap: React.FC<Props> = ({
     // 계산된 경계로 지도를 이동
     map.fitBounds(bounds);
 
-    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로
-    // 수동으로 줌 레벨을 조절
+    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로 수동으로 줌 레벨을 조절
     if (plans.length === 1) {
       map.setZoom(15);
     }

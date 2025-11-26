@@ -10,5 +10,6 @@ public record CreateTravelRequest(User user,
                                   LocalDate startDate,
                                   LocalDate endDate,
                                   Integer travelerCount,
-                                  String departure
+                                  String departure,
+                                  String destinationCity
 ) {}

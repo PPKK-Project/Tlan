@@ -5,6 +5,7 @@ import com.project.team.Dto.Travel.TravelResponse;
 import com.project.team.Dto.Travel.UpdateTravelRequest;
 import com.project.team.Entity.Travel;
 import com.project.team.Entity.User;
+import com.project.team.Entity.flight.Airport;
 import com.project.team.Exception.AccessDeniedException;
 import com.project.team.Repository.AirportRepository;
 import com.project.team.Repository.TravelRepository;
@@ -55,7 +56,13 @@ public class TravelService {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Travel travel = findTravelAndValidateOwner(travelId, user);
-        return new TravelResponse(travel);
+
+        // countryCode(예: NRT)를 이용해 Airport 엔티티 조회 -> city(예: 도쿄) 추출
+        String destinationCity = airportRepository.findById(travel.getCountryCode())
+                .map(Airport::getCity) // Airport 객체가 있으면 getCity() 호출
+                .orElse(travel.getCountryCode()); // 없으면 코드를 그대로 반환 (혹은 "알 수 없음" 등)
+
+        return new TravelResponse(travel, destinationCity);
     }
 
     // 특정 여행 정보 수정 (제목, 날짜)
@@ -72,7 +79,13 @@ public class TravelService {
         if (request.startDate() != null) travel.setStartDate(request.startDate());
         if (request.endDate() != null) travel.setEndDate(request.endDate());
 
-        return new TravelResponse(travelRepository.save(travel));
+        Travel savedTravel = travelRepository.save(travel);
+
+        String destinationCity = airportRepository.findById(savedTravel.getCountryCode())
+                .map(Airport::getCity)
+                .orElse(savedTravel.getCountryCode());
+
+        return new TravelResponse(savedTravel, destinationCity);
     }
 
     // 특정 여행 삭제

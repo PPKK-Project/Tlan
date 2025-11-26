@@ -2,7 +2,7 @@ package com.project.team.Util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.team.Dto.SafetyApiResponse;
-import com.project.team.Entity.Airport;
+import com.project.team.Entity.flight.Airport;
 import com.project.team.Entity.CountryInfo;
 import com.project.team.Entity.CurrencyRate;
 import com.project.team.Repository.AirportRepository;
@@ -181,6 +181,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        long count = airportRepository.count();
         // --- 공항 데이터 초기화 로직 시작 ---
         if (airportRepository.count() == 0) {
             List<Airport> airports = Arrays.asList(
@@ -248,7 +249,10 @@ public class DataInitializer implements CommandLineRunner {
             );
 
             airportRepository.saveAll(airports);
-            System.out.println("주요 공항 30개 데이터 초기화 완료");
+            System.out.println("주요 공항 45개 데이터 초기화 완료");
+        } else {
+            // [추가] 데이터가 이미 존재할 경우 로그 출력
+            System.out.println("공항 데이터가 이미 존재합니다. (현재 개수: " + count + "개)");
         }
 
     }
