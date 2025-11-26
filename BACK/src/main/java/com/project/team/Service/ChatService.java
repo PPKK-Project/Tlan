@@ -40,10 +40,8 @@ public class ChatService {
                 .orElseThrow(() -> new ResourceNotFoundException("여행을 찾을 수 없습니다."));
 
         // 2. Chat 엔티티 생성 및 DB에 저장
-        System.out.println(user);
         Chat chat = new Chat(travel, user, request.content());
         Chat savedChat = chatRepository.save(chat);
-        System.out.println(chat);
 
         // 3. 응답 DTO 생성
         ChatMessageResponse response = new ChatMessageResponse(savedChat);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Travel } from "../../util/types";
 
 type Props = {
@@ -7,8 +7,15 @@ type Props = {
   isLoading: boolean;
 };
 
-export function PlaceSearchBar({ onSearch, isLoading }: Props) {
-  const [destinationInput, setDestinationInput] = useState("제주도");
+export function PlaceSearchBar({ travelInfo, onSearch, isLoading }: Props) {
+  const [destinationInput, setDestinationInput] = useState("");
+
+  // 여행 정보(travelInfo)가 로드되면, 입력된 '국가(countryCode)'를 검색창에 표시
+  useEffect(() => {
+    if (travelInfo?.countryCode) {
+      setDestinationInput(travelInfo.countryCode);
+    }
+  }, [travelInfo]);
 
   const handleSearchClick = () => {
     if (!destinationInput.trim()) return;
