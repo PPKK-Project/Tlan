@@ -36,6 +36,7 @@ function TravelPlanPage() {
     isFlightLoading, // 항공권 로딩 상태 추가
     flightError, // 항공권 에러 상태 추가
     days,
+    isMapReady,
   } = useTravelData(travelId);
 
   // 날짜 포맷팅 함수 (예: 2025-12-10)
@@ -112,7 +113,8 @@ function TravelPlanPage() {
               </aside>
 
               {/* 2. 중앙 지도 */}
-              <main className="flex-1 relative">
+              <main className="flex-1 relative bg-gray-100">
+                {isMapReady ? (
                 <PlanMap
                   plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
                   searchPlaces={filteredPlaces}
@@ -122,6 +124,13 @@ function TravelPlanPage() {
                     lng: searchLocation.lon,
                   }}
                 />
+              ) : (
+                /* 로딩 중일 때 보여줄 화면 */
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
+                    <p>여행지 지도를 불러오는 중입니다...</p>
+                  </div>
+              )}
               </main>
 
               {/* 3. 오른쪽 요약 (일정 목록) */}
