@@ -13,6 +13,8 @@ function SignUp() {
     setErrors({ email: "", password: "", passwordCheck: "", nickname: "" });
   };
 
+  const [loading, setLoading] = useState(false); // 회원가입 진행중 표시
+
   const [signUp, setSignUp] = useState<SignUpType>({
     email: "",
     password: "",
@@ -59,7 +61,7 @@ function SignUp() {
   // 이메일, 비밀번호 조건 설정
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   const passwordRegex =
-    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;"'<>,.?/\\|-]).{8,}$/;
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]).{8,}$/;
 
   // 비밀번호/비밀번호 입력칸 비교할 때 둘 중 하나가 바뀌면 바로 반영되게 함
   useEffect(() => {
@@ -154,9 +156,15 @@ function SignUp() {
     if (errors.email || errors.password || errors.nickname) return;
     if (!signUp.email || !signUp.password || !signUp.nickname) return;
 
+    setLoading(true); // 로딩 시작
+
     try {
       // 구조분해로 백엔드에 데이터를 보낼 때 passwordCheck를 뺴서 보냄
-      const { passwordCheck, ...userData } = signUp;
+      const userData = {
+        email: signUp.email,
+        password: signUp.password,
+        nickname: signUp.nickname,
+      };
 
       await axios.post(`${import.meta.env.VITE_BASE_URL}/signup`, userData);
       handleClose();
@@ -186,6 +194,8 @@ function SignUp() {
           type: "error",
         });
       }
+    } finally {
+      setLoading(false); // 무조건 로딩 끝
     }
   };
 
@@ -225,8 +235,9 @@ function SignUp() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${errors.password ? "input-error" : ""
-                  }`}
+                className={`form-input password-input ${
+                  errors.password ? "input-error" : ""
+                }`}
                 value={signUp.password}
                 onChange={handleChange}
               />
@@ -285,8 +296,9 @@ function SignUp() {
                 id="passwordCheck"
                 name="passwordCheck"
                 type={showPassword ? "text" : "password"}
-                className={`form-input password-input ${errors.passwordCheck ? "input-error" : ""
-                  }`}
+                className={`form-input password-input ${
+                  errors.passwordCheck ? "input-error" : ""
+                }`}
                 value={signUp.passwordCheck}
                 onChange={handleChange}
               />
@@ -359,10 +371,16 @@ function SignUp() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={!isFormValid}
+            disabled={!isFormValid || loading}
             className="signup-submit"
           >
-            회원가입
+            {loading ? (
+              <>
+                <span className="spinner" /> 회원가입중...
+              </>
+            ) : (
+              "회원가입"
+            )}
           </button>
 
           <p className="signin-helper">

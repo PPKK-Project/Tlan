@@ -48,4 +48,12 @@ public class WebClientConfig {
         return WebClient.builder().baseUrl(embassyBaseUrl).build();
     }
 
+    /**
+     * emergencyNumber api
+     */
+    @Value("https://emergencynumberapi.com/api/country")
+    private String emergencyBaseUrl;
+    @Bean
+    public WebClient emergencyApiWebClient() { return WebClient.builder().baseUrl(emergencyBaseUrl).build();}
+
 }
