@@ -14,7 +14,6 @@ export type TravelPlan = {
 
 const getTravelPlanList = async () => {
   const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels`);
-  console.log(response.data);
   return response.data;
 };
 
@@ -32,12 +31,10 @@ function TravelPlanList() {
       return axios.delete(`${import.meta.env.VITE_BASE_URL}/travels/${planId}`);
     },
     onSuccess: () => {
-      console.log("삭제 성공! 여행 목록을 다시 불러옵니다.");
-      queryClient.invalidateQueries({ queryKey: ["sharedPlans"] });
+      queryClient.invalidateQueries({ queryKey: ["plans"] });
     },
     onError: (error) => {
-      console.error("삭제 실패:", error);
-      alert("삭제에 실패했습니다. 다시 시도해주세요.");
+      alert("삭제에 실패했습니다. 다시 시도해주세요." + error);
     },
   });
 

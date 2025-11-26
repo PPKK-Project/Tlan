@@ -74,7 +74,6 @@ function Chat() {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/chat/message/${activePlan.id}`
         );
-        console.log(response.data);
         setMessages(response.data);
       } catch (error) {
         console.error("채팅 기록을 불러오는 데 실패했습니다.", error);
@@ -87,15 +86,11 @@ function Chat() {
 
     const client = new Client({
       webSocketFactory: () => new SockJS("/ws-stomp"),
-      debug: (str) => {
-        console.log(new Date(), str);
-      },
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
       reconnectDelay: 5000, // 5초마다 재연결 시도
       onConnect: () => {
-        console.log(`STOMP: Connected to chat room ${activePlan.id}`);
         // 여행 계획 ID에 맞는 토픽을 구독합니다.
         client.subscribe(`/chat/message/${activePlan.id}`, (message) => {
           const receivedMessage: ChatMessage = JSON.parse(message.body);
@@ -123,7 +118,6 @@ function Chat() {
     return () => {
       if (clientRef.current?.active) {
         clientRef.current.deactivate();
-        console.log(`STOMP: Disconnected from chat room ${activePlan.id}`);
       }
     };
   }, [activePlan]); // activePlan이 바뀔 때마다 이 useEffect가 다시 실행됩니다.
