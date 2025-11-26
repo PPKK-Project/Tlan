@@ -2,8 +2,10 @@ package com.project.team.Util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.team.Dto.SafetyApiResponse;
+import com.project.team.Entity.Airport;
 import com.project.team.Entity.CountryInfo;
 import com.project.team.Entity.CurrencyRate;
+import com.project.team.Repository.AirportRepository;
 import com.project.team.Repository.CountryInfoRepository;
 import com.project.team.Repository.CurrencyRateRepository;
 import com.project.team.Service.API.SafetyDataService;
@@ -11,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,11 +27,12 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class DataInitializer {
+public class DataInitializer implements CommandLineRunner {
     private final CountryInfoRepository countryInfoRepository;
     private final CurrencyRateRepository currencyRateRepository;
     private final WebClient currencyWebClient;
     private final SafetyDataService safetyDataService;
+    private final AirportRepository airportRepository;
 
     @Getter
     private List<SafetyApiResponse.CountrySafetyInfo> cachedSafetyList;
@@ -173,5 +177,79 @@ public class DataInitializer {
             // [실패 로그 1] API 호출 중 오류 발생 (403, 500 등)
             System.err.println("여행 경보 데이터 캐시 갱신 실패: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        // --- 공항 데이터 초기화 로직 시작 ---
+        if (airportRepository.count() == 0) {
+            List<Airport> airports = Arrays.asList(
+                    // === 1. 대한민국 출발 공항 ===
+                    new Airport("ICN", "인천", "대한민국", "서울/인천"),
+                    new Airport("GMP", "서울/김포", "대한민국", "서울"),
+                    new Airport("PUS", "부산/김해", "대한민국", "부산"),
+                    new Airport("CJU", "제주", "대한민국", "제주"),
+                    new Airport("TAE", "대구", "대한민국", "대구"),
+                    new Airport("CJJ", "청주", "대한민국", "청주"),
+                    new Airport("MWX", "무안", "대한민국", "무안"),
+                    new Airport("YNY", "양양", "대한민국", "양양"),
+                    new Airport("KWJ", "광주", "대한민국", "광주"),
+                    new Airport("RSU", "여수", "대한민국", "여수"),
+                    new Airport("USN", "울산", "대한민국", "울산"),
+                    new Airport("KPO", "포항/경주", "대한민국", "포항"),
+                    new Airport("HIN", "사천", "대한민국", "사천"),
+                    new Airport("KUV", "군산", "대한민국", "군산"),
+                    new Airport("WJU", "원주", "대한민국", "원주"),
+
+                    // === 2. 해외 도착 공항 (주요 여행지) ===
+                    // 1. 일본
+                    new Airport("NRT", "도쿄/나리타", "일본", "도쿄"),
+                    new Airport("HND", "도쿄/하네다", "일본", "도쿄"),
+                    new Airport("KIX", "오사카/간사이", "일본", "오사카"),
+                    new Airport("FUK", "후쿠오카", "일본", "후쿠오카"),
+                    new Airport("CTS", "삿포로/신치토세", "일본", "삿포로"),
+                    new Airport("OKA", "오키나와/나하", "일본", "오키나와"),
+
+                    // 2. 베트남
+                    new Airport("DAD", "다낭", "베트남", "다낭"),
+                    new Airport("CXR", "나트랑/깜란", "베트남", "나트랑"),
+                    new Airport("HAN", "하노이/노이바이", "베트남", "하노이"),
+                    new Airport("SGN", "호치민/떤썬녓", "베트남", "호치민"),
+                    new Airport("PQC", "푸꾸옥", "베트남", "푸꾸옥"),
+
+                    // 3. 태국
+                    new Airport("BKK", "방콕/수완나품", "태국", "방콕"),
+                    new Airport("DMK", "방콕/돈므앙", "태국", "방콕"),
+                    new Airport("HKT", "푸켓", "태국", "푸켓"),
+                    new Airport("CNX", "치앙마이", "태국", "치앙마이"),
+
+                    // 4. 필리핀
+                    new Airport("CEB", "세부/막탄", "필리핀", "세부"),
+                    new Airport("MNL", "마닐라/니노이", "필리핀", "마닐라"),
+                    new Airport("KLO", "보라카이/칼리보", "필리핀", "보라카이"),
+
+                    // 5. 기타 아시아 & 대양주
+                    new Airport("TPE", "타이베이/타오위안", "대만", "타이베이"),
+                    new Airport("HKG", "홍콩", "홍콩", "홍콩"),
+                    new Airport("MFM", "마카오", "마카오", "마카오"),
+                    new Airport("SIN", "싱가포르/창이", "싱가포르", "싱가포르"),
+                    new Airport("GUM", "괌", "미국", "괌"),
+                    new Airport("SPN", "사이판", "미국", "사이판"),
+
+                    // 6. 미주 (본토)
+                    new Airport("HNL", "하와이/호놀룰루", "미국", "하와이"),
+                    new Airport("LAX", "로스앤젤레스", "미국", "로스앤젤레스"),
+                    new Airport("JFK", "뉴욕/JFK", "미국", "뉴욕"),
+
+                    // 7. 유럽
+                    new Airport("CDG", "파리/샤를드골", "프랑스", "파리"),
+                    new Airport("LHR", "런던/히드로", "영국", "런던"),
+                    new Airport("FCO", "로마/피우미치노", "이탈리아", "로마")
+            );
+
+            airportRepository.saveAll(airports);
+            System.out.println("주요 공항 30개 데이터 초기화 완료");
+        }
+
     }
 }

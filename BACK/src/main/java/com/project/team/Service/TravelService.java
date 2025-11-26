@@ -6,6 +6,7 @@ import com.project.team.Dto.Travel.UpdateTravelRequest;
 import com.project.team.Entity.Travel;
 import com.project.team.Entity.User;
 import com.project.team.Exception.AccessDeniedException;
+import com.project.team.Repository.AirportRepository;
 import com.project.team.Repository.TravelRepository;
 import com.project.team.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class TravelService {
 
     private final TravelRepository travelRepository;
     private final UserRepository userRepository;
+    private final AirportRepository airportRepository;
 
     // 새로운 여행 계획 생성
     public ResponseEntity<Travel> createTravel(CreateTravelRequest dto, Principal principal) {

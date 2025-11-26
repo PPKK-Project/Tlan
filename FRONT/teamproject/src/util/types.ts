@@ -108,3 +108,10 @@ export type UpdateTravelRequest = {
 };
 
 export type PlaceFilter = "all" | "숙소" | "관광지" | "음식점";
+
+export type Airport = {
+  code: string;
+  name: string;
+  country: string;
+  city: string;
+}
