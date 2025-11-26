@@ -104,8 +104,6 @@ function SignIn() {
         }
       })
       .catch((err) => {
-        console.log(err);
-
         const status = err.response?.status;
         const backendMessage =
           err.response?.data?.message || err.response?.data;
