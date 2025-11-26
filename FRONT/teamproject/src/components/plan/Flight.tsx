@@ -121,7 +121,7 @@ function Flight() {
     }
   }
   return (
-    <div className="font-sans min-h-screen">
+    <div className="font-sans h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto p-6 md:p-8">
         {/* 헤더 */}
         <div className="flex items-center mb-8">

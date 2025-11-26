@@ -39,16 +39,12 @@ function MyPageHeader({ onProfileEditClick }: MyPageHeaderProps) {
     });
   };
 
-  const handleMain = () => {
-    navigate("/");
-  };
-
   return (
     <header className="header transparent-header">
       <div className="header-left">
-        <button className="header-brand-name" onClick={handleMain}>
+        <Link className="header-brand-name" to="/">
           Tlan
-        </button>
+        </Link>
       </div>
       <div className="header-user-actions">
         {/* 사용자 프로필 정보 표시 */}

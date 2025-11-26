@@ -1,6 +1,6 @@
 // Header.jsx
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../../css/header.css";
 
 function Header() {
@@ -179,7 +179,7 @@ function Header() {
     <>
       <header className="header transparent-header">
         <div className="header-left">
-          <h1 className="header-brand-name">Tlan</h1>
+          <Link to="/" className="header-brand-name">Tlan</Link>
         </div>
 
         <div className="header-user-actions">
