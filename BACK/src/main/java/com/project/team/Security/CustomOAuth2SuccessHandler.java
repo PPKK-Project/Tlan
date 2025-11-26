@@ -61,8 +61,9 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         // JWT 토큰 생성
         final String finalUsername = username;
         User user = userRepository.findByEmail(username)
-                .orElseGet(() -> userRepository.save(new User(finalUsername, "social", "SocialUser"))); // password 필드에 임의의 값 할당
+                .orElseGet(() -> new User(finalUsername, "social", "SocialUser"));
         user.setEmailVerified(true);
+        userRepository.save(user);
         String token = jwtService.getToken(user.getEmail(), user.getId());
         // 프론트엔드로 리다이렉트 URL 생성(토큰을 쿼리 파라미터로 추가해줘야한다.)
         String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)

@@ -31,8 +31,6 @@ public class EmailVerificationController {
         EmailVerificationToken verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지 않은 토큰입니다."));
 
-        System.out.println("입력된 토큰" + token);
-        System.out.println("찾은 토큰 : " + verificationToken);
         // 만료 시간 null 체크
         LocalDateTime expireDate = verificationToken.getExpireDate();
         if (expireDate != null && expireDate.isBefore(LocalDateTime.now())) {
