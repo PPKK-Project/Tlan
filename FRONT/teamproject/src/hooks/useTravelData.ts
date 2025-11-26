@@ -25,10 +25,10 @@ import {
 } from "../util/types";
 import { AlertColor } from "@mui/material";
 
-// 검색 결과로 사용할 초기 위치 (제주도)
-const INITIAL_LOCATION = {
-  lat: 33.361665,
-  lon: 126.520412,
+// 지도 좌표가 없어서 오류가 뜨는 상황을 방지하기 위해 임시로 넣어두는 기본 좌표(서울).
+const DEFAULT_LOCATION = {
+  lat: 37.5665,
+  lon: 126.9780,
 };
 
 export function useTravelData(travelId: string | undefined) {
@@ -49,8 +49,8 @@ export function useTravelData(travelId: string | undefined) {
   const [allPlaces, setAllPlaces] = useState<PlaceSearchResult[]>([]);
   const [filteredPlaces, setFilteredPlaces] = useState<PlaceSearchResult[]>([]);
   const [filter, setFilter] = useState<PlaceFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("제주도");
-  const [searchLocation, setSearchLocation] = useState(INITIAL_LOCATION);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchLocation, setSearchLocation] = useState(DEFAULT_LOCATION);
 
   // 4. UI 상태
   const [selectedDay, setSelectedDay] = useState<number>(1);
@@ -61,6 +61,9 @@ export function useTravelData(travelId: string | undefined) {
     message: string;
     type: AlertColor;
   }>({ open: false, message: "", type: "success" });
+
+  // 5. 지도가 준비되었는지 확인하는 상태
+  const [isMapReady, setIsMapReady] = useState(false);
 
   // useMemo를 사용하여 travelInfo가 바뀔 때만 'days' 배열을 새로 계산한다.
   const days = useMemo(() => {
@@ -436,6 +439,19 @@ export function useTravelData(travelId: string | undefined) {
     }
   }, [travelInfo, handleSearch]);
 
+  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동 및 준비 완료 처리
+  useEffect(() => {
+    if (travelInfo && travelInfo.countryCode) {
+      // handleSearch가 비동기 함수이므로, 완료 후 isMapReady를 true로 설정
+      handleSearch(travelInfo.countryCode).finally(() => {
+        setIsMapReady(true);
+      });
+    } else if (travelInfo) {
+      // 국가 정보가 없는 경우에도 지도는 띄워야 하므로 true 처리
+      setIsMapReady(true);
+    }
+  }, [travelInfo, handleSearch]);
+
   // UI 컴포넌트에 필요한 모든 것 반환
   return {
     travelInfo,
@@ -461,5 +477,6 @@ export function useTravelData(travelId: string | undefined) {
     flights, // 추가
     isFlightLoading, // 추가
     flightError, // 추가
+    isMapReady,
   };
 }
