@@ -156,12 +156,17 @@ export function useTravelData(travelId: string | undefined) {
         setIsFlightLoading(true);
         setFlightError(null);
 
+        if (!travelInfo.departure || !travelInfo.countryCode) {
+          console.warn("공항 코드가 설정되지 않은 여행입니다.");
+          return;
+        }
+
         const params = {
-          depAp: "SEL", // TODO: 추후 여행 정보에서 출발 공항 코드 가져오기
-          arrAp: "TYO", // TODO: 추후 여행 정보에서 도착 공항 코드 가져오기
+          depAp: travelInfo.departure,
+          arrAp: travelInfo.countryCode,
           depDate: travelInfo.startDate.replace(/-/g, ""),
           retDate: travelInfo.endDate.replace(/-/g, ""),
-          adult: 1,
+          adult: travelInfo.travelerCount || 1, // 저장된 여행 인원 수 (기본 1명)
         };
 
         const flightRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/flight`, {
