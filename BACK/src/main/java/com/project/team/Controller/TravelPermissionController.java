@@ -81,4 +81,8 @@ public class TravelPermissionController {
         return ResponseEntity.ok(permissionService.getSharedTravels(principal));
     }
 
+    @GetMapping("/travels/{travelId}/role")
+    public ResponseEntity<String> getTravelRole(@PathVariable Long travelId, Principal principal) {
+        return ResponseEntity.ok(permissionService.getTravelRole(travelId, principal));
+    }
 }

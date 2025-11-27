@@ -13,6 +13,7 @@ type Props = {
   addedPlansMap: { [key: string]: number };
   filter: PlaceFilter;
   onFilterChange: (filter: PlaceFilter) => void;
+  role: string;
 };
 
 // 왼쪽 사이드 바의 장소 이미지
@@ -21,8 +22,9 @@ const PlaceCard: React.FC<{
   isAdded: boolean;
   onAdd: () => void;
   onDelete: () => void;
-}> = ({ place, isAdded, onAdd, onDelete }) => {
-
+  role: string;
+}> = ({ place, isAdded, onAdd, onDelete, role }) => {
+  const isViewer = role === "ROLE_VIEWER";
   return (
     <div className="flex gap-4 p-4 border-b hover:bg-gray-50 transition-colors">
       <img
@@ -50,24 +52,26 @@ const PlaceCard: React.FC<{
         </div>
       </div>
       <div className="flex items-center">
-        {isAdded ? (
-          // 일정에서 장소 삭제
-          <button
-            onClick={onDelete}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-all shadow-sm"
-            title="일정에서 삭제"
-          >
-            🗑️
-          </button>
-        ) : (
-          // 일정에 추가
-          <button
-            onClick={onAdd}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white hover:shadow-md transition-all"
-            title="일정에 추가"
-          >
-            +
-          </button>
+        {!isViewer && (
+          isAdded ? (
+            // 일정에서 장소 삭제
+            <button
+              onClick={onDelete}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-all shadow-sm"
+              title="일정에서 삭제"
+            >
+              🗑️
+            </button>
+          ) : (
+            // 일정에 추가
+            <button
+              onClick={onAdd}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white hover:shadow-md transition-all"
+              title="일정에 추가"
+            >
+              +
+            </button>
+          )
         )}
       </div>
     </div>
@@ -85,8 +89,9 @@ const PlanSidebar: React.FC<Props> = ({
   onDeletePlace,
   filter,
   onFilterChange,
+  role,
 }) => {
-
+  
   // hooks 파일에 분리해둔 usePlanPagination 커스텀 훅 사용
   const { visibleDays, hasPrev, hasNext, handlePrev, handleNext } =
     usePlanPagination(days, selectedDay, 5);
@@ -180,6 +185,7 @@ const PlanSidebar: React.FC<Props> = ({
               isAdded={isAdded}
               onAdd={() => onAddPlace(place)}
               onDelete={() => onDeletePlace(planId)}
+              role={role}
             />
           );
         })}

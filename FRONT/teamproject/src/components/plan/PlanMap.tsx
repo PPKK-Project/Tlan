@@ -13,6 +13,7 @@ type Props = {
   searchPlaces: PlaceSearchResult[]; // 필터링된 "검색" 장소 목록
   onAddPlace: (place: PlaceSearchResult) => void; // 일정 추가 함수
   mapCenter: { lat: number; lng: number }; // 부모로부터 받을 맵 중심 좌표
+  role: string;
 };
 
 // 지도가 표시될 컨테이너의 스타일
@@ -28,8 +29,10 @@ const PlanMap: React.FC<Props> = ({
   searchPlaces,
   onAddPlace,
   mapCenter,
+  role,
 }) => {
   //  Google Maps 스크립트 로더 api 훅
+  const isViewer = role === 'ROLE_VIEWER';
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: API_KEY || "",
@@ -242,7 +245,7 @@ const PlanMap: React.FC<Props> = ({
                   )}
 
                   {/* '일정에 추가' 버튼은 '검색 결과' 마커일 때만 표시 */}
-                  {selectedMarker.type === "search" && (
+                  {selectedMarker.type === "search" && !isViewer && (
                     <button
                       onClick={() => {
                         onAddPlace(place);

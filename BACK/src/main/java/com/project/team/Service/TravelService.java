@@ -4,10 +4,12 @@ import com.project.team.Dto.Travel.CreateTravelRequest;
 import com.project.team.Dto.Travel.TravelResponse;
 import com.project.team.Dto.Travel.UpdateTravelRequest;
 import com.project.team.Entity.Travel;
+import com.project.team.Entity.TravelPermission;
 import com.project.team.Entity.User;
 import com.project.team.Entity.flight.Airport;
 import com.project.team.Exception.AccessDeniedException;
 import com.project.team.Repository.AirportRepository;
+import com.project.team.Repository.TravelPermissionRepository;
 import com.project.team.Repository.TravelRepository;
 import com.project.team.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class TravelService {
-
+    private final TravelPermissionRepository travelPermissionRepository;
     private final TravelRepository travelRepository;
     private final UserRepository userRepository;
     private final AirportRepository airportRepository;
@@ -100,8 +103,7 @@ public class TravelService {
     private Travel findTravelAndValidateOwner(Long travelId, User user) {
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 여행이 존재하지 않습니다. id=" + travelId));
-
-        if (!travel.getUser().getId().equals(user.getId())) {
+        if (!travel.getUser().getId().equals(user.getId()) && !travelPermissionRepository.existsByTravelIdAndUserId(travelId, user.getId())) {
             throw new AccessDeniedException("You do not have permission to access this travel.");
         }
         return travel;

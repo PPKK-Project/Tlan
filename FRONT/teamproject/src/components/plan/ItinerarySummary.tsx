@@ -8,12 +8,14 @@ import { formatTime, getDistanceFromLatLonInKm } from "../../util/planUtils";
 type Props = {
   plans: TravelPlan[]; // '전체' 일정 목록
   onDeletePlan: (planId: number) => void;
+  role: string;
   isFlightLoading: boolean;
 };
 const ItinerarySummary: React.FC<Props> = ({
   plans,
   onDeletePlan,
   isFlightLoading,
+  role,
 }) => {
   const navigate = useNavigate();
 
@@ -65,8 +67,6 @@ const ItinerarySummary: React.FC<Props> = ({
 
   // Flight 컴포넌트 페이지로 갈수있게
   const handleMoveFlight = () => {
-    // const travelId = window.location.pathname.split('/')[2];
-    // window.location.href = `/travels/${travelId}/flight`;
     navigate("flight");
   };
 
@@ -94,12 +94,14 @@ const ItinerarySummary: React.FC<Props> = ({
                         ({plan.place.type})
                       </span>
                     </div>
-                    <button
-                      onClick={() => onDeletePlan(plan.planId)}
-                      className="text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity font-medium"
-                    >
-                      삭제
-                    </button>
+                    {role !== 'ROLE_VIEWER' && (
+                      <button
+                        onClick={() => onDeletePlan(plan.planId)}
+                        className="text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity font-medium"
+                      >
+                        삭제
+                      </button>
+                    )}
                   </li>
                 ))}
             </ol>

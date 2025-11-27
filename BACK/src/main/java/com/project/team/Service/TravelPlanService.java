@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -26,7 +27,7 @@ import java.util.stream.StreamSupport;
 @RequiredArgsConstructor
 @Transactional
 public class TravelPlanService {
-
+    private final TravelPermissionRepository travelPermissionRepository;
     private final TravelPlanRepository travelPlanRepository;
     private final TravelRepository travelRepository;
     private final PlaceRepository placeRepository;
@@ -38,8 +39,8 @@ public class TravelPlanService {
     private Travel findTravelAndValidateOwner(Long travelId, User user) {
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Travel not found with id: " + travelId));
-        if (!travel.getUser().getEmail().equals(user.getEmail())) {
-            throw new AccessDeniedException("You are not the owner of this travel plan.");
+        if (!travel.getUser().getEmail().equals(user.getEmail()) && !travelPermissionRepository.existsByTravelIdAndUserId(travelId, user.getId())) {
+            throw new AccessDeniedException("이 여행에 접근할 권한이 없습니다.");
         }
         return travel;
     }

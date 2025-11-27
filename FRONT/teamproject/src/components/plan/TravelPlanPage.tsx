@@ -1,18 +1,28 @@
 import { useParams, Outlet, useLocation } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar"; // Snackbar import 추가
 import { useTravelData } from "../../hooks/useTravelData";
-import { PlaceSearchBar } from "./PlaceSearchBar";
 import PlanSidebar from "./PlanSidebar";
 import PlanMap from "./PlanMap";
 import ItinerarySummary from "./ItinerarySummary";
 import { Alert } from "@mui/material";
 import Header from "../main/Header";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function TravelPlanPage() {
   // URL에서 /travels/:travelId 의 'travelId' 값을 가져옴
   const { travelId } = useParams<{ travelId: string }>();
   const location = useLocation(); // 현재 경로를 가져오기 위해 useLocation 추가
-
+  const [ role, setRole ] = useState('');
+  useEffect(() => {
+    const getRole = async () => {
+      const response = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/travels/${travelId}/role`
+        );
+      setRole(response.data);
+    }
+    getRole();
+  }, [travelId])
   // 커스텀 훅에서 모든 상태와 핸들러를 가져온다.
   const {
     travelInfo,
@@ -24,9 +34,7 @@ function TravelPlanPage() {
     selectedDay,
     setSelectedDay,
     searchLocation,
-    isLoading,
     error,
-    handleSearch,
     handleAddPlan,
     handleDeletePlan,
     snackbar,
@@ -52,40 +60,14 @@ function TravelPlanPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* 1. 공통 헤더 */}
-      <Header />
-
-      {/* 여행 제목 및 날짜 정보 */}
-      <div className="bg-white border-b px-8 py-3 relative flex items-center justify-between shadow-sm z-20 min-h-[70px]">
-        <div className="flex flex-col items-start justify-center z-10 pointer-events-none">
-          <div className="pointer-events-auto">
-            <h1 className="text-xl font-bold text-gray-800 whitespace-nowrap">
-              {travelInfo?.title || "여행 계획"}
-            </h1>
-            <span className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
-              🗓️ {formattedDateRange}
-              {travelInfo?.travelerCount &&
-                ` · 👥 ${travelInfo.travelerCount}명`}
-            </span>
-          </div>
-        </div>
-
-        {/* 검색바 영역 (항공권 페이지가 아닐 때만 표시) */}
-        {!isFlightPage && (
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg px-4">
-            <PlaceSearchBar
-              travelInfo={travelInfo}
-              onSearch={handleSearch}
-              isLoading={isLoading}
-            />
-          </div>
-        )}
-        <div className="w-10"></div>
-      </div>
-
+      <Header
+        travelInfo={travelInfo} 
+        formattedDateRange={formattedDateRange}
+      />
       {/* 메인 콘텐츠 영역 */}
       <div className="flex-1 overflow-hidden relative flex flex-col">
         {isFlightPage ? (
-          <Outlet context={{ flights, isFlightLoading, flightError }} />
+          <Outlet context={{ flights, isFlightLoading, flightError, role }} />
         ) : (
           <>
             {error && (
@@ -109,6 +91,7 @@ function TravelPlanPage() {
                   onDeletePlace={handleDeletePlan}
                   filter={filter}
                   onFilterChange={setFilter}
+                  role={role}
                 />
               </aside>
 
@@ -117,6 +100,7 @@ function TravelPlanPage() {
                 {isMapReady ? (
                 <PlanMap
                   plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
+                  role={role}
                   searchPlaces={filteredPlaces}
                   onAddPlace={handleAddPlan}
                   mapCenter={{
@@ -138,6 +122,7 @@ function TravelPlanPage() {
                 <ItinerarySummary
                   plans={plans} // 전체 일정 전달
                   onDeletePlan={handleDeletePlan}
+                  role={role}
                   isFlightLoading={isFlightLoading}
                 />
               </aside>

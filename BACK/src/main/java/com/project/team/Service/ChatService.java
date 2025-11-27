@@ -57,4 +57,8 @@ public class ChatService {
 
         return ResponseEntity.ok(chatting);
     }
+
+    public void isUpdate(Long travelId, String isUpdated) {
+        messagingTemplate.convertAndSend("/chat/travels/" + travelId, isUpdated);
+    }
 }

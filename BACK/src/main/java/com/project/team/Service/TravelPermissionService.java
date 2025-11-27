@@ -19,6 +19,7 @@ import com.project.team.Repository.UserRepository;
 import com.project.team.Util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -234,4 +235,14 @@ public class TravelPermissionService {
                 .collect(Collectors.toList());
     }
 
+    public String getTravelRole(Long travelId, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다."));
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(()-> new ResourceNotFoundException("해당 여행을 찾을 수 없습니다."));
+        if(travel.getUser().getId().equals(user.getId())) return PermissionRole.ROLE_OWNER.name();
+        TravelPermission tp = permissionRepository.findByTravelIdAndUserId(travelId, user.getId())
+                .orElseThrow(()-> new ResourceNotFoundException("권한을 확인할 수 없습니다."));
+        return tp.getRole();
+    }
 }

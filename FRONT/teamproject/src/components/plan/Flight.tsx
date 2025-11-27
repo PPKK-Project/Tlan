@@ -16,6 +16,7 @@ interface OutletContextType {
   flights: FlightData[];
   isFlightLoading: boolean;
   flightError: string | null;
+  role: string;
 }
 
 type SortKey = "priceDesc" | "price" | "departure" | "departureDesc";
@@ -35,8 +36,9 @@ function Flight() {
   const navigate = useNavigate();
   const travelId = window.location.pathname.split('/')[2];
   // useOutletContext를 사용하여 부모 컴포넌트(TravelPlanPage)로부터 데이터를 가져옵니다.
-  const { flights, isFlightLoading, flightError } =
+  const { flights, isFlightLoading, flightError, role } =
     useOutletContext<OutletContextType>();
+  const isViewer = role === 'ROLE_VIEWER';
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -217,8 +219,9 @@ function Flight() {
                   <div className="w-1/5 text-right pl-4">
                     <div className="text-xl font-bold text-blue-600">{flight.priceKRW.toLocaleString()}원</div>
                     <button
-                      className="mt-2 w-full bg-blue-500 text-white py-2 px-4 rounded-md font-bold hover:bg-blue-600 transition-colors text-sm"
+                      className="mt-2 w-full bg-blue-500 text-white py-2 px-4 rounded-md font-bold hover:bg-blue-600 transition-colors text-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                       onClick={() => handleFlightClick(flight)}
+                      disabled={isViewer}
                     >
                       선택
                     </button>
