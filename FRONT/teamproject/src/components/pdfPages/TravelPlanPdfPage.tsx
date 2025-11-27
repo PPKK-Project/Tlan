@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import "../../css/TravelPlanPdfPage.css";
 import { pdf as pdfGenerator } from "@react-pdf/renderer";
 import TravelPlanPdf from "./TravelPlanPdf";
+import { Skeleton, Box } from "@mui/material";
 
 type Travel = {
   id: number;
@@ -77,6 +78,145 @@ const getEmergency = async (countryCode: string) => {
   );
   return response.data.data;
 };
+
+function TravelPlanPdfSkeleton() {
+  const dummyDays = [1, 2, 3]; // 로딩 중에 보여줄 가짜 Day 3개
+
+  return (
+    <div className="travel-pdf-page">
+      <div className="travel-pdf-container">
+        {/* 헤더 스켈레톤 */}
+        <header className="travel-pdf-header">
+          <Box>
+            <Skeleton variant="text" width={260} height={40} />
+          </Box>
+        </header>
+
+        {/* Day별 일정 스켈레톤 */}
+        <section className="travel-pdf-section">
+          {dummyDays.map((day) => (
+            <div key={day} className="travel-pdf-day-block">
+              {/* 왼쪽 DAY 라벨 영역 */}
+              <div className="travel-pdf-day-label-column"> </div>
+
+              {/* 오른쪽 내용 영역 */}
+              <div className="travel-pdf-day-content">
+                {/* 상단 Time / Activity 바 */}
+                <div className="travel-pdf-day-topbar">
+                  <Skeleton
+                    variant="text"
+                    width={80}
+                    height={24}
+                    style={{ marginRight: "16px" }}
+                  />
+                  <Skeleton variant="text" width={80} height={24} />
+                </div>
+
+                {/* 일정 리스트 스켈레톤 3줄 */}
+                <ul className="travel-pdf-plan-list">
+                  {[1, 2, 3].map((idx) => (
+                    <li key={idx} className="travel-pdf-plan-row">
+                      {/* 왼쪽: 순서/타입 뱃지 모양 */}
+                      <div className="travel-pdf-plan-time">
+                        <Box marginBottom={1}>
+                          <Skeleton variant="rounded" width={60} height={24} />
+                        </Box>
+                        <Skeleton variant="rounded" width={60} height={20} />
+                      </div>
+
+                      {/* 오른쪽: 이름/주소/메모 자리 */}
+                      <div className="travel-pdf-plan-activity">
+                        <Skeleton
+                          variant="text"
+                          width="80%"
+                          height={20}
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton
+                          variant="text"
+                          width="60%"
+                          height={18}
+                          style={{ marginBottom: 6 }}
+                        />
+                        <Skeleton variant="text" width="50%" height={16} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        {/* 대사관 카드 스켈레톤 */}
+        <section className="travel-pdf-section travel-pdf-embassy-section">
+          <div className="embassy-card">
+            <div className="embassy-card-topbar">
+              <Skeleton
+                variant="text"
+                width={60}
+                height={20}
+                style={{ marginRight: 16 }}
+              />
+              <Skeleton variant="text" width={60} height={20} />
+            </div>
+
+            <ul className="embassy-card-list">
+              {[1, 2, 3].map((idx) => (
+                <li key={idx} className="embassy-card-row">
+                  <div className="embassy-card-key">
+                    <Skeleton variant="text" width={50} height={18} />
+                  </div>
+                  <div className="embassy-card-value">
+                    <Skeleton variant="text" width="80%" height={18} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* 긴급 연락처 카드 스켈레톤 */}
+        <section className="travel-pdf-section travel-pdf-emergency-section">
+          <div className="emergency-card">
+            <div className="emergency-card-topbar">
+              <Skeleton
+                variant="text"
+                width={60}
+                height={20}
+                style={{ marginRight: 16 }}
+              />
+              <Skeleton variant="text" width={80} height={20} />
+            </div>
+
+            <ul className="emergency-card-list">
+              {[1, 2].map((idx) => (
+                <li key={idx} className="emergency-card-row">
+                  <div className="emergency-card-key">
+                    <Skeleton variant="text" width={50} height={18} />
+                  </div>
+                  <div className="emergency-card-value">
+                    <Skeleton variant="text" width="60%" height={18} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* PDF 버튼 스켈레톤 */}
+        <div className="travel-pdf-header-actions">
+          <Skeleton
+            variant="rounded"
+            width={180}
+            height={40}
+            style={{ borderRadius: 999 }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function TravelPlanPdfPage() {
   const { travelId } = useParams<{ travelId: string }>();
@@ -172,13 +312,7 @@ function TravelPlanPdfPage() {
     isLoadingEmbassy ||
     isLoadingEmergency
   ) {
-    return (
-      <div className="travel-pdf-page">
-        <div className="travel-pdf-container">
-          <div className="travel-pdf-loading">로딩중...</div>
-        </div>
-      </div>
-    );
+    return <TravelPlanPdfSkeleton />;
   }
 
   if (isErrorPlans || isErrorTravel || isErrorEmbassy || isErrorEmergency) {
