@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -46,20 +47,48 @@ public class UserService {
 
     }
 
-    // 닉네임 수정
-    public ResponseEntity<Void> patchNickname(PatchUsersRecord dto, Principal principal) {
+    // 유저 수정
+    @Transactional
+    public ResponseEntity<Void> patchUsers(PatchUsersRecord dto, Principal principal) {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
 
+        // 현재 비밀번호 확인
         if(!passwordEncoder.matches(dto.password(), user.getPassword())) {
             throw new AccessDeniedException("권한이 없습니다.");
         }
 
-        user.setNickname(dto.nickname());
-        userRepository.save(user);
+        boolean isModified = false;
+
+        // 닉네임 변경: 새로운 닉네임이 제공되었고, 기존 닉네임과 다를 경우
+        if (dto.nickname() != null && !dto.nickname().isEmpty() && !user.getNickname().equals(dto.nickname())) {
+            user.setNickname(dto.nickname());
+            isModified = true;
+        }
+
+        // 비밀번호 변경: 새로운 비밀번호가 제공되었을 경우
+        if (dto.newpassword() != null && !dto.newpassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(dto.newpassword()));
+            isModified = true;
+        }
 
         return ResponseEntity.ok().build();
     }
+
+    // 비밀번호 수정
+//    public ResponseEntity<Void> patchPassword(PatchUsersRecord dto, Principal principal) {
+//        User user = userRepository.findByEmail(principal.getName())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
+//
+//        if(!passwordEncoder.matches(dto.password(), user.getPassword())) {
+//            throw new AccessDeniedException("권한이 없습니다.");
+//        }
+//
+//        user.setPassword(dto.password());
+//        userRepository.save(user);
+//
+//        return ResponseEntity.ok().build();
+//    }
 
     /**
      * [GET] 현재 로그인한 사용자 정보(ID, 이메일, 닉네임) 조회
