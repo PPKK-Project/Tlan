@@ -25,7 +25,7 @@ import {
 } from "../util/types";
 import { AlertColor } from "@mui/material";
 
-// 지도 좌표가 없어서 오류가 뜨는 상황을 방지하기 위해 임시로 넣어두는 기본 좌표(서울).
+// 지도 좌표가 없어서 오류가 뜨는 상황을 방지하기 위해 디폴트로 넣어두는 좌표(서울).
 const DEFAULT_LOCATION = {
   lat: 37.5665,
   lon: 126.9780,
@@ -156,12 +156,17 @@ export function useTravelData(travelId: string | undefined) {
         setIsFlightLoading(true);
         setFlightError(null);
 
+        if (!travelInfo.departure || !travelInfo.countryCode) {
+          console.warn("공항 코드가 설정되지 않은 여행입니다.");
+          return;
+        }
+
         const params = {
-          depAp: "SEL", // TODO: 추후 여행 정보에서 출발 공항 코드 가져오기
-          arrAp: "TYO", // TODO: 추후 여행 정보에서 도착 공항 코드 가져오기
+          depAp: travelInfo.departure,
+          arrAp: travelInfo.countryCode,
           depDate: travelInfo.startDate.replace(/-/g, ""),
           retDate: travelInfo.endDate.replace(/-/g, ""),
-          adult: 1,
+          adult: travelInfo.travelerCount || 1, // 저장된 여행 인원 수 (기본 1명)
         };
 
         const flightRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/flight`, {
@@ -432,22 +437,17 @@ export function useTravelData(travelId: string | undefined) {
     }, {} as { [key: string]: number });
   }, [plans]);
 
-  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동
+  
+  // 여행 정보가 로드되면 입력된 도시(destinationCity)
   useEffect(() => {
-    if (travelInfo && travelInfo.countryCode) {
-        handleSearch(travelInfo.countryCode);
-    }
-  }, [travelInfo, handleSearch]);
+    const searchKeyword = travelInfo?.destinationCity
 
-  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동 및 준비 완료 처리
-  useEffect(() => {
-    if (travelInfo && travelInfo.countryCode) {
-      // handleSearch가 비동기 함수이므로, 완료 후 isMapReady를 true로 설정
-      handleSearch(travelInfo.countryCode).finally(() => {
+    if (searchKeyword) {
+      handleSearch(searchKeyword).finally(() => {
         setIsMapReady(true);
       });
     } else if (travelInfo) {
-      // 국가 정보가 없는 경우에도 지도는 띄워야 하므로 true 처리
+      // 정보가 없어도 지도는 띄움
       setIsMapReady(true);
     }
   }, [travelInfo, handleSearch]);
