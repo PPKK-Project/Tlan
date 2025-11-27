@@ -10,17 +10,10 @@ type Props = {
 export function PlaceSearchBar({ travelInfo, onSearch, isLoading }: Props) {
   const [destinationInput, setDestinationInput] = useState("");
 
-  // destinationCity가 있으면 우선 사용, 없으면 아래의 countryCode 사용
+  // destinationCity를 검색바에 기본값으로 올림
   useEffect(() => {
     if (travelInfo) {
-      setDestinationInput(travelInfo.destinationCity || travelInfo.countryCode || "");
-    }
-  }, [travelInfo]);
-
-  // 여행 정보(travelInfo)가 로드되면, 입력된 '국가(countryCode)'를 검색창에 표시
-  useEffect(() => {
-    if (travelInfo?.countryCode) {
-      setDestinationInput(travelInfo.countryCode);
+      setDestinationInput(travelInfo.destinationCity || "");
     }
   }, [travelInfo]);
 

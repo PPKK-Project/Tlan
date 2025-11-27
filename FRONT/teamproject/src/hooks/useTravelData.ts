@@ -25,7 +25,7 @@ import {
 } from "../util/types";
 import { AlertColor } from "@mui/material";
 
-// 지도 좌표가 없어서 오류가 뜨는 상황을 방지하기 위해 임시로 넣어두는 기본 좌표(서울).
+// 지도 좌표가 없어서 오류가 뜨는 상황을 방지하기 위해 디폴트로 넣어두는 좌표(서울).
 const DEFAULT_LOCATION = {
   lat: 37.5665,
   lon: 126.9780,
@@ -432,17 +432,10 @@ export function useTravelData(travelId: string | undefined) {
     }, {} as { [key: string]: number });
   }, [plans]);
 
-  // 여행 정보가 로드되면 입력된 국가(countryCode)로 지도 중심 이동
+  
+  // 여행 정보가 로드되면 입력된 도시(destinationCity)
   useEffect(() => {
-    if (travelInfo && travelInfo.countryCode) {
-        handleSearch(travelInfo.countryCode);
-    }
-  }, [travelInfo, handleSearch]);
-
-  // 여행 정보가 로드되면 입력된 도시(destinationCity) 또는 공항코드(countryCode)로 지도 중심 이동
-  useEffect(() => {
-    // [수정] 검색 우선순위: 도시 이름 > 공항 코드
-    const searchKeyword = travelInfo?.destinationCity || travelInfo?.countryCode;
+    const searchKeyword = travelInfo?.destinationCity
 
     if (searchKeyword) {
       handleSearch(searchKeyword).finally(() => {

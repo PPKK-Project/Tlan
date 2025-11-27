@@ -139,7 +139,7 @@ const PlanMap: React.FC<Props> = ({
       // 지도를 클릭하면 정보창 닫기
       onClick={() => setSelectedMarker(null)}
       options={{
-        // 불필요한 Google Maps UI 제거 (선택 사항)
+        // 불필요한 Google Maps UI 비활성화
         streetViewControl: false,
         mapTypeControl: false,
         fullscreenControl: false,
