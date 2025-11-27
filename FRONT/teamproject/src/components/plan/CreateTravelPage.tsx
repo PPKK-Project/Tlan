@@ -4,6 +4,7 @@ import axios from "axios";
 import Header from "../main/Header";
 import { getAxiosConfig } from "../../util/planUtils";
 import { Airport, CreateTravelRequest, Travel } from "../../util/types";
+import mainPageImg from "../../assets/main-page.webp";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -207,7 +208,7 @@ function CreateTravelPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="main-container min-h-screen flex flex-col" style={{ backgroundImage: `url(${mainPageImg})` }}>
       <Header />
 
       <div className="flex-1 flex items-center justify-center p-6">

@@ -1,7 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer base {
+    /* <html>에 Firefox, IE/Edge 속성 적용 */
+    html {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE/Edge */
+    }
 
+    /* <body> 및 <html>에 WebKit 속성 적용 */
+    body::-webkit-scrollbar,
+    html::-webkit-scrollbar { /* <-- <html> 추가 */
+        display: none;
+        width: 0;
+        height: 0; 
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        /* 기존 body 스타일 유지 */
+        scrollbar-width: none; /* Firefox (중복 적용) */
+        -ms-overflow-style: none; /* IE/Edge (중복 적용) */
+    }
+}
 body {
   margin: 0;
   padding: 0;
