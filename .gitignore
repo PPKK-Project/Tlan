@@ -1,1 +1,2 @@
 docker-compose.yml
+BACK/src/main/resources/application-bepo.properties

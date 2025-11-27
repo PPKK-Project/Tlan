@@ -82,8 +82,7 @@ const PlanMap: React.FC<Props> = ({
     // 계산된 경계로 지도를 이동
     map.fitBounds(bounds);
 
-    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로
-    // 수동으로 줌 레벨을 조절
+    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로 수동으로 줌 레벨을 조절
     if (plans.length === 1) {
       map.setZoom(15);
     }
@@ -140,7 +139,7 @@ const PlanMap: React.FC<Props> = ({
       // 지도를 클릭하면 정보창 닫기
       onClick={() => setSelectedMarker(null)}
       options={{
-        // 불필요한 Google Maps UI 제거 (선택 사항)
+        // 불필요한 Google Maps UI 비활성화
         streetViewControl: false,
         mapTypeControl: false,
         fullscreenControl: false,
