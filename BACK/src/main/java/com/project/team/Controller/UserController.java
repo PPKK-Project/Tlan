@@ -29,9 +29,15 @@ public class UserController {
     // 닉네임 수정
     @Operation(summary = "닉네임 수정", description = "현재 로그인한 사용자의 닉네임을 수정합니다.")
     @PatchMapping("/users")
-    public ResponseEntity<Void> patchNickname(@RequestBody PatchUsersRecord dto, Principal principal) {
-        return userService.patchNickname(dto, principal);
+    public ResponseEntity<Void> patchUsers(@RequestBody PatchUsersRecord dto, Principal principal) {
+        return userService.patchUsers(dto, principal);
     }
+
+    // 비밀번호 수정
+//    @PatchMapping("/users/password")
+//    public ResponseEntity<Void> patchPassword(@RequestBody PatchUsersRecord dto, Principal principal) {
+//        return userService.patchPassword(dto, principal);
+//    }
 
     // 유저 정보 조회
     @Operation(summary = "유저정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")

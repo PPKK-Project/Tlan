@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "./ShareModal";
 import PlanCard from "./PlanCard";
+import DeleteConfirmModal from "./DeleteConfirmModal"; // 새로 추가
 import { TravelPlan } from "./TravelPlanList";
 
 const getSharedPlanList = async (): Promise<TravelPlan[]> => {
@@ -15,6 +16,7 @@ const getSharedPlanList = async (): Promise<TravelPlan[]> => {
 function SharedPlanList() {
   const queryClient = useQueryClient();
   const [sharingPlan, setSharingPlan] = useState<TravelPlan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<TravelPlan | null>(null); // 삭제 확인 모달용 상태
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["sharedPlans"], // 쿼리 키를 분리하여 캐시 충돌 방지
@@ -81,7 +83,7 @@ function SharedPlanList() {
               <PlanCard
                 key={plan.id}
                 plan={plan}
-                onDelete={() => deleteMutation.mutate(plan.id)}
+                onDelete={() => setPlanToDelete(plan)} // 삭제 확인 모달 열기
                 onShare={() => setSharingPlan(plan)}
               />
             ))}
@@ -98,6 +100,16 @@ function SharedPlanList() {
               role,
             });
           }}
+        />
+      )}
+      {planToDelete && (
+        <DeleteConfirmModal
+          planTitle={planToDelete.title}
+          onConfirm={() => {
+            deleteMutation.mutate(planToDelete.id);
+            setPlanToDelete(null); // 모달 닫기
+          }}
+          onCancel={() => setPlanToDelete(null)} // 모달 닫기
         />
       )}
     </div>
