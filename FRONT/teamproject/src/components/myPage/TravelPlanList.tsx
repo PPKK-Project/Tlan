@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "./ShareModal";
+import DeleteConfirmModal from "./DeleteConfirmModal"; // 새로 추가
 import PlanCard from "./PlanCard";
 
 export type TravelPlan = {
@@ -19,7 +21,9 @@ const getTravelPlanList = async () => {
 
 function TravelPlanList() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [sharingPlan, setSharingPlan] = useState<TravelPlan | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<TravelPlan | null>(null); // 삭제 확인 모달용 상태
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["plans"], // 쿼리 키를 분리하여 캐시 충돌 방지
@@ -75,7 +79,15 @@ function TravelPlanList() {
 
   return (
     <div className="travel-plan-list-container">
-      <h2 className="list-header">나의 여행 계획</h2>
+      <div className="list-header-wrapper">
+        <h2 className="list-header">나의 여행 계획</h2>
+        <button
+          className="add-plan-button"
+          onClick={() => navigate("/create-travel")} // 새 플랜 생성 페이지로 이동
+        >
+          + 새 플랜 만들기
+        </button>
+      </div>
       {data && data.length === 0 ? (
         <p className="no-plans-message">아직 여행 계획이 없습니다.</p>
       ) : (
@@ -85,7 +97,7 @@ function TravelPlanList() {
               <PlanCard
                 key={plan.id}
                 plan={plan}
-                onDelete={() => deleteMutation.mutate(plan.id)}
+                onDelete={() => setPlanToDelete(plan)} // 삭제 확인 모달 열기
                 onShare={() => setSharingPlan(plan)}
               />
             ))}
@@ -102,6 +114,16 @@ function TravelPlanList() {
               role,
             });
           }}
+        />
+      )}
+      {planToDelete && (
+        <DeleteConfirmModal
+          planTitle={planToDelete.title}
+          onConfirm={() => {
+            deleteMutation.mutate(planToDelete.id);
+            setPlanToDelete(null); // 모달 닫기
+          }}
+          onCancel={() => setPlanToDelete(null)} // 모달 닫기
         />
       )}
     </div>
