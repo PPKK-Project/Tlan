@@ -72,9 +72,9 @@ const getEmbassy = async (travelId: number) => {
   return response.data.response.body.items.item;
 };
 
-const getEmergency = async (countryCode: string) => {
+const getEmergency = async (travelId: number) => {
   const response = await axios.get(
-    `${import.meta.env.VITE_BASE_URL}/emergency/${countryCode}`
+    `${import.meta.env.VITE_BASE_URL}/emergency/${travelId}`
   );
   return response.data.data;
 };
@@ -256,17 +256,15 @@ function TravelPlanPdfPage() {
     enabled: !!numTravelId,
   });
 
-  const countryCode = travel?.countryCode;
-
   const {
     data: emergency,
     isLoading: isLoadingEmergency,
     isError: isErrorEmergency,
     error: emergencyError,
   } = useQuery<EmergencyData>({
-    queryKey: ["emergency", countryCode],
-    queryFn: () => getEmergency(countryCode as string),
-    enabled: !!countryCode,
+    queryKey: ["emergency", numTravelId],
+    queryFn: () => getEmergency(numTravelId),
+    enabled: !!numTravelId,
   });
 
   const handleDownloadPdf = async () => {
