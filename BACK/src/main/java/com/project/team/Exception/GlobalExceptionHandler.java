@@ -2,6 +2,9 @@ package com.project.team.Exception;
 import com.project.team.Dto.ErrorResponseRecord;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -106,7 +109,17 @@ public class GlobalExceptionHandler {
 
 
 
-
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    public ResponseEntity<ErrorResponseRecord> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+        ErrorResponseRecord errorResponseRecord = new ErrorResponseRecord(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "UnAuthorized",
+                "자격 증명에 실패하였습니다. (이메일 또는 비밀번호 불일치)",
+                request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(errorResponseRecord, HttpStatus.UNAUTHORIZED);
+    }
 
     /**
      * 위에서 지정하지 않은 모든 예외를 처리
