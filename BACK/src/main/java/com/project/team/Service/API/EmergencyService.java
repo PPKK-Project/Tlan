@@ -1,6 +1,7 @@
 package com.project.team.Service.API;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.project.team.Repository.TravelRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -10,13 +11,18 @@ import reactor.core.publisher.Mono;
 public class EmergencyService {
 
     private final WebClient emergencyApiWebClient;
+    private final TravelRepository travelRepository;
 
     public EmergencyService(
-            @Qualifier("emergencyApiWebClient") WebClient emergencyApiWebClient) {
+            @Qualifier("emergencyApiWebClient") WebClient emergencyApiWebClient, TravelRepository travelRepository) {
         this.emergencyApiWebClient = emergencyApiWebClient;
+        this.travelRepository = travelRepository;
     }
 
-    public Mono<JsonNode> fetchEmergencyApiWebClient(String countryCode) {
+    public Mono<JsonNode> fetchEmergencyApiWebClient(Long travelId) {
+
+        String countryCode = travelRepository.findCountryCodeByTravelId(travelId);
+
         return emergencyApiWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/" + countryCode)
