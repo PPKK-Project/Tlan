@@ -45,7 +45,8 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  padding: 1.5rem 3rem;
+  padding: 0.5rem 3rem;
+  height: 5rem;
   /* 모든 페이지에 적용될 반투명 유리 효과 */
   background-color: rgba(0, 0, 0, 0.1); /* 밝은 톤의 반투명 배경 */
   backdrop-filter: blur(12px);

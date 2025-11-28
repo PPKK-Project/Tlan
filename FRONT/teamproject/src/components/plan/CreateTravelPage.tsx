@@ -166,6 +166,7 @@ function CreateTravelPage() {
       !selectedDepartureCode ||
       !selectedDestinationCode
     ) {
+      console.log(title, startDate, endDate, selectedDepartureCode, selectedDestinationCode);
       alert("모든 정보를 입력해주세요.");
       return;
     }
@@ -209,7 +210,7 @@ function CreateTravelPage() {
 
   return (
     <div className="main-container min-h-screen flex flex-col" style={{ backgroundImage: `url(${mainPageImg})` }}>
-      <Header />
+      <Header travelInfo={undefined} formattedDateRange={undefined} />
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg">
