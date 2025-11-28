@@ -4,7 +4,7 @@ import axios from "axios";
 import Header from "../main/Header";
 import { getAxiosConfig } from "../../util/planUtils";
 import { Airport, CreateTravelRequest, Travel } from "../../util/types";
-import mainPageImg from "../../assets/main-page.webp";
+import mainPageImg from "../../assets/mainpage_image.webp";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
