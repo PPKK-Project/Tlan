@@ -184,12 +184,12 @@ const PlanMap: React.FC<Props> = ({
           position={{
             lat:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.latitude
-                : selectedMarker.data.latitude,
+                ? (selectedMarker.data as TravelPlan).place.latitude 
+                : (selectedMarker.data as PlaceSearchResult).latitude,
             lng:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.longitude
-                : selectedMarker.data.longitude,
+                ? (selectedMarker.data as TravelPlan).place.longitude
+                : (selectedMarker.data as PlaceSearchResult).longitude,
           }}
           onCloseClick={() => setSelectedMarker(null)}
           options={{ zIndex: 20 }}
@@ -203,7 +203,8 @@ const PlanMap: React.FC<Props> = ({
               // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
               const place =
                 selectedMarker.type === "plan"
-                  ? selectedMarker.data.place
+                  // eslint-disable-next-line
+                  ? (selectedMarker.data as { place: any }).place // 'place' 속성을 가진 타입으로 단언
                   : selectedMarker.data;
 
               return (
