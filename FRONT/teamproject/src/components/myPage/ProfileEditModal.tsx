@@ -34,6 +34,14 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [errors,setErrors] = useState({
+    password: "",
+    newPassword: "",
+    nickname:"",
+  });
+  const passwordRegex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]).{8,}$/;
+
   // 현재 사용자 정보를 불러오는 쿼리
   const { data: userInfo, isLoading } = useQuery({
     queryKey: ["userInfo"],
@@ -73,9 +81,15 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
       password: password, // 현재 비밀번호 (인증용)
     });
   };
-
+  
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({ ...errors, newPassword: "" }); // 에러 초기화
+
+    if (newPassword && !passwordRegex.test(newPassword)) {
+      setErrors({ ...errors, newPassword: "비밀번호는 8자 이상이며, 영문, 숫자, 특수문자를 포함해야 합니다." });
+      return;
+    }
     if (!password) {
       alert("현재 비밀번호를 입력해주세요.");
       return;
@@ -169,6 +183,9 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
               placeholder="새 비밀번호"
               className="modal-input"
             />
+            {errors.newPassword && (
+              <p style={{ color: "red", fontSize: "12px", marginTop: "-10px", marginBottom: "10px" }}>{errors.newPassword}</p>
+            )}
             <input
               type="password"
               value={confirmPassword}

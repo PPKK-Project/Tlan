@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -33,30 +34,51 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         OAuth2User oAuthUser = (OAuth2User) authentication.getPrincipal();
         Map<String, Object> attributes = oAuthUser.getAttributes();
         String username = null;
+        String registrationId = null; // 공급자 식별자 추가
 
-        // 1. Google 로그인인지 확인
-        if (attributes.containsKey("sub")) {
-            // Google은 'email'이 최상위에 있음
-            username = (String) attributes.get("email");
+        // 1. 공급자 식별 (registrationId 얻기)
+        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+            registrationId = oauthToken.getAuthorizedClientRegistrationId();
         }
-        // 2. Naver 로그인인지 확인
-        else if (attributes.containsKey("response")) {
-            // Naver는 "response" 맵 안에 'email'이 있음
+
+        // 2. 공급자별 이메일 추출
+        // Google, Kakao, Naver 모두 처리
+        if ("google".equals(registrationId) || "kakao".equals(registrationId)) {
+            // Google은 최상위, Kakao는 user-name-attribute 설정에 따라 평탄화되었을 수 있음
+            // 최상위에서 'email'을 먼저 시도
+            if (attributes.containsKey("email")) {
+                username = (String) attributes.get("email");
+            }
+            // 카카오의 경우 평탄화되지 않았다면 'kakao_account'를 통해 접근 (기존 코드 유지)
+            else if ("kakao".equals(registrationId) && attributes.containsKey("kakao_account")) {
+                Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                username = (String) kakaoAccount.get("email"); // 이메일 동의 필수
+            }
+        }
+        // Naver 전용 처리
+        else if ("naver".equals(registrationId) && attributes.containsKey("response")) {
+            // 네이버는 'response' 맵 안에 이메일이 있습니다.
             Map<String, Object> responseMap = (Map<String, Object>) attributes.get("response");
-            username = (String) responseMap.get("email");
+            if (responseMap.containsKey("email")) {
+                username = (String) responseMap.get("email");
+            }
         }
 
-        // 카카오 로그인인지 확인
-        else if ( attributes.containsKey("kakao_account")) {
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            username = (String) kakaoAccount.get("email");
-        }
 
-        // 3. username이 여전히 null인지 검사 (정보 제공에 동의하지 않았거나, email이 없는 경우)
+        // 3. username이 여전히 null인 경우 (개선된 대체 로직)
         if (username == null) {
-            // oAuthUser.getName()은 공급자가 제공하는 고유 ID (sub, id 등)이다.
-            logger.warn("OAuth2에서 email을 추출할 수 없습니다. 고유 ID로 대체합니다: " + oAuthUser.getName());
-            username = "oauth2user_" + oAuthUser.getName();
+            // WARNING: 이 코드가 실행되면 DB에 저장되는 email이 유효한 email 형식이 아니며,
+            // 토큰으로 사용자 검색 시 찾지 못할 가능성이 높습니다.
+            // 하지만 일단 DB에 저장 가능한 유니크한 ID로 만듭니다.
+            String uniqueId = oAuthUser.getName(); // 공급자 고유 ID
+            String provider = registrationId != null ? registrationId : "unknown";
+
+            // WARN 로그는 유지하되, oAuthUser.getName()이 객체 전체 문자열이 아닌
+            // 순수한 고유 ID만 포함하도록 처리해야 합니다.
+            logger.warn("OAuth2에서 email을 추출할 수 없습니다. provider: "+provider+" | 고유 ID로 대체합니다: "+uniqueId);
+
+            // JWT의 'subject'로 사용될 email 필드 값 설정
+            username = provider + "_user_" + uniqueId;
         }
         // JWT 토큰 생성
         final String finalUsername = username;

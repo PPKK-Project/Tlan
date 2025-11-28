@@ -214,7 +214,6 @@
   border: 1px solid #dadce0;
 }
 
-
 /* 토스트 */
 .toast {
   position: fixed;
@@ -239,6 +238,10 @@
 
 .toast-success {
   background: #4caf50;
+}
+
+.toast-info {
+  background: #0284c7;
 }
 
 /* 이메일 인증 시 사용하는 css */

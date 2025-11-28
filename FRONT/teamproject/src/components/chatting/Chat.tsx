@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import "../../css/Chat.css";
 import ChatRoomList from "./ChatRoomList"; // 채팅방 목록 컴포넌트
@@ -19,7 +20,6 @@ type TravelPlan = {
 };
 
 function Chat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLauncherOpen, setIsLauncherOpen] = useState(false); // 채팅 런처(창)의 열림/닫힘 상태
   const [activePlan, setActivePlan] = useState<TravelPlan | null>(null); // 현재 선택된 채팅방 정보
   const [inputMessage, setInputMessage] = useState("");
@@ -29,6 +29,7 @@ function Chat() {
     userId: 0,
   });
   const clientRef = useRef<Client | null>(null);
+  const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement | null>(null); // 메시지 목록의 끝을 참조할 ref
 
   // 컴포넌트 마운트 시 사용자 정보를 가져옵니다.
@@ -58,6 +59,21 @@ function Chat() {
     fetchUserInfo();
   }, []);
 
+  // React-Query를 사용하여 채팅 메시지 목록을 불러옵니다.
+  const { data: messages = [] } = useQuery<ChatMessage[]>({
+    queryKey: ["chatMessages", activePlan?.id],
+    queryFn: async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/chat/message/${activePlan!.id}`
+      );
+      return response.data;
+    },
+    // activePlan.id가 있을 때만 쿼리를 실행합니다.
+    enabled: !!activePlan?.id,
+    // 창에 다시 포커스될 때마다 데이터를 다시 가져오지 않도록 설정할 수 있습니다.
+    refetchOnWindowFocus: false,
+  });
+
   // activePlan이 변경될 때마다 웹소켓 연결을 설정/해제합니다.
   useEffect(() => {
     // 채팅방을 선택하지 않았으면 연결하지 않습니다.
@@ -67,20 +83,6 @@ function Chat() {
       }
       return;
     }
-
-    // 이전 채팅방 메시지 불러오기
-    const fetchHistory = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/chat/message/${activePlan.id}`
-        );
-        setMessages(response.data);
-      } catch (error) {
-        console.error("채팅 기록을 불러오는 데 실패했습니다.", error);
-        setMessages([]); // 실패 시 메시지 초기화
-      }
-    };
-    fetchHistory();
 
     const token = localStorage.getItem("jwt");
 
@@ -92,19 +94,9 @@ function Chat() {
       reconnectDelay: 5000, // 5초마다 재연결 시도
       onConnect: () => {
         // 여행 계획 ID에 맞는 토픽을 구독합니다.
-        client.subscribe(`/chat/message/${activePlan.id}`, (message) => {
-          const receivedMessage: ChatMessage = JSON.parse(message.body);
-          // 서버로부터 실제 메시지를 받으면, 임시 메시지를 실제 메시지로 교체합니다.
-          // 임시 메시지는 chatId가 숫자(Date.now())이고, 실제 메시지는 문자열 ID를 가질 것으로 가정합니다.
-          setMessages((prevMessages) => {
-            // 임시 메시지를 제외하고 새 메시지 배열을 만듭니다.
-            const newMessages = prevMessages.filter(
-              (msg) =>
-                typeof msg.nickname === "string" ||
-                msg.content !== receivedMessage.content
-            );
-            return [...newMessages, receivedMessage];
-          });
+        client.subscribe(`/chat/message/${activePlan.id}`, () => {
+          // 메시지를 받으면 해당 채팅방의 쿼리를 무효화하여 다시 불러옵니다.
+          queryClient.invalidateQueries({ queryKey: ["chatMessages", activePlan.id] });
         });
       },
       onStompError: (frame) => {
@@ -120,7 +112,7 @@ function Chat() {
         clientRef.current.deactivate();
       }
     };
-  }, [activePlan]); // activePlan이 바뀔 때마다 이 useEffect가 다시 실행됩니다.
+  }, [activePlan, queryClient]); // activePlan이 바뀔 때마다 이 useEffect가 다시 실행됩니다.
 
   // 메시지 목록이 업데이트될 때마다 스크롤을 맨 아래로 이동시킵니다.
   useEffect(() => {
@@ -141,15 +133,6 @@ function Chat() {
         email: userInfo.email,
         content: inputMessage,
       };
-
-      // 낙관적 업데이트: UI에 즉시 표시할 임시 메시지를 만듭니다.
-      const tempMessage: ChatMessage = {
-        nickname: userInfo.nickname,
-        content: inputMessage,
-      };
-      // 화면에 임시 메시지를 먼저 추가합니다.
-      setMessages((prevMessages) => [...prevMessages, tempMessage]);
-
       clientRef.current.publish({
         destination: `/app/chat/message/${activePlan.id}`,
         body: JSON.stringify(chatMessage),

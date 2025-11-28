@@ -121,7 +121,7 @@ jobs:
             echo 'Starting spring-boot-app container...'
             # Backend: application.properties 마운트
             docker run -d -p 8080:8080 --network my-app-network --name spring-boot-app \
-            -v /tmp/application.properties:/app/application.properties e\
+            -v /tmp/application.properties:/app/application.properties \
             ${{ env.BACKEND_TAG }} ;
             
             echo 'Starting frontend-app container...'

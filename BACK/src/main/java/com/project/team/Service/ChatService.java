@@ -43,11 +43,7 @@ public class ChatService {
         Chat chat = new Chat(travel, user, request.content());
         Chat savedChat = chatRepository.save(chat);
 
-        // 3. 응답 DTO 생성
-        ChatMessageResponse response = new ChatMessageResponse(savedChat);
-
-        // 4. 해당 여행 채팅방을 구독 중인 클라이언트들에게 메시지 브로드캐스팅
-        messagingTemplate.convertAndSend("/chat/travels/" + travelId, response);
+        messagingTemplate.convertAndSend("/chat/message/" + travelId, "CHAT_UPDATED");
     }
 
     public ResponseEntity<List<ChattingResponse>> saveChat(Long travelId){

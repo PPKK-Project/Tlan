@@ -184,12 +184,12 @@ const PlanMap: React.FC<Props> = ({
           position={{
             lat:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.latitude
-                : selectedMarker.data.latitude,
+                ? (selectedMarker.data as TravelPlan).place.latitude // 👈 'plan'일 때는 TravelPlan으로 단언하여 .place.latitude 접근
+                : (selectedMarker.data as PlaceSearchResult).latitude, // 👈 'search'일 때는 PlaceSearchResult로 단언하여 .latitude 접근
             lng:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.longitude
-                : selectedMarker.data.longitude,
+                ? (selectedMarker.data as TravelPlan).place.longitude
+                : (selectedMarker.data as PlaceSearchResult).longitude,
           }}
           onCloseClick={() => setSelectedMarker(null)}
           options={{ zIndex: 20 }}
@@ -203,7 +203,8 @@ const PlanMap: React.FC<Props> = ({
               // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
               const place =
                 selectedMarker.type === "plan"
-                  ? selectedMarker.data.place
+                  // eslint-disable-next-line
+                  ? (selectedMarker.data as { place: any }).place // 'place' 속성을 가진 타입으로 단언
                   : selectedMarker.data;
 
               return (
@@ -214,6 +215,7 @@ const PlanMap: React.FC<Props> = ({
                     {place.type || place.category}{" "}
                     {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
                   </p>
+
 
                   {/* 전화번호 */}
                   {place.phoneNumber && (
@@ -244,12 +246,16 @@ const PlanMap: React.FC<Props> = ({
                       일정에 추가하기
                     </button>
                   )}
-                  {/* '저장된 일정'일 때는 몇 번째 일정인지 표시 */}
                   {selectedMarker.type === "plan" && (
-                    <p className="text-xs text-blue-600 font-bold text-center mt-1">
-                      {selectedMarker.data.dayNumber}일차 -{" "}
-                      {selectedMarker.data.sequence}번째 일정
-                    </p>
+                    (() => {
+                      const planData = selectedMarker.data as TravelPlan;
+                      return (
+                        <p className="text-xs text-blue-600 font-bold text-center mt-1">
+                          {planData.dayNumber}일차 -{" "}
+                          {planData.sequence}번째 일정
+                        </p>
+                      );
+                    })()
                   )}
                 </>
               );
