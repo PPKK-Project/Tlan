@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import "../../css/header.css";
 import axios from "axios";
-function Header({ travelInfo, formattedDateRange }) {
+function Header({ travelInfo, formattedDateRange }: { travelInfo?: { title: string; travelerCount: number }; formattedDateRange?: string }) {
   const [isLogin, setLogin] = useState(!!localStorage.getItem("jwt"));
   const navigate = useNavigate();
   const location = useLocation();

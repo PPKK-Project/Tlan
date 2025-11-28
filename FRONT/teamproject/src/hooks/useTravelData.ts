@@ -2,7 +2,6 @@ import {
   API_BASE_URL,
   getAxiosConfig,
   getCategoryFromTypes,
-  getPhotoUrl,
 } from "./../util/planUtils";
 import axios from "axios";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -92,7 +91,7 @@ export function useTravelData(travelId: string | undefined) {
             queryClient.invalidateQueries({ queryKey: ["travelInfo", travelId] });
           }
         });
-        
+
       },
       onStompError: (frame) => {
         console.error("Broker reported error: " + frame.headers["message"]);
@@ -251,12 +250,12 @@ export function useTravelData(travelId: string | undefined) {
       }
     };
     fetchFlightsData();
-  }, [travelId, travelInfo?.startDate, travelInfo?.endDate]); // travelId와 여행 날짜 변경 시 재실행
+  }, [travelId, travelInfo?.startDate, travelInfo?.endDate, travelInfo?.departure, travelInfo?.countryCode, travelInfo?.travelerCount]); // travelId와 여행 날짜 변경 시 재실행
 
   // Effect: 장소 검색(Places) API 호출
   useEffect(() => {
-    if (!travelId) return;
     const fetchPlaces = async () => {
+      if (!travelId || !isMapReady) return;
 
       setIsLoading(true);
       setError(null);
@@ -270,7 +269,7 @@ export function useTravelData(travelId: string | undefined) {
               keyword: `${searchQuery} ${category}`,
               lat: searchLocation.lat,
               lon: searchLocation.lon,
-              radius: "10000", // 반경 10km
+              radius: "30000", // 반경 10km
               type: "point_of_interest",
             },
             headers: getAxiosConfig().headers,
@@ -283,6 +282,8 @@ export function useTravelData(travelId: string | undefined) {
         responses.forEach((res) => {
           if (res.data && res.data.results) {
             const parsed = res.data.results
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               .map((item: any) => ({
                 placeId: item.place_id,
                 name: item.name,
@@ -290,7 +291,6 @@ export function useTravelData(travelId: string | undefined) {
                 category: getCategoryFromTypes(item.types),
                 rating: item.rating || 0,
                 reviewCount: item.user_ratings_total || 0,
-                imageUrl: getPhotoUrl(item.photos),
                 latitude: item.geometry.location.lat,
                 longitude: item.geometry.location.lng,
                 openNow: item.opening_hours?.open_now,
@@ -303,7 +303,6 @@ export function useTravelData(travelId: string | undefined) {
         const uniquePlaces = Array.from(
           new Map(combinedPlaces.map((p) => [p.placeId, p])).values()
         );
-
         setAllPlaces(uniquePlaces);
       } catch (err) {
         console.error("장소 검색 실패:", err);
@@ -313,7 +312,7 @@ export function useTravelData(travelId: string | undefined) {
       }
     };
     fetchPlaces();
-  }, [travelId, searchLocation, searchQuery]);
+  }, [travelId, searchLocation, searchQuery, isMapReady]);
 
 
   // Effect: 장소 필터링
@@ -386,6 +385,7 @@ export function useTravelData(travelId: string | undefined) {
       const { lat, lng } = res.data.results[0].geometry.location;
       setSearchLocation({ lat, lon: lng });
       setSearchQuery(query);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("좌표 검색 실패: ", err);
       const errorMessage =
@@ -514,16 +514,17 @@ export function useTravelData(travelId: string | undefined) {
     }, {} as { [key: string]: number });
   }, [plans]);
 
-  // 여행 정보가 로드되면 입력된 도시(destinationCity)
+  // 여행 정보가 로드되면 입력된 도시(destinationCity)를 검색해 지도 중심으로 설정
   useEffect(() => {
     const searchKeyword = travelInfo?.destinationCity
 
     if (searchKeyword) {
+      // 검색을 시작하기 전에 isMapReady를 false로 설정할 수 있습니다.
       handleSearch(searchKeyword).finally(() => {
         setIsMapReady(true);
       });
     } else if (travelInfo) {
-      // 정보가 없어도 지도는 띄움
+      // destinationCity 정보가 없더라도 지도는 띄워줍니다.
       setIsMapReady(true);
     }
   }, [travelInfo, handleSearch]);

@@ -44,7 +44,7 @@ const PlanMap: React.FC<Props> = ({
   // 장소의 상세정보를 띄울 state (검색 결과나 일정에서 띄운다)
   const [selectedMarker, setSelectedMarker] = useState<{
     type: "search" | "plan";
-    data: any; // PlaceSearchResult 또는 TravelPlan
+    data: PlaceSearchResult | TravelPlan;
   } | null>(null);
 
   // 지도가 로드될 때 map 인스턴스를 state에 저장
@@ -56,18 +56,6 @@ const PlanMap: React.FC<Props> = ({
   const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
-
-  const centerLat = mapCenter.lat;
-  const centerLng = mapCenter.lng;
-
-  // 검색어 입력 등으로 좌표(숫자)가 바뀔 때만 지도 이동
-  useEffect(() => {
-    if (map) {
-      map.panTo({ lat: centerLat, lng: centerLng });
-      map.setZoom(12);
-    }
-  }, [map, centerLat, centerLng]);
-
 
   // 'plans'(일차)가 변경되면 마커들이 선으로 이어진 일정 전체가 보이도록 지도 범위 조정
   useEffect(() => {
@@ -136,7 +124,7 @@ const PlanMap: React.FC<Props> = ({
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={mapCenter} // 초기 센터
-      zoom={12} // 초기 줌
+      zoom={15} // 초기 줌
       onLoad={onLoad}
       onUnmount={onUnmount}
       // 지도를 클릭하면 정보창 닫기

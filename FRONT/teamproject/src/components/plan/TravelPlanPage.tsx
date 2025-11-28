@@ -13,12 +13,12 @@ function TravelPlanPage() {
   // URL에서 /travels/:travelId 의 'travelId' 값을 가져옴
   const { travelId } = useParams<{ travelId: string }>();
   const location = useLocation(); // 현재 경로를 가져오기 위해 useLocation 추가
-  const [ role, setRole ] = useState('');
+  const [role, setRole] = useState('');
   useEffect(() => {
     const getRole = async () => {
       const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/travels/${travelId}/role`
-        );
+        `${import.meta.env.VITE_BASE_URL}/travels/${travelId}/role`
+      );
       setRole(response.data);
     }
     getRole();
@@ -47,6 +47,14 @@ function TravelPlanPage() {
     isMapReady,
   } = useTravelData(travelId);
 
+  const [currentMapCenter, setCurrentMapCenter] = useState({
+    lat: searchLocation.lat,
+    lng: searchLocation.lon,
+  });
+
+  useEffect(() => {
+    setCurrentMapCenter({ lat: searchLocation.lat, lng: searchLocation.lon });
+  }, [searchLocation]);
   // 날짜 포맷팅 함수 (예: 2025-12-10)
   const formattedDateRange =
     dates.startDate && dates.endDate
@@ -61,7 +69,7 @@ function TravelPlanPage() {
     <div className="flex flex-col h-screen bg-gray-50">
       {/* 1. 공통 헤더 */}
       <Header
-        travelInfo={travelInfo} 
+        travelInfo={travelInfo || undefined}
         formattedDateRange={formattedDateRange}
       />
       {/* 메인 콘텐츠 영역 */}
@@ -98,23 +106,19 @@ function TravelPlanPage() {
               {/* 2. 중앙 지도 */}
               <main className="flex-1 relative bg-gray-100">
                 {isMapReady ? (
-                <PlanMap
-                  plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
-                  role={role}
-                  searchPlaces={filteredPlaces}
-                  onAddPlace={handleAddPlan}
-                  mapCenter={{
-                    lat: searchLocation.lat,
-                    lng: searchLocation.lon,
-                  }}
-                />
-              ) : (
-                /* 로딩 중일 때 보여줄 화면 */
+                  <PlanMap
+                    plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
+                    role={role}
+                    searchPlaces={filteredPlaces}
+                    onAddPlace={handleAddPlan}
+                    mapCenter={currentMapCenter}
+                  />
+                ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
                     <p>여행지 지도를 불러오는 중입니다...</p>
                   </div>
-              )}
+                )}
               </main>
 
               {/* 3. 오른쪽 요약 (일정 목록) */}

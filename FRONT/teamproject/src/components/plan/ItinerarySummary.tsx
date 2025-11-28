@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import { TravelPlan } from "../../util/types";
 import { useNavigate } from "react-router-dom";
-import { formatTime, getDistanceFromLatLonInKm } from "../../util/planUtils";
 
 // type AlertType = "success" | "info" | "warning" | "error";
 
@@ -34,36 +33,36 @@ const ItinerarySummary: React.FC<Props> = ({
       .sort((a, b) => a - b);
   }, [plansByDay]);
 
-   // 총 거리 및 예상 시간 계산
-  const { totalDistance, estimatedTime } = useMemo(() => {
-    let dist = 0;
+  // // 총 거리 및 예상 시간 계산
+  // const { totalDistance, estimatedTime } = useMemo(() => {
+  //   let dist = 0;
 
-    // 각 일차별로 순서대로 거리를 계산하여 합산
-    sortedDays.forEach((day) => {
-      // 해당 일차의 일정들을 순서대로 정렬
-      const dayPlans = [...plansByDay[day]].sort(
-        (a, b) => a.sequence - b.sequence
-      );
+  //   // 각 일차별로 순서대로 거리를 계산하여 합산
+  //   sortedDays.forEach((day) => {
+  //     // 해당 일차의 일정들을 순서대로 정렬
+  //     const dayPlans = [...plansByDay[day]].sort(
+  //       (a, b) => a.sequence - b.sequence
+  //     );
 
-      // i번째 장소와 i+1번째 장소 사이의 거리를 더함
-      for (let i = 0; i < dayPlans.length - 1; i++) {
-        const curr = dayPlans[i].place;
-        const next = dayPlans[i + 1].place;
-        dist += getDistanceFromLatLonInKm(
-          curr.latitude,
-          curr.longitude,
-          next.latitude,
-          next.longitude
-        );
-      }
-    });
+  //     // i번째 장소와 i+1번째 장소 사이의 거리를 더함
+  //     for (let i = 0; i < dayPlans.length - 1; i++) {
+  //       const curr = dayPlans[i].place;
+  //       const next = dayPlans[i + 1].place;
+  //       dist += getDistanceFromLatLonInKm(
+  //         curr.latitude,
+  //         curr.longitude,
+  //         next.latitude,
+  //         next.longitude
+  //       );
+  //     }
+  //   });
 
-    // 예상 시간: 차량 이동 기준으로 평균 시속 30km로 가정 (도심 이동 고려)
-    const speedKmPerH = 30;
-    const time = dist / speedKmPerH;
+  //   // 예상 시간: 차량 이동 기준으로 평균 시속 30km로 가정 (도심 이동 고려)
+  //   const speedKmPerH = 30;
+  //   const time = dist / speedKmPerH;
 
-    return { totalDistance: dist, estimatedTime: time };
-  }, [plansByDay, sortedDays]);
+  //   return { totalDistance: dist, estimatedTime: time };
+  // }, [plansByDay, sortedDays]);
 
   // Flight 컴포넌트 페이지로 갈수있게
   const handleMoveFlight = () => {
@@ -116,9 +115,8 @@ const ItinerarySummary: React.FC<Props> = ({
 
       {/* 하단 요약 */}
       <div className="border-t pt-4 mt-4">
-        <div className="flex justify-between mb-2">
+        {/* <div className="flex justify-between mb-2">
           <span>총 거리</span>
-          {/* 계산된 거리 표시 (소수점 1자리) */}
           <span className="font-semibold">
             {totalDistance.toLocaleString(undefined, {
               maximumFractionDigits: 1,
@@ -128,9 +126,8 @@ const ItinerarySummary: React.FC<Props> = ({
         </div>
         <div className="flex justify-between mb-4">
           <span>예상 시간</span>
-          {/* 계산된 시간 표시 */}
           <span className="font-semibold">{formatTime(estimatedTime)}</span>
-        </div>
+        </div> */}
         <button
           onClick={handleMoveFlight}
           disabled={isFlightLoading}
