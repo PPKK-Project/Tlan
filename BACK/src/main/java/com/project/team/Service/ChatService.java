@@ -43,7 +43,7 @@ public class ChatService {
         Chat chat = new Chat(travel, user, request.content());
         Chat savedChat = chatRepository.save(chat);
 
-        messagingTemplate.convertAndSend("/chat/travels/" + travelId, "CHAT_UPDATED");
+        messagingTemplate.convertAndSend("/chat/message/" + travelId, "CHAT_UPDATED");
     }
 
     public ResponseEntity<List<ChattingResponse>> saveChat(Long travelId){
