@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../../css/signIn.css"; // 로그인과 같은 카드 스타일 재사용
+import "../../css/signIn.css";
 
 type Status = "loading" | "success" | "error";
 
@@ -16,10 +16,11 @@ function VerifyEmail() {
   const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState("이메일 인증 중입니다...");
 
-  // StrictMode로 useEffect가 두 번 실행되는 걸 막기 위한 플래그
+  // StrictMode(개발모드)에선 가끔 두번 실행할 때가 있음 -> 그걸 막기 위한 것
   const requestedRef = useRef(false);
 
   useEffect(() => {
+    // 이메일 인증 요청을 한번만 보내도록 함
     if (requestedRef.current) return;
     requestedRef.current = true;
 
@@ -65,25 +66,19 @@ function VerifyEmail() {
   return (
     <div className="signin-page">
       <div className="signin-card">
-        {/* 상단 로고 영역 그대로 재사용 */}
         <div className="signin-logo-area">
           <div className="signin-logo" onClick={() => navigate("/")}>
             TLAN
           </div>
         </div>
 
-        {/* 이메일 인증 타이틀 */}
         <h2 className="verify-title">이메일 인증</h2>
-
-        {/* 상태 메시지 */}
         <p className="verify-message">{message}</p>
 
-        {/* 로딩일 때 살짝 흐릿한 느낌/스피너 넣고 싶으면 */}
         {status === "loading" && (
           <div className="verify-spinner" aria-label="loading" />
         )}
 
-        {/* 버튼 영역 */}
         <div className="verify-actions">
           {status === "success" && (
             <button
