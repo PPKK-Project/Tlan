@@ -268,7 +268,6 @@ function SignIn() {
               }/oauth2/authorization/naver`)
             }
           >
-            N
           </button>
         </div>
       </div>
