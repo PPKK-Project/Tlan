@@ -215,6 +215,7 @@ const PlanMap: React.FC<Props> = ({
                     {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
                   </p>
 
+
                   {/* 전화번호 */}
                   {place.phoneNumber && (
                     <p className="text-xs text-gray-500 mb-1">
