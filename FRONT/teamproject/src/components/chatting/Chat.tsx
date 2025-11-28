@@ -93,18 +93,10 @@ function Chat() {
       onConnect: () => {
         // 여행 계획 ID에 맞는 토픽을 구독합니다.
         client.subscribe(`/chat/message/${activePlan.id}`, (message) => {
-          const receivedMessage: ChatMessage = JSON.parse(message.body);
-          // 서버로부터 실제 메시지를 받으면, 임시 메시지를 실제 메시지로 교체합니다.
-          // 임시 메시지는 chatId가 숫자(Date.now())이고, 실제 메시지는 문자열 ID를 가질 것으로 가정합니다.
-          setMessages((prevMessages) => {
-            // 임시 메시지를 제외하고 새 메시지 배열을 만듭니다.
-            const newMessages = prevMessages.filter(
-              (msg) =>
-                typeof msg.nickname === "string" ||
-                msg.content !== receivedMessage.content
-            );
-            return [...newMessages, receivedMessage];
-          });
+          if(message.body === "CHAT_UPDATED") {
+            console.log(message.body)
+            // 유즈 쿼리만들고 mutation 으로 키 갱신
+          }
         });
       },
       onStompError: (frame) => {
