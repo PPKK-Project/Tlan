@@ -12,21 +12,23 @@ import java.util.Date;
 @Component
 public class JwtService {
 
-//    60000 60초 
-    static final long EXPIRATION = 60000*60*3;
+    //    60000 60초
+    static final long EXPIRATION = 60000 * 60 * 3;
     static final String PREFIX = "Bearer";
 
     // 비밀키 생성
     static final SecretKey key = Jwts.SIG.HS256.key().build();
 
-    public SecretKey getKey() { return key;}    // 다른 곳에서 비밀키를 쓸 수 있게 getter 설정
+    public SecretKey getKey() {
+        return key;
+    }    // 다른 곳에서 비밀키를 쓸 수 있게 getter 설정
 
     // JWT 토큰 생성
     public String getToken(String email, Long userId) {
         return Jwts.builder()
                 .subject(email)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .claim("id",userId)
+                .claim("id", userId)
                 .signWith(key)
                 .compact();
     }
@@ -35,7 +37,7 @@ public class JwtService {
     public String getAuthUser(HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if(token != null) {
+        if (token != null) {
             return Jwts.parser()
                     .verifyWith(key)
                     .build().parseSignedClaims(token.replace(PREFIX, "").trim())
@@ -44,6 +46,7 @@ public class JwtService {
         }
         return null;
     }
+
     public Long getUserId(HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
