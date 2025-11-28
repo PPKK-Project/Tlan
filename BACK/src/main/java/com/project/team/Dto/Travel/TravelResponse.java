@@ -8,15 +8,22 @@ public record TravelResponse(Long id,
                              String title,
                              LocalDate startDate,
                              LocalDate endDate,
-                             String countryCode) {
+                             String countryCode,
+                             String destinationCity,
+                             String departure,
+                             Integer travelerCount) {
 
-    public TravelResponse(Travel travel) {
+    public TravelResponse(Travel travel, String destinationCity) {
         this(
                 travel.getId(),
                 travel.getTitle(),
                 travel.getStartDate(),
                 travel.getEndDate(),
-                travel.getCountryCode()
+                travel.getCountryCode(),
+                destinationCity,
+                travel.getDeparture(),
+                travel.getTravelerCount()
+
         );
     }
 }

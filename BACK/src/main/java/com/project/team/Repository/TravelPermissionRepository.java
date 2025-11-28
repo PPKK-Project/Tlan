@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface TravelPermissionRepository extends JpaRepository<TravelPermission, Long> {
     List<TravelPermission> findByTravelId(Long travelId);
-    Optional<TravelPermission> findByTravelIdAndUserId(Long travelId, Long userId);
+    Boolean existsByTravelIdAndUserId(Long travelId, Long userId);
+    Optional<TravelPermission> findByTravelIdAndUserId(Long travelId, Long id);
     Optional<TravelPermission> findByTravelIdAndId(Long travelId, Long permissionId);
     List<TravelPermission> findByUserId(Long userId);
+
 }

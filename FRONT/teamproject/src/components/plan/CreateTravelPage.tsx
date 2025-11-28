@@ -3,48 +3,46 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../main/Header";
 import { getAxiosConfig } from "../../util/planUtils";
-import { CreateTravelRequest, Travel } from "../../util/types";
+import { Airport, CreateTravelRequest, Travel } from "../../util/types";
+import mainPageImg from "../../assets/mainpage_image.webp";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
-
-const AIRPORT_LIST = [
-  { name: "인천", code: "ICN", country: "대한민국" },
-  { name: "서울/김포", code: "GMP", country: "대한민국" },
-  { name: "부산/김해", code: "PUS", country: "대한민국" },
-  { name: "제주", code: "CJU", country: "대한민국" },
-  { name: "대구", code: "TAE", country: "대한민국" },
-  { name: "청주", code: "CJJ", country: "대한민국" },
-  { name: "무안", code: "MWX", country: "대한민국" },
-  { name: "양양", code: "YNY", country: "대한민국" },
-  { name: "광주", code: "KWJ", country: "대한민국" },
-  { name: "여수", code: "RSU", country: "대한민국" },
-  { name: "울산", code: "USN", country: "대한민국" },
-  { name: "포항/경주", code: "KPO", country: "대한민국" },
-  { name: "사천", code: "HIN", country: "대한민국" },
-  { name: "군산", code: "KUV", country: "대한민국" },
-  { name: "원주", code: "WJU", country: "대한민국" },
-];
 
 function CreateTravelPage() {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
+  const [airportList, setAirportList] = useState<Airport[]>([]);
 
   // 1. 입력 상태 관리
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [departureInput, setDepartureInput] = useState("");
-  const [selectedAirportCode, setSelectedAirportCode] = useState("");
+  const [selectedDepartureCode, setSelectedDepartureCode] = useState("");
+  const [destinationInput, setDestinationInput] = useState("");
+  const [selectedDestinationCode, setSelectedDestinationCode] = useState("");
   const [travelerCount, setTravelerCount] = useState(1);
-  const [country, setCountry] = useState("");
-
-  // 2. 공항 검색 드롭다운 상태
-  const [filteredAirports, setFilteredAirports] = useState<typeof AIRPORT_LIST>(
+  const [filteredDepartures, setFilteredDepartures] = useState<Airport[]>([]);
+  const [filteredDestinations, setFilteredDestinations] = useState<Airport[]>(
     []
   );
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedDestinationCity, setSelectedDestinationCity] = useState("");
 
-  // 3. 날짜 변경 핸들러
+  // 2. 공항 검색 드롭다운 상태
+  const [showDepDropdown, setShowDepDropdown] = useState(false);
+  const [showDestDropdown, setShowDestDropdown] = useState(false);
+
+  // 초기 공항 데이터 로딩
+  useEffect(() => {
+    axios
+      .get<Airport[]>(`${API_BASE_URL}/api/airports`)
+      .then((response) => {
+        setAirportList(response.data);
+      })
+      .catch((err) => console.error("공항 데이터 로딩 실패", err));
+  }, []);
+
+  // 날짜 변경 핸들러
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value;
 
@@ -88,41 +86,88 @@ function CreateTravelPage() {
     setEndDate(newDate);
   };
 
-  // 4. 출발지 검색 로직
+  // --- 출발지 검색 로직 ---
   useEffect(() => {
     if (departureInput.trim() === "") {
-      setFilteredAirports([]);
-      setShowDropdown(false);
+      setFilteredDepartures([]);
+      setShowDepDropdown(false);
       return;
     }
 
-    // 이미 공항을 선택해서 코드가 세팅된 상태라면 드롭다운을 띄우지 않음 (수정 시 다시 뜸)
-    if (selectedAirportCode && departureInput.includes(selectedAirportCode)) {
+    // 이미 선택된 상태라면 드롭다운 숨김
+    if (
+      selectedDepartureCode &&
+      departureInput.includes(selectedDepartureCode)
+    ) {
       return;
     }
 
-    const filtered = AIRPORT_LIST.filter(
+    const filtered = airportList.filter(
       (airport) =>
         airport.name.includes(departureInput) ||
         airport.code.toLowerCase().includes(departureInput.toLowerCase()) ||
+        airport.city.includes(departureInput) ||
         airport.country.includes(departureInput)
     );
 
-    setFilteredAirports(filtered);
-    setShowDropdown(filtered.length > 0);
-  }, [departureInput, selectedAirportCode]);
+    setFilteredDepartures(filtered);
+    setShowDepDropdown(filtered.length > 0);
+  }, [departureInput, selectedDepartureCode, airportList]);
 
-  // 공항 선택 핸들러
-  const handleSelectAirport = (airport: (typeof AIRPORT_LIST)[0]) => {
-    setDepartureInput(`${airport.name} (${airport.code})`); // 입력창에 보기 좋게 표시
-    setSelectedAirportCode(airport.code); // 실제 백엔드에 보낼 '항공키'(공항코드) 저장
-    setShowDropdown(false);
+  // 출발지 공항 선택 핸들러
+  const handleSelectDeparture = (airport: Airport) => {
+    setDepartureInput(`${airport.city} - ${airport.name} (${airport.code})`); // 입력창에 보기 좋게 표시
+    setSelectedDepartureCode(airport.code); // 백엔드에 보낼 '항공키'(공항코드) 저장
+    setShowDepDropdown(false);
   };
 
-  // 5. 여행 생성 핸들러
+  // --- 도착지 검색 로직 ---
+  useEffect(() => {
+    if (destinationInput.trim() === "") {
+      setFilteredDestinations([]);
+      setShowDestDropdown(false);
+      return;
+    }
+
+    // 이미 선택된 상태라면 드롭다운 숨김
+    if (
+      selectedDestinationCode &&
+      destinationInput.includes(selectedDestinationCode)
+    ) {
+      return;
+    }
+
+    const filtered = airportList.filter(
+      (airport) =>
+        airport.name.includes(destinationInput) ||
+        airport.code.toLowerCase().includes(destinationInput.toLowerCase()) ||
+        airport.city.includes(destinationInput) ||
+        airport.country.includes(destinationInput)
+    );
+
+    setFilteredDestinations(filtered);
+    setShowDestDropdown(filtered.length > 0);
+  }, [destinationInput, selectedDestinationCode, airportList]);
+
+  // 도착지 공항 선택 핸들러
+  const handleSelectDestination = (airport: Airport) => {
+    setDestinationInput(`${airport.city} - ${airport.name} (${airport.code})`);
+    setSelectedDestinationCode(airport.code);
+    setSelectedDestinationCity(airport.city);
+    setShowDestDropdown(false);
+  };
+
+  // 여행 생성 핸들러
   const handleCreate = async () => {
-    if (!title || !startDate || !endDate || !selectedAirportCode || !country) {
-      alert("모든 정보를 입력해주세요. (출발지와 국가를 확인해주세요)");
+    if (
+      !title ||
+      !startDate ||
+      !endDate ||
+      !selectedDepartureCode ||
+      !selectedDestinationCode
+    ) {
+      console.log(title, startDate, endDate, selectedDepartureCode, selectedDestinationCode);
+      alert("모든 정보를 입력해주세요.");
       return;
     }
 
@@ -131,13 +176,19 @@ function CreateTravelPage() {
       return;
     }
 
+    if (selectedDepartureCode === selectedDestinationCode) {
+      alert("출발지와 도착지는 같을 수 없습니다.");
+      return;
+    }
+
     const requestData: CreateTravelRequest = {
       title,
-      countryCode: country,
       startDate,
       endDate,
       travelerCount,
-      departure: selectedAirportCode, // "ICN" 같은 코드
+      countryCode: selectedDestinationCode, // 도착지 공항 코드
+      departure: selectedDepartureCode, // 출발지 공항 코드
+      destinationCity: selectedDestinationCity, // 도시 이름
     };
 
     try {
@@ -158,8 +209,8 @@ function CreateTravelPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
+    <div className="main-container min-h-screen flex flex-col" style={{ backgroundImage: `url(${mainPageImg})` }}>
+      <Header travelInfo={undefined} formattedDateRange={undefined} />
 
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="bg-white w-full max-w-2xl p-8 rounded-2xl shadow-lg">
@@ -208,8 +259,9 @@ function CreateTravelPage() {
               </div>
             </div>
 
-            {/* 출발지 (공항 선택), 도착 국가, 인원 수 */}
+            {/* 공항 선택 섹션 */}
             <div className="flex gap-4">
+              {/* 출발지 입력 */}
               <div className="flex-1 flex flex-col text-left relative">
                 <label className="font-semibold text-gray-600 mb-2">
                   출발지 (공항 검색)
@@ -221,25 +273,28 @@ function CreateTravelPage() {
                   value={departureInput}
                   onChange={(e) => {
                     setDepartureInput(e.target.value);
-                    setSelectedAirportCode(""); // 입력 수정 시 선택 해제
+                    setSelectedDepartureCode(""); // 입력 수정 시 선택 해제
                   }}
                   onFocus={() => {
-                    if (departureInput && filteredAirports.length > 0)
-                      setShowDropdown(true);
+                    if (departureInput && filteredDepartures.length > 0)
+                      setShowDepDropdown(true);
                   }}
                 />
 
-                {/* 공항 목록 드롭다운 */}
-                {showDropdown && (
+                {/* 출발지 드롭다운 */}
+                {showDepDropdown && (
                   <ul className="absolute z-10 w-full bg-white border border-gray-200 mt-20 top-0 rounded-lg shadow-xl max-h-60 overflow-y-auto">
-                    {filteredAirports.map((airport) => (
+                    {filteredDepartures.map((airport) => (
                       <li
                         key={airport.code}
                         className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 flex justify-between items-center"
-                        onClick={() => handleSelectAirport(airport)}
+                        onClick={() => handleSelectDeparture(airport)}
                       >
                         <div>
-                          <span className="font-bold text-gray-800">
+                          <span className="font-bold text-gray-800 mr-2">
+                            {airport.city}
+                          </span>
+                          <span className="text-gray-600 text-sm">
                             {airport.name}
                           </span>
                         </div>
@@ -252,18 +307,50 @@ function CreateTravelPage() {
                 )}
               </div>
 
-              {/* 여행지 입력 */}
-              <div className="flex-1 flex flex-col text-left">
+              {/* 도착지 입력 */}
+              <div className="flex-1 flex flex-col text-left relative">
                 <label className="font-semibold text-gray-600 mb-2">
-                  여행지(특정 국가의 도시)
+                  여행지 (공항 검색)
                 </label>
                 <input
                   type="text"
                   className="p-3 border rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none"
-                  placeholder="예: 일본 오사카, 미국 라스베가스"
-                  value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="예: 도쿄, 나리타, NRT"
+                  value={destinationInput}
+                  onChange={(e) => {
+                    setDestinationInput(e.target.value);
+                    setSelectedDestinationCode("");
+                    setSelectedDestinationCity("");
+                  }}
+                  onFocus={() => {
+                    if (destinationInput && filteredDestinations.length > 0)
+                      setShowDestDropdown(true);
+                  }}
                 />
+                {/* 도착지 드롭다운 */}
+                {showDestDropdown && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 mt-20 top-0 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                    {filteredDestinations.map((airport) => (
+                      <li
+                        key={airport.code}
+                        className="p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 flex justify-between items-center"
+                        onClick={() => handleSelectDestination(airport)}
+                      >
+                        <div>
+                          <span className="font-bold text-gray-800 mr-2">
+                            {airport.city}
+                          </span>
+                          <span className="text-gray-600 text-sm">
+                            {airport.name}
+                          </span>
+                        </div>
+                        <span className="font-mono font-semibold text-cyan-600 bg-cyan-50 px-2 py-1 rounded">
+                          {airport.code}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               {/* 인원 수 */}

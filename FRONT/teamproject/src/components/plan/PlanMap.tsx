@@ -13,6 +13,7 @@ type Props = {
   searchPlaces: PlaceSearchResult[]; // 필터링된 "검색" 장소 목록
   onAddPlace: (place: PlaceSearchResult) => void; // 일정 추가 함수
   mapCenter: { lat: number; lng: number }; // 부모로부터 받을 맵 중심 좌표
+  role: string;
 };
 
 // 지도가 표시될 컨테이너의 스타일
@@ -28,8 +29,10 @@ const PlanMap: React.FC<Props> = ({
   searchPlaces,
   onAddPlace,
   mapCenter,
+  role,
 }) => {
   //  Google Maps 스크립트 로더 api 훅
+  const isViewer = role === 'ROLE_VIEWER';
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: API_KEY || "",
@@ -41,7 +44,7 @@ const PlanMap: React.FC<Props> = ({
   // 장소의 상세정보를 띄울 state (검색 결과나 일정에서 띄운다)
   const [selectedMarker, setSelectedMarker] = useState<{
     type: "search" | "plan";
-    data: any; // PlaceSearchResult 또는 TravelPlan
+    data: PlaceSearchResult | TravelPlan;
   } | null>(null);
 
   // 지도가 로드될 때 map 인스턴스를 state에 저장
@@ -53,18 +56,6 @@ const PlanMap: React.FC<Props> = ({
   const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
-
-  const centerLat = mapCenter.lat;
-  const centerLng = mapCenter.lng;
-
-  // 검색어 입력 등으로 좌표(숫자)가 바뀔 때만 지도 이동
-  useEffect(() => {
-    if (map) {
-      map.panTo({ lat: centerLat, lng: centerLng });
-      map.setZoom(12);
-    }
-  }, [map, centerLat, centerLng]);
-
 
   // 'plans'(일차)가 변경되면 마커들이 선으로 이어진 일정 전체가 보이도록 지도 범위 조정
   useEffect(() => {
@@ -82,8 +73,7 @@ const PlanMap: React.FC<Props> = ({
     // 계산된 경계로 지도를 이동
     map.fitBounds(bounds);
 
-    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로
-    // 수동으로 줌 레벨을 조절
+    // 만약 plan이 1개뿐이면 fitBounds가 너무 확대될 수 있으므로 수동으로 줌 레벨을 조절
     if (plans.length === 1) {
       map.setZoom(15);
     }
@@ -134,13 +124,13 @@ const PlanMap: React.FC<Props> = ({
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={mapCenter} // 초기 센터
-      zoom={12} // 초기 줌
+      zoom={15} // 초기 줌
       onLoad={onLoad}
       onUnmount={onUnmount}
       // 지도를 클릭하면 정보창 닫기
       onClick={() => setSelectedMarker(null)}
       options={{
-        // 불필요한 Google Maps UI 제거 (선택 사항)
+        // 불필요한 Google Maps UI 비활성화
         streetViewControl: false,
         mapTypeControl: false,
         fullscreenControl: false,
@@ -194,12 +184,12 @@ const PlanMap: React.FC<Props> = ({
           position={{
             lat:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.latitude
-                : selectedMarker.data.latitude,
+                ? (selectedMarker.data as TravelPlan).place.latitude // 👈 'plan'일 때는 TravelPlan으로 단언하여 .place.latitude 접근
+                : (selectedMarker.data as PlaceSearchResult).latitude, // 👈 'search'일 때는 PlaceSearchResult로 단언하여 .latitude 접근
             lng:
               selectedMarker.type === "plan"
-                ? selectedMarker.data.place.longitude
-                : selectedMarker.data.longitude,
+                ? (selectedMarker.data as TravelPlan).place.longitude
+                : (selectedMarker.data as PlaceSearchResult).longitude,
           }}
           onCloseClick={() => setSelectedMarker(null)}
           options={{ zIndex: 20 }}
@@ -213,7 +203,8 @@ const PlanMap: React.FC<Props> = ({
               // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
               const place =
                 selectedMarker.type === "plan"
-                  ? selectedMarker.data.place
+                  // eslint-disable-next-line
+                  ? (selectedMarker.data as { place: any }).place // 'place' 속성을 가진 타입으로 단언
                   : selectedMarker.data;
 
               return (
@@ -224,6 +215,7 @@ const PlanMap: React.FC<Props> = ({
                     {place.type || place.category}{" "}
                     {/* DTO필드명이 다를 수 있어 둘 다 체크 */}
                   </p>
+
 
                   {/* 전화번호 */}
                   {place.phoneNumber && (
@@ -243,7 +235,7 @@ const PlanMap: React.FC<Props> = ({
                   )}
 
                   {/* '일정에 추가' 버튼은 '검색 결과' 마커일 때만 표시 */}
-                  {selectedMarker.type === "search" && (
+                  {selectedMarker.type === "search" && !isViewer && (
                     <button
                       onClick={() => {
                         onAddPlace(place);
@@ -254,12 +246,16 @@ const PlanMap: React.FC<Props> = ({
                       일정에 추가하기
                     </button>
                   )}
-                  {/* '저장된 일정'일 때는 몇 번째 일정인지 표시 */}
                   {selectedMarker.type === "plan" && (
-                    <p className="text-xs text-blue-600 font-bold text-center mt-1">
-                      {selectedMarker.data.dayNumber}일차 -{" "}
-                      {selectedMarker.data.sequence}번째 일정
-                    </p>
+                    (() => {
+                      const planData = selectedMarker.data as TravelPlan;
+                      return (
+                        <p className="text-xs text-blue-600 font-bold text-center mt-1">
+                          {planData.dayNumber}일차 -{" "}
+                          {planData.sequence}번째 일정
+                        </p>
+                      );
+                    })()
                   )}
                 </>
               );

@@ -7,16 +7,19 @@ import com.project.team.Dto.TravelPermission.TravelPermissionUpdateRequest;
 import com.project.team.Entity.Travel;
 import com.project.team.Entity.TravelPermission;
 import com.project.team.Entity.User;
+import com.project.team.Entity.flight.Airport;
 import com.project.team.Exception.BadRequestException;
 import com.project.team.Exception.PermissionDeniedException;
 import com.project.team.Exception.ResourceNotFoundException;
 import com.project.team.Permission.PermissionRole;
+import com.project.team.Repository.AirportRepository;
 import com.project.team.Repository.TravelPermissionRepository;
 import com.project.team.Repository.TravelRepository;
 import com.project.team.Repository.UserRepository;
 import com.project.team.Util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +37,7 @@ public class TravelPermissionService {
     private final TravelRepository travelRepository;
     private final UserRepository userRepository;
     private final TravelPermissionRepository permissionRepository;
+    private final AirportRepository airportRepository;
 
     /**
      * [POST] 여행에 사용자 초대 및 권한 부여
@@ -220,8 +224,25 @@ public class TravelPermissionService {
         // 2. 각 Permission에서 Travel 엔티티를 추출하여 TravelResponse DTO로 변환
         return permissions.stream()
                 .map(TravelPermission::getTravel) // TravelPermission에서 Travel을 가져옴
-                .map(TravelResponse::new)         // Travel을 TravelResponse DTO로 변환
+                .map(travel -> {
+                    // 공항 코드(countryCode)로 도시 이름(city) 조회
+                    String destinationCity = airportRepository.findById(travel.getCountryCode())
+                            .map(Airport::getCity)
+                            .orElse(travel.getCountryCode()); // 없으면 공항 코드 그대로 사용
+
+                    return new TravelResponse(travel, destinationCity); // Travel을 TravelResponse DTO로 변환
+                })
                 .collect(Collectors.toList());
     }
 
+    public String getTravelRole(Long travelId, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(()-> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다."));
+        Travel travel = travelRepository.findById(travelId)
+                .orElseThrow(()-> new ResourceNotFoundException("해당 여행을 찾을 수 없습니다."));
+        if(travel.getUser().getId().equals(user.getId())) return PermissionRole.ROLE_OWNER.name();
+        TravelPermission tp = permissionRepository.findByTravelIdAndUserId(travelId, user.getId())
+                .orElseThrow(()-> new ResourceNotFoundException("권한을 확인할 수 없습니다."));
+        return tp.getRole();
+    }
 }
