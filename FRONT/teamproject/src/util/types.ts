@@ -81,6 +81,7 @@ export type Travel = {
   endDate: string | null;
   travelerCount: number;
   departure: string;
+  destinationCity?: string;
 };
 
 /**
@@ -94,8 +95,8 @@ export type CreateTravelRequest = {
   countryCode?: string;
   travelerCount: number;
   departure: string;
+  destinationCity?: string;
 };
-
 
 /**
  * 여행 수정 요청 DTO
@@ -108,3 +109,10 @@ export type UpdateTravelRequest = {
 };
 
 export type PlaceFilter = "all" | "숙소" | "관광지" | "음식점";
+
+export type Airport = {
+  code: string;
+  name: string;
+  country: string;
+  city: string;
+};

@@ -34,6 +34,11 @@ public class ChatController {
 			Principal principal) {
 		chatService.saveAndBroadcastMessage(travelId, request, principal);
 	}
+    @MessageMapping("/travels/{travelId}")
+    public void handlePlan(@DestinationVariable Long travelId, @Payload String isUpdated) {
+        chatService.isUpdate(travelId, isUpdated);
+    }
+
 
 	@GetMapping("/chat/message/{travelId}")
 	public ResponseEntity<List<ChattingResponse>> saveChat(@PathVariable Long travelId){
