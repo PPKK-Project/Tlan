@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/util/firebase.ts", "src/util/usePlacesData.ts"],
+  "include": ["src", "src/util/usePlacesData.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
