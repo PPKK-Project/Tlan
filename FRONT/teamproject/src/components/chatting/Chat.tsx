@@ -162,9 +162,18 @@ function Chat() {
             </div>
             <div className="messages-area">
               {messages.map((msg, index) => {
+                const isMyMessage = msg.nickname === userInfo.nickname;
                 return (
-                  <div key={index} className={`message-item`}>
-                    <strong>{msg.nickname}:</strong> {msg.content}
+                  <div
+                    key={index}
+                    className={`message-item ${
+                      isMyMessage ? "my-message" : "other-message"
+                    }`}
+                  >
+                    {!isMyMessage && (
+                      <div className="message-nickname">{msg.nickname}</div>
+                    )}
+                    <div className="message-bubble">{msg.content}</div>
                   </div>
                 );
               })}

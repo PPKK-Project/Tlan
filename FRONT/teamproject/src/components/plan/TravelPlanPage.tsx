@@ -8,21 +8,22 @@ import { Alert } from "@mui/material";
 import Header from "../main/Header";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Chat from "../chatting/Chat";
 
 function TravelPlanPage() {
   // URL에서 /travels/:travelId 의 'travelId' 값을 가져옴
   const { travelId } = useParams<{ travelId: string }>();
   const location = useLocation(); // 현재 경로를 가져오기 위해 useLocation 추가
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState("");
   useEffect(() => {
     const getRole = async () => {
       const response = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/travels/${travelId}/role`
       );
       setRole(response.data);
-    }
+    };
     getRole();
-  }, [travelId])
+  }, [travelId]);
   // 커스텀 훅에서 모든 상태와 핸들러를 가져온다.
   const {
     travelInfo,
@@ -107,7 +108,9 @@ function TravelPlanPage() {
               <main className="flex-1 relative bg-gray-100">
                 {isMapReady ? (
                   <PlanMap
-                    plans={plans.filter((plan) => plan.dayNumber === selectedDay)}
+                    plans={plans.filter(
+                      (plan) => plan.dayNumber === selectedDay
+                    )}
                     role={role}
                     searchPlaces={filteredPlaces}
                     onAddPlace={handleAddPlan}
@@ -123,18 +126,18 @@ function TravelPlanPage() {
 
               {/* 3. 오른쪽 요약 (일정 목록) */}
               <aside className="w-1/4 max-w-sm bg-white border-l overflow-y-auto z-10 custom-scrollbar">
+              <Chat/>
                 <ItinerarySummary
                   plans={plans} // 전체 일정 전달
                   onDeletePlan={handleDeletePlan}
                   role={role}
                   isFlightLoading={isFlightLoading}
-                />
+                ></ItinerarySummary>
               </aside>
             </div>
           </>
         )}
       </div>
-
       {/* Snackbar는 최상단에 유지 */}
       <Snackbar
         open={snackbar.open}
