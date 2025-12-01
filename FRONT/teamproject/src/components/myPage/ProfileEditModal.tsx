@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "../../css/ShareModal.css";
 
 type ProfileEditModalProps = {
@@ -25,6 +25,7 @@ const updateProfile = async (data: any) => {
 };
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"nickname" | "password">(
     "nickname"
   );
@@ -34,10 +35,10 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [errors,setErrors] = useState({
+  const [errors, setErrors] = useState({
     password: "",
     newPassword: "",
-    nickname:"",
+    nickname: "",
   });
   const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]).{8,}$/;
@@ -59,6 +60,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
     mutationFn: updateProfile,
     onSuccess: () => {
       alert("프로필 정보가 성공적으로 변경되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["userInfo"] });
       onClose();
     },
     onError: (error: any) => {
@@ -81,13 +83,17 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
       password: password, // 현재 비밀번호 (인증용)
     });
   };
-  
+
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({ ...errors, newPassword: "" }); // 에러 초기화
 
     if (newPassword && !passwordRegex.test(newPassword)) {
-      setErrors({ ...errors, newPassword: "비밀번호는 8자 이상이며, 영문, 숫자, 특수문자를 포함해야 합니다." });
+      setErrors({
+        ...errors,
+        newPassword:
+          "비밀번호는 8자 이상이며, 영문, 숫자, 특수문자를 포함해야 합니다.",
+      });
       return;
     }
     if (!password) {
@@ -141,6 +147,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
               placeholder="새 닉네임"
               className="modal-input"
               required
+              maxLength={10}
             />
             <div className="password-input-wrapper">
               <input
@@ -160,11 +167,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
               </button>
             </div>
             <div className="modal-actions">
-              <button
-                type="button"
-                onClick={onClose}
-                className="cancel-button"
-              >
+              <button type="button" onClick={onClose} className="cancel-button">
                 취소
               </button>
               <button type="submit" className="share-button">
@@ -184,7 +187,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
               className="modal-input"
             />
             {errors.newPassword && (
-              <p style={{ color: "red", fontSize: "12px", marginTop: "-10px", marginBottom: "10px" }}>{errors.newPassword}</p>
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "12px",
+                  marginTop: "-10px",
+                  marginBottom: "10px",
+                }}
+              >
+                {errors.newPassword}
+              </p>
             )}
             <input
               type="password"
@@ -212,11 +224,7 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
               </button>
             </div>
             <div className="modal-actions">
-              <button
-                type="button"
-                onClick={onClose}
-                className="cancel-button"
-              >
+              <button type="button" onClick={onClose} className="cancel-button">
                 취소
               </button>
               <button type="submit" className="share-button">
