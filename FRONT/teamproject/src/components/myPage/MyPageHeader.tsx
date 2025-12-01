@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type MyPageHeaderProps = {
   onProfileEditClick: () => void;
@@ -13,16 +13,18 @@ type User = {
 
 // 사용자 정보를 가져오는 함수 (API 명세에 맞게 엔드포인트 수정 필요)
 const fetchUserInfo = async (): Promise<User> => {
-  const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/nickname`);
+  const response = await axios.get(
+    `${import.meta.env.VITE_BASE_URL}/users/nickname`
+  );
   return response.data;
 };
 
 function MyPageHeader({ onProfileEditClick }: MyPageHeaderProps) {
   const navigate = useNavigate();
+  
   const { data: userInfo } = useQuery<User>({
     queryKey: ["userInfo"],
     queryFn: fetchUserInfo,
-    staleTime: 1000 * 60 * 5, // 5분 동안 캐시 유지
   });
 
   const handleLogout = () => {
