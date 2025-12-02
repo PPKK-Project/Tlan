@@ -51,12 +51,25 @@ public class UserService {
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
 
+        boolean isModified = false;
+
+        // oauth2 닉네임 변경
+
+        if(user.getPassword().equals("social")){
+            if (dto.nickname() != null) {
+                user.setNickname(dto.nickname());
+                userRepository.save(user);
+                return ResponseEntity.ok().build();
+            }
+        }
+
+
+
         // 현재 비밀번호 확인
         if(!passwordEncoder.matches(dto.password(), user.getPassword())) {
             throw new AccessDeniedException("권한이 없습니다.");
         }
 
-        boolean isModified = false;
 
         // 닉네임 변경: 새로운 닉네임이 제공되었고, 기존 닉네임과 다를 경우
         if (dto.nickname() != null && !dto.nickname().isEmpty() && !user.getNickname().equals(dto.nickname())) {
@@ -68,6 +81,9 @@ public class UserService {
         if (dto.newpassword() != null && !dto.newpassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(dto.newpassword()));
             isModified = true;
+        }
+        if (isModified) {
+            userRepository.save(user);
         }
 
         return ResponseEntity.ok().build();

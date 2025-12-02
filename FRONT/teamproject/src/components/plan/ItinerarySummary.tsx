@@ -9,12 +9,14 @@ type Props = {
   onDeletePlan: (planId: number) => void;
   role: string;
   isFlightLoading: boolean;
+  children?: React.ReactNode; // Chat 컴포넌트를 받기 위한 children prop 추가
 };
 const ItinerarySummary: React.FC<Props> = ({
   plans,
   onDeletePlan,
   isFlightLoading,
   role,
+  children,
 }) => {
   const navigate = useNavigate();
 
@@ -71,7 +73,18 @@ const ItinerarySummary: React.FC<Props> = ({
 
   return (
     <div className="p-4 h-full flex flex-col">
-      <h2 className="text-xl font-bold mb-4 border-b pb-3">여행 경로</h2>
+      <button
+          onClick={handleMoveFlight}
+          disabled={isFlightLoading}
+          className="w-full bg-blue-500 text-white py-3 rounded-md font-bold transition-colors ont-bold mb-4 border-b pb-3
+                    hover:bg-blue-600 
+                    disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isFlightLoading ? "항공권 검색중..." : "항공권 보러가기"}
+        </button>
+      <h2 className="text-xl font-bold mb-4 border-b pb-3">
+        <div>여행 경로</div>        
+      </h2>
 
       <div className="flex-1 overflow-y-auto">
         {sortedDays.map((day) => (
@@ -93,7 +106,7 @@ const ItinerarySummary: React.FC<Props> = ({
                         ({plan.place.type})
                       </span>
                     </div>
-                    {role !== 'ROLE_VIEWER' && (
+                    {role !== "ROLE_VIEWER" && (
                       <button
                         onClick={() => onDeletePlan(plan.planId)}
                         className="text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity font-medium"
@@ -113,31 +126,6 @@ const ItinerarySummary: React.FC<Props> = ({
         )}
       </div>
 
-      {/* 하단 요약 */}
-      <div className="border-t pt-4 mt-4">
-        {/* <div className="flex justify-between mb-2">
-          <span>총 거리</span>
-          <span className="font-semibold">
-            {totalDistance.toLocaleString(undefined, {
-              maximumFractionDigits: 1,
-            })}{" "}
-            km
-          </span>
-        </div>
-        <div className="flex justify-between mb-4">
-          <span>예상 시간</span>
-          <span className="font-semibold">{formatTime(estimatedTime)}</span>
-        </div> */}
-        <button
-          onClick={handleMoveFlight}
-          disabled={isFlightLoading}
-          className="w-full bg-blue-500 text-white py-3 rounded-md font-bold transition-colors
-                     hover:bg-blue-600 
-                     disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          {isFlightLoading ? "항공권 검색중..." : "항공권 보러가기"}
-        </button>
-      </div>
     </div>
   );
 };

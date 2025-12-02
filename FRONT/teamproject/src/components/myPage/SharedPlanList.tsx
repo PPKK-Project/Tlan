@@ -32,7 +32,7 @@ function SharedPlanList() {
       queryClient.invalidateQueries({ queryKey: ["sharedPlans"] });
     },
     onError: (error) => {
-      alert("삭제에 실패했습니다. 다시 시도해주세요. : "+error);
+      alert("삭제에 실패했습니다. 다시 시도해주세요. : " + error);
     },
   });
 
@@ -73,7 +73,16 @@ function SharedPlanList() {
 
   return (
     <div className="travel-plan-list-container">
-      <h2 className="list-header">친구에게 초대받은 여행</h2>
+      <div
+        className="list-header-wrapper"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h2 className="list-header">친구에게 초대받은 여행</h2>
+      </div>
       {data && data.length === 0 ? (
         <p className="no-plans-message">아직 초대받은 여행 계획이 없습니다.</p>
       ) : (

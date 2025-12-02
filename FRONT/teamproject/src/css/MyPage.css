@@ -18,6 +18,8 @@
 .mypage-container {
   background-color: #f9f9f9; /* 배경 이미지 대신 단색 배경 적용 */
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 .mypage-main-content {
@@ -38,9 +40,9 @@
    ========================================================================== */
 
 .header.transparent-header {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-color);
+  /* border-bottom: 1px solid var(--border-color); */
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -205,4 +207,98 @@
 
 .modal-button.share-button:hover {
   background-color: var(--primary-hover-color);
+}
+
+/* ==========================================================================
+   Profile Dropdown
+   ========================================================================== */
+/* 드롭다운 컨테이너 */
+.profile-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* 프로필 영역 스타일 */
+.header-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.header-user-profile:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* 프로필 이미지 */
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 닉네임 */
+.profile-nickname {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* 드롭다운 메뉴 박스 */
+.profile-dropdown-menu {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 160px;
+  background: white;
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 999;
+  animation: dropdownFade 0.15s ease-out;
+}
+
+/* 드롭다운 애니메이션 */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 드롭다운 아이템 */
+.dropdown-item {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item svg {
+  flex-shrink: 0;
 }

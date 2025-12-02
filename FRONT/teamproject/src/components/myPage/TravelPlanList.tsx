@@ -79,10 +79,17 @@ function TravelPlanList() {
 
   return (
     <div className="travel-plan-list-container">
-      <div className="list-header-wrapper">
+      <div
+        className="list-header-wrapper"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h2 className="list-header">나의 여행 계획</h2>
         <button
-          className="add-plan-button"
+          className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors"
           onClick={() => navigate("/create-travel")} // 새 플랜 생성 페이지로 이동
         >
           + 새 플랜 만들기

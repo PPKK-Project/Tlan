@@ -124,12 +124,55 @@
   overflow-y: auto;
   padding: 16px;
   background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
 }
 
 .message-item {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 12px;
+  max-width: 80%;
+  word-wrap: break-word; /* 추가: 긴 메시지 줄바꿈 */
+}
+
+.message-nickname {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+  padding-left: 12px;
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 20px;
   line-height: 1.5;
   font-size: 0.9rem;
+}
+
+/* 다른 사람 메시지 */
+.other-message {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.other-message .message-bubble {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  border-top-left-radius: 4px; /* 말풍선 꼬리 모양 */
+}
+
+/* 내 메시지 */
+.my-message {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.my-message .message-bubble {
+  background-color: #06b6d4; /* 민트색 */
+  color: white;
+  border-top-right-radius: 4px; /* 말풍선 꼬리 모양 */
 }
 
 /* =================================== */
