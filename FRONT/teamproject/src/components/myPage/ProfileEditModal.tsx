@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "../../css/ShareModal.css";
 
@@ -16,7 +16,7 @@ const fetchUserInfo = async () => {
 };
 
 // 프로필 정보(닉네임, 비밀번호)를 업데이트하는 통합 함수
-const updateProfile = async (data: any) => {
+const updateProfile = async (data: {nickname:string, password:string, newpassword?:string}) => {
   const response = await axios.patch(
     `${import.meta.env.VITE_BASE_URL}/users`, // 백엔드 DTO에 맞는 엔드포인트
     data
@@ -63,11 +63,13 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
       queryClient.invalidateQueries({ queryKey: ["userInfo"] });
       onClose();
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{message?: string}>) => {
+      const msg =
+        error.response?.data?.message ??
+        error.message ??
+        "알 수 없는 오류가 발생했습니다.";
       alert(
-        `프로필 업데이트에 실패했습니다: ${
-          error.response?.data?.message || error.message
-        }`
+        `프로필 업데이트에 실패했습니다: ${msg}`
       );
     },
   });

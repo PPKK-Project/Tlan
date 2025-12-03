@@ -203,8 +203,8 @@ const PlanMap: React.FC<Props> = ({
               // data가 TravelPlan이면 place 속성을 쓰고, PlaceSearchResult면 그대로 씀
               const place =
                 selectedMarker.type === "plan"
-                  // eslint-disable-next-line
-                  ? (selectedMarker.data as { place: any }).place // 'place' 속성을 가진 타입으로 단언
+                // eslint-disable-next-line
+                  ? (selectedMarker.data as {place: any}).place // 'place' 속성을 가진 타입으로 단언
                   : selectedMarker.data;
 
               return (

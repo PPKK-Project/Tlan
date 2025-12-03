@@ -5,6 +5,7 @@ import ShareModal from "./ShareModal";
 import PlanCard from "./PlanCard";
 import DeleteConfirmModal from "./DeleteConfirmModal"; // 새로 추가
 import { TravelPlan } from "./TravelPlanList";
+import { AxiosErrorType } from "../../util/types";
 
 const getSharedPlanList = async (): Promise<TravelPlan[]> => {
   const response = await axios.get(
@@ -55,11 +56,8 @@ function SharedPlanList() {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
       setSharingPlan(null);
     },
-    onError: (error: any) => {
-      const message =
-        error.response?.data?.message || "공유 요청 중 오류가 발생했습니다.";
-      console.error("공유 실패:", error);
-      alert(message);
+    onError: (error: AxiosErrorType) => {
+      alert(error.response.data.message || "공유 요청 중 오류가 발생했습니다.");
     },
   });
 
