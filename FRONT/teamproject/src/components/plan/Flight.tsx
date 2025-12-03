@@ -1,6 +1,7 @@
 import axios from "axios";
-import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { useAuthSession } from "../../hooks/useAuthSession";
 
 interface FlightData {
   airline: string,
@@ -39,11 +40,7 @@ function Flight() {
   const { flights, isFlightLoading, flightError, role } =
     useOutletContext<OutletContextType>();
   const isViewer = role === 'ROLE_VIEWER';
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    type: "success",
-  });
+  const {snackbar, setSnackbar} = useAuthSession();
 
   // 현재 활성화된 정렬 기준을 관리하는 state
   const [activeSort, setActiveSort] = useState<SortKey>("departure");
@@ -94,14 +91,6 @@ function Flight() {
     }
     return sortableFlights;
   }, [flights, activeSort]);
-
-  useEffect(() => {
-    if (!snackbar.open) return;
-    const timer = window.setTimeout(() => {
-      setSnackbar((prev) => ({ ...prev, open: false }));
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [snackbar.open]);
 
   const handleFlightClick = async (flight: FlightData) => {
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/flight/${travelId}`, flight)

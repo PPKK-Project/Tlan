@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { SignUpType } from "../../util/types";
 import axios from "axios";
 import "../../css/signUp.css";
+import { useAuthSession } from "../../hooks/useAuthSession";
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,15 +30,7 @@ function SignUp() {
     nickname: "",
   });
 
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    type: "success" | "info" | "warning" | "error";
-  }>({
-    open: false,
-    message: "",
-    type: "error",
-  });
+  const {snackbar, setSnackbar} = useAuthSession();
 
   const handleTogglePassword = () => {
     setShowPassword((prev) => !prev);
@@ -49,14 +42,6 @@ function SignUp() {
       handleSave();
     }
   };
-
-  useEffect(() => {
-    if (!snackbar.open) return;
-    const timer = window.setTimeout(() => {
-      setSnackbar((prev) => ({ ...prev, open: false }));
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [snackbar.open]);
 
   // 이메일, 비밀번호 조건 설정
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
