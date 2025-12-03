@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import ShareModal from "./ShareModal";
 import DeleteConfirmModal from "./DeleteConfirmModal"; // 새로 추가
 import PlanCard from "./PlanCard";
+import { AxiosErrorType } from "../../util/types";
 
 export type TravelPlan = {
   id: number;
@@ -61,11 +62,8 @@ function TravelPlanList() {
       alert(`'${variables.email}'님에게 플랜을 성공적으로 공유했습니다.`);
       setSharingPlan(null);
     },
-    onError: (error: any) => {
-      const message =
-        error.response?.data?.message || "공유 요청 중 오류가 발생했습니다.";
-      console.error("공유 실패:", error);
-      alert(message);
+    onError: (error: AxiosErrorType) => {
+      alert(error.response.data.message || "공유 요청 중 오류가 발생했습니다.");
     },
   });
 

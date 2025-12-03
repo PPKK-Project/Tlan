@@ -114,7 +114,7 @@ jobs:
             
             # 4. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
             echo 'Starting mariadb-server container...'
-            docker run -d --name mariadb-server --network my-app-network -p 3306:3306 \
+            docker run -d --name mariadb-server --network my-app-network \
             -e MARIADB_ROOT_PASSWORD='${{ env.DB_PASSWORD }}' -e MARIADB_DATABASE='tlandb' \
             -v mariadb_data:/var/lib/mysql mariadb:latest ;
 

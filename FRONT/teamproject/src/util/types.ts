@@ -116,3 +116,12 @@ export type Airport = {
   country: string;
   city: string;
 };
+
+
+export type AxiosErrorType = {
+  response: {
+    data: {
+      message: string
+    }
+  }
+}
