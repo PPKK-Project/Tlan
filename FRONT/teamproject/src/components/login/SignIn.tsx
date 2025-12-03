@@ -2,6 +2,7 @@ import { useState, useEffect, ChangeEvent, KeyboardEvent } from "react";
 import axios from "axios";
 import "../../css/signIn.css";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuthSession } from "../../hooks/useAuthSession";
 
 type User = {
   email: string;
@@ -19,15 +20,7 @@ function SignIn() {
     password: "",
   });
 
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    type: "success" | "info" | "warning" | "error";
-  }>({
-    open: false,
-    message: "",
-    type: "error",
-  });
+  const {snackbar, setSnackbar} = useAuthSession();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [event.target.name]: event.target.value });
@@ -43,15 +36,6 @@ function SignIn() {
       handleLogin();
     }
   };
-
-  // 토스트 자동 닫기
-  useEffect(() => {
-    if (!snackbar.open) return;
-    const timer = window.setTimeout(() => {
-      setSnackbar((prev) => ({ ...prev, open: false }));
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [snackbar.open]);
 
   // 소셜 로그인 후 리다이렉트
   useEffect(() => {
