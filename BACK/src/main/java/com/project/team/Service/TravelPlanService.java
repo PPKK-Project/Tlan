@@ -149,10 +149,14 @@ public class TravelPlanService {
         // 1. 여행(Travel) 조회
         Travel travel = travelRepository.findById(travelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Travel not found with id: " + travelId));
-
-        // 2. 권한 확인 (여행 생성자만 추가 가능, 추후 TravelPermission 확인 로직 추가 가능)
-        if (!travel.getUser().getId().equals(user.getId())) {
-            throw new AccessDeniedException("You do not have permission to add a plan to this travel.");
+//        OWNER가 아니라면
+        if(!travel.getUser().getId().equals(user.getId())){
+            TravelPermission travelPermission = travelPermissionRepository.findByTravelIdAndUserId(travelId, user.getId())
+                    .orElseThrow(() -> new AccessDeniedException("이 여행에 접근할 권한이 없습니다."));
+            // 2. 권한 확인 (여행 생성자만 추가 가능, 추후 TravelPermission 확인 로직 추가 가능)
+            if (travelPermission.getRole().equals("ROLE_VIEWER")) {
+                throw new AccessDeniedException("보기 권한은 수정하실 수 없습니다.");
+            }
         }
 
         // 3. 장소(Place) 찾기 또는 생성

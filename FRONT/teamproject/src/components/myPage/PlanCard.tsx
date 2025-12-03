@@ -6,9 +6,10 @@ type PlanCardProps = {
   plan: TravelPlan;
   onDelete?: (planId: number) => void;
   onShare?: (plan: TravelPlan) => void;
+  share: boolean;
 };
 
-const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare }) => {
+const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare, share }) => {
   const navigate = useNavigate();
 
   const getDdayInfo = () => {
@@ -109,13 +110,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare }) => {
           >
             삭제
           </button>
-          <button
+          {share ? "" : <button
             className="px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
             onClick={() => onShare(plan)}
             title="공유하기"
           >
             공유
-          </button>
+          </button>}
         </div>
       )}
     </article>

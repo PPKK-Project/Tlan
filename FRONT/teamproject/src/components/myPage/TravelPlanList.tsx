@@ -104,6 +104,7 @@ function TravelPlanList() {
                 plan={plan}
                 onDelete={() => setPlanToDelete(plan)} // 삭제 확인 모달 열기
                 onShare={() => setSharingPlan(plan)}
+                share={false}
               />
             ))}
         </div>
