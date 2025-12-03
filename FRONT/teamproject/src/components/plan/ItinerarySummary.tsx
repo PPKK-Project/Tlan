@@ -9,14 +9,12 @@ type Props = {
   onDeletePlan: (planId: number) => void;
   role: string;
   isFlightLoading: boolean;
-  children?: React.ReactNode; // Chat 컴포넌트를 받기 위한 children prop 추가
 };
 const ItinerarySummary: React.FC<Props> = ({
   plans,
   onDeletePlan,
   isFlightLoading,
   role,
-  children,
 }) => {
   const navigate = useNavigate();
 
