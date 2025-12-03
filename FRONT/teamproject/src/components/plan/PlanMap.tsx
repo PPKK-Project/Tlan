@@ -80,9 +80,17 @@ const PlanMap: React.FC<Props> = ({
   }, [map, plans, mapCenter]);
 
   // 마커를 잇는 경로 데이터 생성
-  const path = useMemo(() => {
+  const path: google.maps.LatLngLiteral[] = useMemo(() => {
+    if (!plans || plans.length < 2) return [];
+
     return [...plans]
-      .sort((a, b) => a.sequence - b.sequence) // sequence 순으로 정렬
+      .filter(
+        (plan) =>
+          plan.place &&
+          typeof plan.place.latitude === "number" &&
+          typeof plan.place.longitude === "number"
+      )
+      .sort((a, b) => a.sequence - b.sequence)
       .map((plan) => ({
         lat: plan.place.latitude,
         lng: plan.place.longitude,
@@ -137,8 +145,9 @@ const PlanMap: React.FC<Props> = ({
       }}
     >
       {/* 경로 그리기 (일정이 2개 이상일 때만) */}
-      {path.length > 1 && <PolylineF path={path} options={polylineOptions} />}
-
+      {Array.isArray(path) && path.length > 1 && (
+        <PolylineF path={path} options={polylineOptions} />
+      )}
       {/* 1. 일정 마커 (빨간색 마커) */}
       {plans.map((plan) => (
         <MarkerF

@@ -114,7 +114,7 @@ jobs:
             
             # 4. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
             echo 'Starting mariadb-server container...'
-            docker run -d --name mariadb-server --network my-app-network -p 3306:3306 \
+            docker run -d --name mariadb-server --network my-app-network \
             -e MARIADB_ROOT_PASSWORD='${{ env.DB_PASSWORD }}' -e MARIADB_DATABASE='tlandb' \
             -v mariadb_data:/var/lib/mysql mariadb:latest ;
 
@@ -136,7 +136,7 @@ jobs:
 
             # 5. 디스크 공간 확보: 사용하지 않는 모든 Docker 아티팩트 정리
             echo 'Pruning unused Docker artifacts to save disk space...'
-            # -a: 모든 미사용 이미지/캐시, -f: 강제 실행, --volumes: 볼륨 포함 정리
-            docker system prune -a -f --volumes ;
+            # -a: 모든 미사용 이미지/캐시, -f: 강제 실행
+            docker system prune -a -f;
           " --ssh-flag="-vvv -o StrictHostKeyChecking=no"
           echo "Deployment complete! Check VM status."

@@ -126,7 +126,7 @@ function TravelPlanPage() {
 
               {/* 3. 오른쪽 요약 (일정 목록) */}
               <aside className="w-1/4 max-w-sm bg-white border-l overflow-y-auto z-10 custom-scrollbar">
-              <Chat/>
+              <Chat />
                 <ItinerarySummary
                   plans={plans} // 전체 일정 전달
                   onDeletePlan={handleDeletePlan}
