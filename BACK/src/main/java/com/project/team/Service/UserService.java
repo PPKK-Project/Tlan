@@ -56,6 +56,9 @@ public class UserService {
         // oauth2 닉네임 변경
 
         if(user.getPassword().equals("social")){
+            if (dto.newpassword() != null){
+                throw new AccessDeniedException("구글, 카카오, 네이버 유저는 해당 서비스에서 비밀번호 변경을 부탁드립니다.");
+            }
             if (dto.nickname() != null) {
                 user.setNickname(dto.nickname());
                 userRepository.save(user);
