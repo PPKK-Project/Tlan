@@ -166,6 +166,16 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
                 {isPasswordVisible ? "숨김" : "보기"}
               </button>
             </div>
+            <p
+              style={{
+                color: "gray",
+                fontSize: "10px",
+                marginTop: "5px",
+                textAlign: "left",
+              }}
+            >
+              구글, 카카오, 네이버 유저들은 현재 비밀번호를 무엇이든 입력하셔도 무관합니다.
+            </p>
             <div className="modal-actions">
               <button type="button" onClick={onClose} className="cancel-button">
                 취소
@@ -182,7 +192,12 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ onClose }) => {
             <input
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                if (errors.newPassword) {
+                  setErrors({ ...errors, newPassword: "" });
+                }
+              }}
               placeholder="새 비밀번호"
               className="modal-input"
             />

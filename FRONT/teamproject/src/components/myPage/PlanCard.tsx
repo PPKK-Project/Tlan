@@ -56,6 +56,12 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare }) => {
 
   const dDay = getDdayInfo();
 
+  const handleCardClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (dDay.isEnded) {
+      e.preventDefault(); // 링크 이동을 막음
+    }
+  };
+
   return (
     <article
       key={plan.id}
@@ -70,7 +76,10 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare }) => {
       </span>
       <Link
         to={`/travels/${plan.id}`}
-        className="flex-grow p-5 flex flex-col justify-between"
+        onClick={handleCardClick}
+        className={`flex-grow p-5 flex flex-col justify-between ${
+          dDay.isEnded ? "cursor-default" : ""
+        }`}
       >
         <div className="mb-4">
           <h3 className="text-xl font-bold text-gray-800 truncate pr-16">
@@ -95,13 +104,17 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare }) => {
           >
             PDF
           </button>
-          <button
-            onClick={() => navigate(`/travels/${plan.id}`)}
-            className="px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
-            title="수정하기"
-          >
-            수정
-          </button>
+          {dDay.text === "여행 중" ? (
+            ""
+          ) : (
+            <button
+              onClick={() => navigate(`/travels/${plan.id}`)}
+              className="px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+              title="수정하기"
+            >
+              수정
+            </button>
+          )}
           <button
             className="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200 transition-colors"
             onClick={() => onDelete(plan.id)}
