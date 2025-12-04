@@ -147,10 +147,6 @@ public class TravelPermissionService {
     public void deletePermission(Long travelId, Long permissionId) {
         String currentUserEmail = SecurityUtil.getCurrentUserEmail();
 
-        // 1. 소유자(Owner)인지 확인 (이메일로 비교)
-        Travel travel = findTravelById(travelId);
-        checkIsOwner(travel, currentUserEmail);
-
         // 2. 삭제할 권한 정보 조회
         TravelPermission permission = permissionRepository.findByTravelIdAndId(travelId, permissionId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 권한 정보를 찾을 수 없습니다."));
