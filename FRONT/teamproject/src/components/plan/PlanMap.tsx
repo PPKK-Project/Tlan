@@ -128,7 +128,7 @@ const PlanMap: React.FC<Props> = ({
     console.error("Maps failed to load", loadError);
     return <div>지도를 불러올 수 없습니다. 관리자에게 문의하세요.</div>;
   }
-  const hasPath = path.length > 1;
+  
   // 일정 마커 아이콘 (기본 빨간 마커 - label과 함께 사용됨)
   const PLAN_MARKER_ICON = undefined;
 
@@ -149,7 +149,10 @@ const PlanMap: React.FC<Props> = ({
       }}
     >
 
-      {hasPath && <PolylineF path={path} options={polylineOptions} />}
+      {/* 경로 그리기 (일정이 2개 이상일 때만) */}
+      {Array.isArray(path) && path.length > 1 && (
+        <PolylineF path={path} options={polylineOptions} />
+      )}
       {/* 1. 일정 마커 (빨간색 마커) */}
       {plans.map((plan) => (
         <MarkerF

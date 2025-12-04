@@ -54,8 +54,6 @@ jobs:
           # VITE 환경 변수들을 빌드 시점에 Secret에서 직접 주입합니다.
           docker build --no-cache \
             --build-arg VITE_BASE_URL=/api \
-            --build-arg VITE_KOSIS_KEY=${{ secrets.VITE_KOSIS_KEY }} \
-            --build-arg VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }} \
             -t teamproject-frontend:latest ./FRONT/teamproject
           docker tag teamproject-frontend:latest $FRONTEND_TAG
           docker push $FRONTEND_TAG
