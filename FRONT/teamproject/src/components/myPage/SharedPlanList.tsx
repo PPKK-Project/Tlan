@@ -23,14 +23,18 @@ function SharedPlanList() {
     queryKey: ["sharedPlans"], // 쿼리 키를 분리하여 캐시 충돌 방지
     queryFn: getSharedPlanList,
   });
-
+  
   const deleteMutation = useMutation({
-    mutationFn: (planId: number) => {
-      // 로직 수정해야함
-      return axios.delete(`${import.meta.env.VITE_BASE_URL}/travels/${planId}`);
+    mutationFn: async (travelId: number) => {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/travels/${travelId}/share`);
+      const userResponse = await axios.get(`${import.meta.env.VITE_BASE_URL}/users/nickname`)
+      const user = response.data.find((list: { userId: number; }) => list.userId === userResponse.data.userId);
+      return axios.delete(`${import.meta.env.VITE_BASE_URL}/travels/${travelId}/share/${user.permissionId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sharedPlans"] });
+      queryClient.invalidateQueries({ queryKey: ["myChatPlans"] });
+      queryClient.invalidateQueries({ queryKey: ["invitedChatPlans"] });
     },
     onError: (error) => {
       alert("삭제에 실패했습니다. 다시 시도해주세요. : " + error);

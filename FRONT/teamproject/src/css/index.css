@@ -64,10 +64,14 @@ body {
 }
 
 .header-brand-name {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #f9fafb; /* 헤더가 밝아졌으므로 어두운 텍스트 색상으로 가독성 확보 */
   margin: 0;
+}
+
+.my-header-brand-name {
+  color: #5c5a5a; /* 헤더가 밝아졌으므로 어두운 텍스트 색상으로 가독성 확보 */
 }
 
 .header-user-actions {
@@ -82,7 +86,7 @@ body {
   gap: 0.75rem;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .profile-avatar {

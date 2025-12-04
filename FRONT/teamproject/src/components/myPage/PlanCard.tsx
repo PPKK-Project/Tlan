@@ -76,7 +76,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare, share }) =
         {dDay.text}
       </span>
       <Link
-        to={`/travels/${plan.id}`}
+        to={`/travels/${plan.id}/pdf`}
         onClick={handleCardClick}
         className={`flex-grow p-5 flex flex-col justify-between ${
           dDay.isEnded ? "cursor-default" : ""
@@ -105,7 +105,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare, share }) =
           >
             PDF
           </button>
-          {dDay.text === "여행 중" ? (
+          {dDay.text === "여행 중" || dDay.text === "여행 종료" ? (
             ""
           ) : (
             <button
@@ -123,7 +123,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onDelete, onShare, share }) =
           >
             삭제
           </button>
-          {share ? "" : <button
+          {share ? "" : dDay.text === "여행 종료" ? "":<button
             className="px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
             onClick={() => onShare(plan)}
             title="공유하기"

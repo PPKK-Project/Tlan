@@ -89,7 +89,9 @@ export function useTravelData(travelId: string | undefined) {
             console.log("Plan-Update 메시지 수신, 쿼리 무효화", travelId);
             queryClient.invalidateQueries({ queryKey: ["plans", travelId] });
             queryClient.invalidateQueries({ queryKey: ["travelInfo", travelId] });
+            queryClient.invalidateQueries({ queryKey: ['userList', travelId] });
           }
+          
         });
 
       },
@@ -555,5 +557,6 @@ export function useTravelData(travelId: string | undefined) {
     isFlightLoading, // 추가
     flightError, // 추가
     isMapReady,
+    stompClient,
   };
 }
