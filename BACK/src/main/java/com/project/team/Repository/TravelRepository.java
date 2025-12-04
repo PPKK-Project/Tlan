@@ -22,5 +22,5 @@ public interface TravelRepository extends JpaRepository<Travel, Long> {
             WHERE t.id = :travelId
             """,
     nativeQuery = true)
-    String findCountryCodeByTravelId(@Param("travelId") Long travelId);
+    Optional<String> findCountryCodeByTravelId(@Param("travelId") Long travelId);
 }

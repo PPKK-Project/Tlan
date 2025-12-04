@@ -33,49 +33,10 @@ export const getCategoryFromTypes = (
 
 
 // 헬퍼 함수: Google Places API의 photos 배열로 이미지 URL을 생성합니다.
-export const getPhotoUrl = () => {
-  // if (photos && photos.length > 0) {
-  //   return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photos[0].photo_reference}&key=${GOOGLE_MAPS_API_KEY}`;
-  // }
-  // 이미지가 없을 때 기본 이미지
-  return "https://placehold.co/100x100/cccccc/ffffff?text=No+Image";
-};
-
-
-//  // --- [거리 계산 로직 시작] ---
-
-//   const deg2rad = (deg: number) => {
-//     return deg * (Math.PI / 180);
-//   };
-
-//   // 지구의 곡률을 고려하여 두 좌표 사이의 거리를 구하는  Haversine 공식을 사용
-//   // Haversine 공식: 위도/경도로 두 지점 간 거리(km) 계산
-//   export const getDistanceFromLatLonInKm = (
-//     lat1: number,
-//     lon1: number,
-//     lat2: number,
-//     lon2: number
-//   ) => {
-//     const R = 6371; // 지구 반지름(km)
-//     const dLat = deg2rad(lat2 - lat1);
-//     const dLon = deg2rad(lon1 - lon2);
-//     const a =
-//       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-//       Math.cos(deg2rad(lat1)) *
-//         Math.cos(deg2rad(lat2)) *
-//         Math.sin(dLon / 2) *
-//         Math.sin(dLon / 2);
-//     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//     return R * c; // 거리 (km)
-//   };
-
-//   // 시간 포맷팅 함수 (예: 1.5시간 -> 1시간 30분)
-//   export const formatTime = (hours: number) => {
-//     if (hours <= 0) return "0시간 0분";
-//     const h = Math.floor(hours);
-//     const m = Math.round((hours - h) * 60);
-//     if (h === 0) return `${m}분`;
-//     return `${h}시간 ${m}분`;
-//   };
-
-//   // --- 거리 계산 로직 끝 ---
+// export const getPhotoUrl = (photos) => {
+//   if (photos && photos.length > 0) {
+//     return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photos[0].photo_reference}&key=${GOOGLE_MAPS_API_KEY}`;
+//   }
+//   // 이미지가 없을 때 기본 이미지
+//   return "https://placehold.co/100x100/cccccc/ffffff?text=No+Image";
+// };

@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class EmbassyService {
-
     private final WebClient embassyApiWebClient;
     private final TravelRepository travelRepository;
 
@@ -54,10 +53,8 @@ public class EmbassyService {
     }
 
     public Mono<JsonNode> fetchEmbassyByTravelId(Long travelId) {
-        Travel travel = travelRepository.findById(travelId)
+        String countryCode = travelRepository.findCountryCodeByTravelId(travelId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 여행이 없습니다."));
-
-        String countryCode = travel.getCountryCode();
 
         return fetchEmbassyApiDataCountryCode(countryCode);
     }

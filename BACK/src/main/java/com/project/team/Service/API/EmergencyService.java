@@ -21,7 +21,8 @@ public class EmergencyService {
 
     public Mono<JsonNode> fetchEmergencyApiWebClient(Long travelId) {
 
-        String countryCode = travelRepository.findCountryCodeByTravelId(travelId);
+        String countryCode = travelRepository.findCountryCodeByTravelId(travelId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 여행이 없습니다."));
 
         return emergencyApiWebClient.get()
                 .uri(uriBuilder -> uriBuilder

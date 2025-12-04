@@ -15,6 +15,18 @@ type Props = {
   onFilterChange: (filter: PlaceFilter) => void;
   role: string;
 };
+const getDefaultImageByCategory = (category?: string) => {
+  switch (category) {
+    case "숙소":
+      return "https://placehold.co/100x100/4f46e5/ffffff?text=Hotel";
+    case "음식점":
+      return "https://placehold.co/100x100/f97316/ffffff?text=Food";
+    case "관광지":
+      return "https://placehold.co/100x100/22c55e/ffffff?text=Trip";
+    default:
+      return "https://placehold.co/100x100/cccccc/ffffff?text=No+Image";
+  }
+};
 
 // 왼쪽 사이드 바의 장소 이미지
 const PlaceCard: React.FC<{
@@ -28,13 +40,9 @@ const PlaceCard: React.FC<{
   return (
     <div className="flex gap-4 p-4 border-b hover:bg-gray-50 transition-colors">
       <img
-        src={place.imageUrl}
+        src={getDefaultImageByCategory(place.category)}
         alt={place.name}
         className="w-20 h-20 rounded-lg object-cover shadow-sm"
-        onError={(e) =>
-          (e.currentTarget.src =
-            "https://placehold.co/100x100/cccccc/ffffff?text=No+Image")
-        }
       />
       <div className="flex-1 min-w-0">
         {" "}
@@ -91,7 +99,7 @@ const PlanSidebar: React.FC<Props> = ({
   onFilterChange,
   role,
 }) => {
-  
+
   // hooks 파일에 분리해둔 usePlanPagination 커스텀 훅 사용
   const { visibleDays, hasPrev, hasNext, handlePrev, handleNext } =
     usePlanPagination(days, selectedDay, 5);
@@ -107,7 +115,7 @@ const PlanSidebar: React.FC<Props> = ({
     <div className="flex flex-col h-full">
       {/* 1. 날짜 탭 */}
       <div className="border-b bg-gray-50">
-          <div className="flex">
+        <div className="flex">
           {/* 이전 버튼 (-) */}
           {hasPrev && (
             <button
@@ -124,11 +132,10 @@ const PlanSidebar: React.FC<Props> = ({
             <button
               key={day}
               onClick={() => onSelectDay(day)}
-              className={`flex-1 min-w-[60px] py-3 text-sm font-semibold transition-colors border-b-2 ${
-                selectedDay === day
+              className={`flex-1 min-w-[60px] py-3 text-sm font-semibold transition-colors border-b-2 ${selectedDay === day
                   ? "border-blue-500 text-blue-600 bg-white"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              }`}
+                }`}
             >
               {day}일차
             </button>
@@ -154,11 +161,10 @@ const PlanSidebar: React.FC<Props> = ({
             <button
               key={f.key}
               onClick={() => onFilterChange(f.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-                filter === f.key
+              className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${filter === f.key
                   ? 'bg-gray-800 text-white shadow-md'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
-              }`}
+                }`}
             >
               {f.label}
             </button>
