@@ -43,7 +43,7 @@ jobs:
       - name: Build & Push Backend
         run: |
           BACKEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-backend:latest"
-          docker build --no-cache -t teamproject-backend:latest ./BACK
+          docker build -t teamproject-backend:latest ./BACK
           docker tag teamproject-backend:latest $BACKEND_TAG
           docker push $BACKEND_TAG
 
@@ -52,7 +52,7 @@ jobs:
         run: |
           FRONTEND_TAG="${{ env.AR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.AR_REPO_NAME }}/teamproject-frontend:latest"
           # VITE 환경 변수들을 빌드 시점에 Secret에서 직접 주입합니다.
-          docker build --no-cache \
+          docker build \
             --build-arg VITE_BASE_URL=/api \
             --build-arg VITE_KOSIS_KEY=${{ secrets.VITE_KOSIS_KEY }} \
             --build-arg VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }} \
@@ -80,11 +80,6 @@ jobs:
           echo "BACKEND_CONFIG_SECRET<<EOF_BACKEND" >> $GITHUB_ENV
           echo "${{ secrets.BACKEND_CONFIG_FILE }}" >> $GITHUB_ENV
           echo "EOF_BACKEND" >> $GITHUB_ENV
-          
-          # 2. 프론트엔드 설정 파일 (.env) 복원 (다른 런타임 변수들을 위해)
-          echo "FRONTEND_CONFIG_SECRET<<EOF_FRONTEND" >> $GITHUB_ENV
-          echo "${{ secrets.FRONTEND_CONFIG_FILE }}" >> $GITHUB_ENV
-          echo "EOF_FRONTEND" >> $GITHUB_ENV
 
       # 2. 컨테이너 배포 및 설정 파일 주입
       - name: 🔄 Deploy Containers & Inject Configs via SSH
@@ -106,11 +101,10 @@ jobs:
             echo 'Removing existing containers...'
             docker rm -f frontend-app spring-boot-app mariadb-server;
 
-            # 3. GitHub Secret 내용을 VM의 임시 파일로 생성 (application.properties 및 .env)
+            # 3. GitHub Secret 내용을 VM의 임시 파일로 생성 (application.properties)
             echo 'Creating config files on VM...'
             echo \"${{ env.BACKEND_CONFIG_SECRET }}\" > /tmp/application.properties
-            # .env 파일 생성 복원
-            echo \"${{ env.FRONTEND_CONFIG_SECRET }}\" > /tmp/.env
+
             
             # 4. 새로운 컨테이너 재실행 (DB -> Backend -> Frontend 순서)
             echo 'Starting mariadb-server container...'
@@ -129,7 +123,6 @@ jobs:
             docker run -d --network my-app-network --name frontend-app \
             -p 80:80 \
             -p 443:443 \
-            -v /tmp/.env:/.env \
             -v /etc/letsencrypt:/etc/letsencrypt:ro \
             -v /var/www/certbot:/var/www/certbot:ro \
             ${{ env.FRONTEND_TAG }} ;
